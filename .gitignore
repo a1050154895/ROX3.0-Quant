@@ -29,7 +29,8 @@ ENV/
 env/
 
 # Environment Variables
-.env
+# .env
+# .env.example
 .env.local
 .env.*
 
@@ -53,7 +54,7 @@ Thumbs.db
 logs/
 log.txt
 share.log
-data/
+# data/
 *.db
 *.sqlite3
 *.log
