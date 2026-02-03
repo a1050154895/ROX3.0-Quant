@@ -29,8 +29,8 @@ ENV/
 env/
 
 # Environment Variables
-# .env
-# .env.example
+.env
+.env.example
 .env.local
 .env.*
 
