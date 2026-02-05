@@ -12,6 +12,9 @@ class PricePoint:
     date: str
     close: float
     volume: Optional[float] = None
+    open: Optional[float] = None
+    high: Optional[float] = None
+    low: Optional[float] = None
 
 
 _FX_LAST = {"ts": None, "values": {}}
@@ -74,7 +77,14 @@ class DataProvider:
             local_data = self.data_manager.load_kline(symbol, period="daily", max_age_hours=24)
             if local_data:
                 local_data = local_data[-days:]
-                res = [PricePoint(date=r['date'], close=float(r['close']), volume=float(r['volume']) if r.get('volume') else 0.0) for r in local_data]
+                res = [PricePoint(
+                    date=r['date'], 
+                    close=float(r['close']), 
+                    volume=float(r['volume']) if r.get('volume') else 0.0,
+                    open=float(r['open']) if r.get('open') else float(r['close']),
+                    high=float(r['high']) if r.get('high') else float(r['close']),
+                    low=float(r['low']) if r.get('low') else float(r['close'])
+                ) for r in local_data]
                 self._cache_history[key] = res
                 return res
 
@@ -106,8 +116,15 @@ class DataProvider:
                 })
             self.data_manager.save_kline(symbol, save_data, period="daily")
 
-            records = df.tail(days)[["日期", "收盘", "成交量"]].values.tolist()
-            res = [PricePoint(date=r[0], close=float(r[1]), volume=float(r[2])) for r in records]
+            records = df.tail(days)[["日期", "收盘", "成交量", "开盘", "最高", "最低"]].values.tolist()
+            res = [PricePoint(
+                date=r[0], 
+                close=float(r[1]), 
+                volume=float(r[2]),
+                open=float(r[3]),
+                high=float(r[4]),
+                low=float(r[5])
+            ) for r in records]
             self._cache_history[key] = res
             return res
         except Exception:
@@ -135,7 +152,14 @@ class DataProvider:
             if local_data:
                 if limit:
                     local_data = local_data[-limit:]
-                res = [PricePoint(date=r['date'], close=float(r['close']), volume=float(r['volume']) if r.get('volume') else 0.0) for r in local_data]
+                res = [PricePoint(
+                    date=r['date'], 
+                    close=float(r['close']), 
+                    volume=float(r['volume']) if r.get('volume') else 0.0,
+                    open=float(r['open']) if r.get('open') else float(r['close']),
+                    high=float(r['high']) if r.get('high') else float(r['close']),
+                    low=float(r['low']) if r.get('low') else float(r['close'])
+                ) for r in local_data]
                 self._cache_period[key] = res
                 return res
 
@@ -459,7 +483,15 @@ class DataProvider:
         for i in range(days):
             base += random.uniform(-1.5, 1.5)
             d = today - datetime.timedelta(days=days - i)
-            res.append(PricePoint(date=d.strftime("%Y-%m-%d"), close=round(base, 2), volume=None))
+            c = round(base, 2)
+            res.append(PricePoint(
+                date=d.strftime("%Y-%m-%d"), 
+                close=c, 
+                volume=100000.0,
+                open=c,
+                high=round(c * 1.02, 2),
+                low=round(c * 0.98, 2)
+            ))
         return res
 
     def get_funds_flow_rank(self, indicator: str = "今日", top_n: int = 50):

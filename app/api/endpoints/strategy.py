@@ -16,10 +16,47 @@ from app.quant.engine import QuantEngine
 from app.quant.data_provider import get_data_provider
 from app.strategies import ai_demo
 from app.rox_quant.strategies.ranking_strategy import RankingStrategy
+from app.rox_quant.strategies.jq_10y_52x import JQTenYearFiftyTwoTimes
+from app.rox_quant.strategies.jq_small_cap import JQSmallCap
+from app.rox_quant.strategies.jq_etf_rotation import JQETFRotation
+from app.rox_quant.strategies.jq_dragon import JQDragonTrend
+from app.rox_quant.strategies.book_small_cap_timing import BookSmallCapTiming
+from app.rox_quant.strategies.book_dual_thrust import BookDualThrust
+from app.rox_quant.strategies.book_double_ma import BookDoubleMA
+from app.rox_quant.strategies.book_turtle import BookTurtle
 
 router = APIRouter()
 data_fetcher = DataFetcher()
 logger = logging.getLogger(__name__)
+
+STRATEGY_MAP = {
+    "jq_10y_52x": JQTenYearFiftyTwoTimes,
+    "jq_small_cap": JQSmallCap,
+    "jq_etf_rotation": JQETFRotation,
+    "jq_dragon": JQDragonTrend,
+    "book_small_cap_timing": BookSmallCapTiming,
+    "book_dual_thrust": BookDualThrust,
+    "book_double_ma": BookDoubleMA,
+    "book_turtle": BookTurtle
+}
+
+@router.get("/backtest/strategies")
+async def get_strategies():
+    """
+    List available JoinQuant strategies
+    """
+    return {
+        "strategies": [
+            {"id": "jq_10y_52x", "name": "10年52倍 (ARBR)", "description": "Weekly rebalance based on ARBR sentiment factor"},
+            {"id": "jq_small_cap", "name": "Small Cap Rotation", "description": "Low price/Small cap rotation with trend filter"},
+            {"id": "jq_etf_rotation", "name": "ETF Momentum", "description": "Multi-asset ETF rotation based on R-Squared Momentum"},
+            {"id": "jq_dragon", "name": "Dragon Trend", "description": "Follow stocks with consecutive Limit Ups"},
+            {"id": "book_small_cap_timing", "name": "Small Cap + 2-8 Timing", "description": "A-Share Classic: Small Cap Selection with Index Timing Filter"},
+            {"id": "book_dual_thrust", "name": "Dual Thrust", "description": "Classic CTA: Range Breakout Strategy"},
+            {"id": "book_double_ma", "name": "Double Moving Average", "description": "Classic Trend: Golden Cross / Death Cross"},
+            {"id": "book_turtle", "name": "Turtle Trading", "description": "Classic Trend: Donchian Channel Breakout"}
+        ]
+    }
 
 class PythonExecRequest(BaseModel):
     code: str
@@ -29,6 +66,89 @@ class BacktestRequest(BaseModel):
     start_date: str
     end_date: str
     capital: float = 100000.0
+    stock_pool: Optional[List[str]] = None
+
+@router.post("/backtest/jq_strategy/{strategy_id}")
+async def backtest_jq_strategy(strategy_id: str, req: BacktestRequest):
+    """
+    Generic Backtest for JoinQuant Strategies
+    """
+    if strategy_id not in STRATEGY_MAP:
+        raise HTTPException(status_code=404, detail=f"Strategy {strategy_id} not found")
+        
+    try:
+        StrategyClass = STRATEGY_MAP[strategy_id]
+        # Initialize with custom pool if provided
+        if req.stock_pool:
+            strategy = StrategyClass(stock_pool=req.stock_pool)
+        else:
+            strategy = StrategyClass()
+            
+        results = strategy.run(
+            graph_json="", 
+            start_date=req.start_date, 
+            end_date=req.end_date, 
+            initial_capital=req.capital
+        )
+        return {
+            "status": "success",
+            "strategy": strategy_id,
+            "results": results,
+            "metrics": results.get("metrics", {})
+        }
+    except Exception as e:
+        logger.error(f"JQ Strategy Backtest failed: {e}")
+        return {"status": "error", "error": str(e)}
+
+@router.get("/backtest/jq_strategy/{strategy_id}")
+async def backtest_jq_strategy_get(
+    strategy_id: str,
+    start_date: str = "2024-01-01", 
+    end_date: str = "2024-04-01", 
+    initial_capital: float = 1000000.0,
+    stock_pool: Optional[str] = None # Comma separated
+):
+    """
+    Generic Backtest for JoinQuant Strategies (GET version)
+    """
+    if strategy_id not in STRATEGY_MAP:
+        raise HTTPException(status_code=404, detail=f"Strategy {strategy_id} not found")
+        
+    try:
+        StrategyClass = STRATEGY_MAP[strategy_id]
+        pool_list = stock_pool.split(",") if stock_pool else None
+        
+        if pool_list:
+            strategy = StrategyClass(stock_pool=pool_list)
+        else:
+            strategy = StrategyClass()
+            
+        results = strategy.run(
+            graph_json="", 
+            start_date=start_date, 
+            end_date=end_date, 
+            initial_capital=initial_capital
+        )
+        
+        # Format for frontend compatibility if needed
+        equity_data = []
+        if "equity_curve" in results and "dates" in results:
+            dates = results["dates"]
+            values = results["equity_curve"]
+            min_len = min(len(dates), len(values))
+            for i in range(min_len):
+                equity_data.append({"date": dates[i], "equity": values[i]})
+        
+        return {
+            "summary": f"Strategy {strategy_id} Backtest Complete",
+            "metrics": results.get("metrics", {}),
+            "equity": equity_data,
+            "raw_results": results
+        }
+    except Exception as e:
+        logger.error(f"JQ Strategy Backtest failed: {e}")
+        return {"error": str(e)}
+
 
 @router.post("/backtest/ai_qbot")
 async def backtest_ai_qbot(req: BacktestRequest):

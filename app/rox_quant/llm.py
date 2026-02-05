@@ -22,6 +22,8 @@ def _build_providers() -> Dict[str, Any]:
     """从环境变量构建多后端：default 使用 AI_API_KEY/AI_BASE_URL；其余从 AI_PROVIDERS JSON 或约定 env 读取"""
     from app.core.config import settings
     default_key = getattr(settings, "AI_API_KEY", None) or os.getenv("AI_API_KEY", "").strip()
+    if default_key == "your_ai_api_key_here":
+        default_key = ""
     default_base = getattr(settings, "AI_BASE_URL", None) or os.getenv("AI_BASE_URL", "https://tb.api.mkeai.com").strip()
     default_model = getattr(settings, "AI_DEFAULT_MODEL", None) or os.getenv("AI_DEFAULT_MODEL", "deepseek-chat")
     providers = {
@@ -265,6 +267,11 @@ class AIClient:
         """
         client = self.get_client(provider)
         model = model or self.get_default_model(provider)
+        
+        # Check if client is valid (has key)
+        if not client or not client.api_key or client.api_key == "your_ai_api_key_here":
+            return "请在项目根目录 .env 文件中配置 AI_API_KEY 后启用智能复盘功能。"
+
         prompt = f"""
         请根据以下市场数据生成一份简短的 A 股收盘简报（300字以内）：
         
@@ -280,15 +287,15 @@ class AIClient:
         风格要求：专业、客观、犀利。
         """
         try:
-            if not client:
-                return "请配置 AI_API_KEY 与 AI_BASE_URL 后使用每日简报。"
             response = await client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}]
             )
             return response.choices[0].message.content
-        except Exception:
-            return "市场震荡整理，建议关注核心资产。成交量维持在万亿水平，北向资金流向分化。（AI服务连接超时）"
+        except Exception as e:
+            import traceback
+            print(f"AI Briefing failed: {e}")
+            return f"市场震荡整理，建议关注核心资产。（AI服务暂不可用: {str(e)[:20]}...）"
 
     async def summarize_screen_results(self, items: List[Dict[str, Any]], max_items: int = 30, model: Optional[str] = None, provider: Optional[str] = None) -> str:
         """对选股结果列表做 AI 总结，供条件选股+AI 闭环使用。"""
