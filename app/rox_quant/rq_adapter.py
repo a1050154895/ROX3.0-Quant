@@ -101,7 +101,7 @@ class RQAdapter:
                         if idx >= 0:
                             row = df.iloc[idx]
                             current_prices[symbol] = row['close']
-                    except:
+                    except Exception:
                         pass
             
             # Update Portfolio Value

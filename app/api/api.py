@@ -46,6 +46,14 @@ api_group.include_router(backtest.router)
 # 通达信插件接口
 api_group.include_router(tdx.router, prefix="/tdx", tags=["tdx"])
 
+# 机器学习预测接口 (新添加)
+from app.api.endpoints import ml
+api_group.include_router(ml.router)
+
+# 模拟交易账户 (新添加)
+from app.api.endpoints import portfolio
+api_group.include_router(portfolio.router, prefix="/portfolio", tags=["portfolio"])
+
 # 将API组添加到主路由
 api_router.include_router(api_group)
 

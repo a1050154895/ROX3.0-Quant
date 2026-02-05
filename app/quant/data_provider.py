@@ -2,11 +2,14 @@ import abc
 import ctypes
 import os
 import platform
+import logging
 from typing import Dict, Any, List, Optional
 import random
 import datetime
 from ctypes import byref, POINTER, c_char_p, c_int, cast, c_void_p
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 # Import binding
 from app.quant.emquant_binding import (
@@ -75,7 +78,7 @@ class MockDataProvider(DataProvider):
         }
 
     def subscribe(self, codes: List[str]):
-        print(f"Mock subscribed to {codes}")
+        logger.debug(f"Mock subscribed to {codes}")
 
 class EMQuantDataProvider(DataProvider):
     def __init__(self, dll_path: str = None):
@@ -89,14 +92,14 @@ class EMQuantDataProvider(DataProvider):
         if os.path.exists(dll_path):
             try:
                 self.lib = ctypes.CDLL(dll_path)
-                print(f"Loaded EMQuant library from {dll_path}")
+                logger.info(f"Loaded EMQuant library from {dll_path}")
                 self._setup_functions()
                 self._try_login()
             except Exception as e:
-                print(f"Failed to load EMQuant lib: {e}")
+                logger.warning(f"Failed to load EMQuant lib: {e}")
                 self.lib = None
         else:
-            print(f"EMQuant lib not found at {dll_path}")
+            logger.info(f"EMQuant lib not found at {dll_path}")
 
     def _setup_functions(self):
         # Setup function signatures
@@ -135,10 +138,10 @@ class EMQuantDataProvider(DataProvider):
         # Try to login
         ret = self.lib.start(byref(login_info), b"ForceLogin=1", self.cb_func)
         if ret == EQERR_SUCCESS:
-            print("EMQuant login successful")
+            logger.info("EMQuant login successful")
             self.connected = True
         else:
-            print(f"EMQuant login failed with error code: {ret}")
+            logger.warning(f"EMQuant login failed with error code: {ret}")
 
     def get_history(self, code: str, start_date: str = None, end_date: str = None) -> List[Dict]:
         if not self.connected:
@@ -205,13 +208,13 @@ class EMQuantDataProvider(DataProvider):
                     }
                     result.append(item)
                 except Exception as e:
-                    print(f"Error parsing row {d}: {e}")
+                    logger.error(f"Error parsing row {d}: {e}")
             
             # Release data
             self.lib.releasedata(cast(p_eq_data, c_void_p))
             
         else:
-            print(f"csd failed: {ret}")
+            logger.warning(f"csd failed: {ret}")
             
         return result
 
@@ -244,7 +247,7 @@ class EMQuantDataProvider(DataProvider):
                     res_dict["bid1"] = get_eqvarient_value(values_ptr[5])
                     res_dict["ask1"] = get_eqvarient_value(values_ptr[6])
                 except Exception as e:
-                    print(f"Error parsing snapshot: {e}")
+                    logger.error(f"Error parsing snapshot: {e}")
             
             self.lib.releasedata(cast(p_eq_data, c_void_p))
             
@@ -261,9 +264,9 @@ class AkShareDataProvider(DataProvider):
             os.environ['no_proxy'] = '*'
             import akshare as ak
             self.ak = ak
-            print("Initialized AkShareDataProvider")
+            logger.info("Initialized AkShareDataProvider")
         except ImportError:
-            print("AkShare not installed")
+            logger.warning("AkShare not installed")
             self.ak = None
 
     def get_history(self, code: str, start_date: str = None, end_date: str = None) -> List[Dict]:
@@ -301,7 +304,7 @@ class AkShareDataProvider(DataProvider):
                 })
             return result
         except Exception as e:
-            print(f"AkShare get_history failed: {e}")
+            logger.warning(f"AkShare get_history failed: {e}")
             return []
 
     def get_snapshot(self, code: str) -> Dict:
@@ -352,7 +355,7 @@ class AkShareDataProvider(DataProvider):
                     "ask1": price
                 }
         except Exception as e:
-            print(f"AkShare snapshot fallback failed: {e}")
+            logger.warning(f"AkShare snapshot fallback failed: {e}")
             
         return {}
 
@@ -374,5 +377,5 @@ def get_data_provider(use_mock=False) -> DataProvider:
     if ak_provider.ak:
         return ak_provider
 
-    print("Fallback to MockDataProvider")
+    logger.info("Fallback to MockDataProvider")
     return MockDataProvider()

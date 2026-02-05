@@ -72,6 +72,9 @@ class SignalFusion:
         self.params = params
         self.advanced_signals = None
         self.risk_manager = None
+        self.ml_predictor = None
+        self.adaptive_fusion = None
+        self.feature_engineer = None
         
         try:
             from app.rox_quant.trading_signals_advanced import AdvancedTradingSignals
@@ -87,6 +90,30 @@ class SignalFusion:
             logger.info("✓ 已加载7个核心信号系统")
         except ImportError as e:
             logger.warning(f"高级模块加载失败: {e}，使用基础功能")
+        
+        # 初始化 ML 预测模块
+        try:
+            from app.rox_quant.ml_predictor import MLPredictor
+            from app.rox_quant.adaptive_fusion import AdaptiveSignalFusion
+            from app.rox_quant.feature_engineer import FeatureEngineer
+            from app.rox_quant.market_regime import MarketRegime
+            
+            self.ml_predictor = MLPredictor()
+            self.adaptive_fusion = AdaptiveSignalFusion()
+            self.feature_engineer = FeatureEngineer()
+            self.regime = MarketRegime()
+            
+            # 尝试加载已训练的模型
+            if self.ml_predictor.load():
+                logger.info("✓ ML 预测器已加载")
+            else:
+                logger.info("✓ ML 预测器已初始化 (未训练)")
+            
+            logger.info("✓ 自适应融合器已初始化")
+            logger.info("✓ 市场体制过滤器已初始化")
+        except ImportError as e:
+            logger.warning(f"ML 模块加载失败: {e}")
+            self.regime = None
     
     # ============ 技术指标计算 ============
     
@@ -224,9 +251,19 @@ class SignalFusion:
                 timestamp=pd.Timestamp.now()
             )
         
-        # 使用均等权重
         if weights is None:
             weights = {str(i): 1.0 / len(signals) for i in range(len(signals))}
+        
+        # 【零成本优化】Market Regime Filter
+        # 如果市场处于崩溃(CRASH)或熊市(BEAR)，强制降低买入信号权重或直接 veto
+        regime_veto = False
+        regime_msg = ""
+        if hasattr(self, 'regime') and self.regime:
+             # 注意：这里假设 regime 状态已更新。实际使用中需要在外部调用 regime.analyze()
+             # 或者在这里根据 timestamp 判断是否需要更新 (暂略)
+             if not self.regime.is_safe_to_trade(strategy_type="trend"):
+                 regime_veto = True
+                 regime_msg = f"[市场风险高: {self.regime.regime_type}] "
         
         # 计算加权信号值
         weighted_signal = 0
@@ -236,12 +273,22 @@ class SignalFusion:
         
         for i, signal in enumerate(signals):
             weight = weights.get(str(i), 1.0 / len(signals))
+            
+            # 如果市场环境恶劣，拦截所有买入信号
+            if regime_veto and signal.signal_type.value > 0:
+                logger.debug(f"Market Regime Filtered Buy Signal: {signal.symbol}")
+                continue 
+                
             weighted_signal += signal.signal_type.value * weight * signal.confidence
             total_confidence += signal.confidence * weight
             reasons.append(f"{signal.reason} (conf={signal.confidence:.2%})")
             
             if signal.indicators:
                 indicators.update(signal.indicators)
+        
+        # 如果被 Filter 导致无信号，补全理由
+        if regime_veto and weighted_signal == 0:
+             reasons.append(regime_msg + "交易熔断")
         
         # 判断综合信号
         if weighted_signal > 0.5:

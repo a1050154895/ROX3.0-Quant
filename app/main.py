@@ -1,5 +1,6 @@
 import logging
 import os
+from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -50,6 +51,77 @@ def setup_logging():
 
 logger = setup_logging()
 
+
+# ============ Lifespan 事件管理器 (FastAPI 0.95+ 推荐) ============
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    应用生命周期管理器：使用现代 lifespan 模式替代废弃的 on_event 装饰器
+    FastAPI 0.95+ 推荐使用此模式
+    """
+    # ========== STARTUP ==========
+    logger.info(f"=== ROX Quant 应用启动 (环境: {settings.ENVIRONMENT}) ===")
+    
+    # 打印所有注册的路由
+    logger.info("=" * 80)
+    logger.info(" " * 25 + "REGISTERED ROUTES")
+    logger.info("=" * 80)
+    for route in app.routes:
+        if hasattr(route, "methods"):
+            logger.info(f"Path: {route.path}, Name: {route.name}, Methods: {route.methods}")
+        else:
+            logger.info(f"Path: {route.path}, Name: {route.name}")
+    logger.info("=" * 80)
+    
+    # 初始化数据库
+    try:
+        init_db()
+        logger.info("✓ 数据库初始化完成")
+    except Exception as e:
+        logger.error(f"✗ 数据库初始化失败: {e}")
+        raise
+    
+    # 可选：启动调度器
+    scheduler = None
+    try:
+        from apscheduler.schedulers.asyncio import AsyncIOScheduler
+        scheduler = AsyncIOScheduler()
+        scheduler.start()
+        logger.info("✓ 调度器启动成功")
+    except ImportError:
+        logger.debug("APScheduler未安装，跳过调度器启动")
+    except Exception as e:
+        logger.warning(f"⚠️  调度器启动失败: {e}")
+        
+    # 初始化事件总线和交易监听
+    event_bus = None
+    try:
+        from app.core.event_bus import EventBus
+        from app.api.endpoints.trade import setup_trade_listeners
+        
+        setup_trade_listeners()
+        event_bus = EventBus()
+        await event_bus.start_listening()
+        logger.info("✓ 后端事件总线启动成功")
+    except Exception as e:
+        logger.warning(f"⚠️  事件总线启动失败: {e}")
+    
+    logger.info("✓ 系统启动完毕")
+    
+    yield  # 应用运行中
+    
+    # ========== SHUTDOWN ==========
+    logger.info("=== ROX Quant 应用关闭 ===")
+    
+    # 清理资源
+    if scheduler:
+        try:
+            scheduler.shutdown(wait=False)
+            logger.info("✓ 调度器已关闭")
+        except Exception as e:
+            logger.warning(f"⚠️  调度器关闭失败: {e}")
+
+
 # ============ FastAPI应用初始化 ============
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -57,6 +129,7 @@ app = FastAPI(
     description="ROX Quant 量化投研系统 API：市场数据、个股诊断、交易、知识库、策略回测等。",
     docs_url="/docs" if settings.ENVIRONMENT == "development" else None,
     redoc_url="/redoc" if settings.ENVIRONMENT == "development" else None,
+    lifespan=lifespan,  # 使用现代 lifespan 模式
 )
 
 # ============ 统一错误响应 ============
@@ -65,20 +138,6 @@ register_exception_handlers(app)
 
 # ============ API路由 ============
 app.include_router(api_router)
-
-# ============ 路由诊断 ============
-@app.on_event("startup")
-def print_all_routes():
-    logger.info("="*80)
-    logger.info(" " * 25 + "REGISTERED ROUTES")
-    logger.info("="*80)
-    for route in app.routes:
-        if hasattr(route, "methods"):
-            logger.info(f"Path: {route.path}, Name: {route.name}, Methods: {route.methods}")
-        else:
-            # This handles mounted sub-applications and static files
-            logger.info(f"Path: {route.path}, Name: {route.name}")
-    logger.info("="*80)
 
 # ============ CORS配置 ============
 app.add_middleware(
@@ -100,50 +159,6 @@ if os.path.exists(templates_path):
     templates = Jinja2Templates(directory=templates_path)
 else:
     templates = None
-
-# ============ 启动事件 ============
-@app.on_event("startup")
-async def startup_event():
-    """应用启动时执行"""
-    logger.info(f"=== ROX Quant 应用启动 (环境: {settings.ENVIRONMENT}) ===")
-    
-    # 初始化数据库
-    try:
-        init_db()
-        logger.info("✓ 数据库初始化完成")
-    except Exception as e:
-        logger.error(f"✗ 数据库初始化失败: {e}")
-        raise
-    
-    # 可选：启动调度器
-    try:
-        from apscheduler.schedulers.asyncio import AsyncIOScheduler
-        scheduler = AsyncIOScheduler()
-        scheduler.start()
-        logger.info("✓ 调度器启动成功")
-    except ImportError:
-        logger.debug("APScheduler未安装，跳过调度器启动")
-    except Exception as e:
-        logger.warning(f"⚠️  调度器启动失败: {e}")
-        
-    # 初始化事件总线和交易监听
-    try:
-        from app.core.event_bus import EventBus
-        from app.api.endpoints.trade import setup_trade_listeners
-        
-        setup_trade_listeners()
-        await EventBus().start_listening()
-        logger.info("✓ 后端事件总线启动成功")
-    except Exception as e:
-        logger.warning(f"⚠️  事件总线启动失败: {e}")
-    
-    logger.info("✓ 系统启动完毕")
-
-# ============ 关闭事件 ============
-@app.on_event("shutdown")
-async def shutdown_event():
-    """应用关闭时执行"""
-    logger.info("=== ROX Quant 应用关闭 ===")
 
 # ============ 前端根路由 ============
 @app.get("/", response_class=HTMLResponse)

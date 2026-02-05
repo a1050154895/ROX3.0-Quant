@@ -75,27 +75,34 @@ def xunlongjue_signal(df: pd.DataFrame, code: str = "") -> dict:
 
     # 综合：倍量 + 突破前高 + 涨幅>5% + (涨停或接近) + 昨日未涨停 + 量价配合
     pass_ = beiliang and breakout and x11 and is_zt and prev_not_zt and x27
+    
+    # === 宽松模式 (Loose Mode) ===
+    # 条件：
+    # 1. 突破前高 (必选)
+    # 2. 涨幅 > 3% (放宽到 3%)
+    # 3. 量比 > 0.8 (放宽)
+    # 4. 均线多头 (ma5 > ma10 > ma20)
+    ma5 = MA(c, 5).iloc[-1]
+    ma10 = MA(c, 10).iloc[-1]
+    ma20 = MA(c, 20).iloc[-1]
+    trend_up = (ma5 > ma10) and (ma10 > ma20)
+    
+    pass_loose = breakout and (pct_up > 3.0) and (vol_ratio.iloc[-1] > 0.8) and trend_up
+    
     reason_parts = []
-    if beiliang:
-        reason_parts.append("倍量")
-    if breakout:
-        reason_parts.append("突破前高")
-    if x11:
-        reason_parts.append("涨幅>5%")
-    if is_zt:
-        reason_parts.append("涨停")
-    if not pass_:
-        if not beiliang:
-            reason_parts.append("(缺倍量)")
-        if not breakout:
-            reason_parts.append("(未突破前高)")
-        if not x11:
-            reason_parts.append("(涨幅不足)")
-        if not is_zt:
-            reason_parts.append("(未涨停)")
-        if not x27:
-            reason_parts.append("(量价不符)")
-    reason = " ".join(reason_parts) if reason_parts else ("通过" if pass_ else "不通过")
+    if pass_:
+        reason_parts.append("【寻龙诀】倍量突破涨停")
+    elif pass_loose:
+        reason_parts.append("【强势观察】突破+多头趋势")
+        
+    if not pass_ and not pass_loose:
+        if not beiliang: reason_parts.append("(缺倍量)")
+        if not breakout: reason_parts.append("(未突破前高)")
+        if not x11: reason_parts.append("(涨幅不足)")
+    
+    final_pass = pass_ or pass_loose
+    reason = " ".join(reason_parts) if reason_parts else "不通过"
+    
     detail = {
         "beiliang": bool(beiliang),
         "breakout": breakout,
@@ -103,8 +110,9 @@ def xunlongjue_signal(df: pd.DataFrame, code: str = "") -> dict:
         "is_zt": is_zt,
         "prev_not_zt": prev_not_zt,
         "x27": x27,
+        "mode": "strict" if pass_ else ("loose" if pass_loose else "none")
     }
-    return {"pass": bool(pass_), "reason": reason, "detail": detail}
+    return {"pass": bool(final_pass), "reason": reason, "detail": detail}
 
 
 def screen_codes(df_list_by_code: dict) -> list:

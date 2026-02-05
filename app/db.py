@@ -3,12 +3,14 @@ import sqlite3
 import logging
 from typing import Optional, Generator, List, Dict, Any
 from contextlib import contextmanager
+from queue import Queue, Empty
 import pandas as pd
 import akshare as ak
 import json
 import time
 import threading
 import asyncio
+import atexit
 
 from app.core.config import settings
 
@@ -18,88 +20,204 @@ BASE_DIR = settings.BASE_DIR
 DATA_DIR = settings.DATA_DIR
 DB_PATH = settings.DB_PATH
 
-# ============ 数据库连接管理 ============"""
+
+# ============ 数据库连接管理 ============
 class DatabaseConnectionPool:
-    """简单的SQLite连接池"""
+    """
+    真正的 SQLite 连接池实现
+    
+    特性:
+    - 连接复用：从池中获取连接，用完归还而非关闭
+    - 懒初始化：首次使用时创建连接
+    - 健康检查：归还前验证连接有效性
+    - 优雅关闭：应用退出时关闭所有连接
+    """
     
     def __init__(self, db_path: str, pool_size: int = 5, timeout: int = 30):
         self.db_path = db_path
         self.pool_size = pool_size
         self.timeout = timeout
+        self._pool: Queue = Queue(maxsize=pool_size)
+        self._created_count = 0
+        self._lock = threading.Lock()
+        self._closed = False
+        
+        # 确保数据目录存在
         os.makedirs(os.path.dirname(db_path) or DATA_DIR, exist_ok=True)
         logger.info(f"初始化数据库连接池: {db_path} (大小: {pool_size})")
+        
+        # 注册退出清理
+        atexit.register(self.close_all)
     
-    @contextmanager
-    def get_connection(self) -> Generator[sqlite3.Connection, None, None]:
-        """获取数据库连接"""
-        conn = None
-        try:
-            conn = sqlite3.connect(
-                self.db_path,
-                timeout=self.timeout,
-                check_same_thread=False,
-                isolation_level='DEFERRED'
-            )
-            conn.row_factory = sqlite3.Row
-            
-            conn.execute("PRAGMA foreign_keys=ON")
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA synchronous=NORMAL")
-            conn.execute("PRAGMA cache_size=10000")
-            conn.execute("PRAGMA temp_store=MEMORY")
-            
-            yield conn
-            conn.commit()
-            
-        except sqlite3.OperationalError as e:
-            if conn:
-                conn.rollback()
-            logger.error(f"数据库操作错误: {e}")
-            raise
-        except Exception as e:
-            if conn:
-                conn.rollback()
-            logger.error(f"数据库连接错误: {e}")
-            raise
-        finally:
-            if conn:
-                conn.close()
-
-_db_pool = DatabaseConnectionPool(DB_PATH, pool_size=5, timeout=30)
-
-def get_conn() -> sqlite3.Connection:
-    """获取数据库连接（直接方式）"""
-    try:
-        os.makedirs(DATA_DIR, exist_ok=True)
-        conn = sqlite3.connect(DB_PATH, timeout=30, check_same_thread=False)
+    def _create_connection(self) -> sqlite3.Connection:
+        """创建新的数据库连接"""
+        conn = sqlite3.connect(
+            self.db_path,
+            timeout=self.timeout,
+            check_same_thread=False,
+            isolation_level='DEFERRED'
+        )
         conn.row_factory = sqlite3.Row
+        
+        # 性能优化 PRAGMA
         conn.execute("PRAGMA foreign_keys=ON")
         conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA synchronous=NORMAL")
         conn.execute("PRAGMA cache_size=10000")
+        conn.execute("PRAGMA temp_store=MEMORY")
+        
         return conn
-    except sqlite3.Error as e:
-        logger.error(f"数据库连接失败: {e}")
-        raise
+    
+    def _is_connection_valid(self, conn: sqlite3.Connection) -> bool:
+        """检查连接是否有效"""
+        try:
+            conn.execute("SELECT 1")
+            return True
+        except sqlite3.Error:
+            return False
+    
+    def acquire(self) -> sqlite3.Connection:
+        """从池中获取连接"""
+        if self._closed:
+            raise RuntimeError("连接池已关闭")
+        
+        # 尝试从池中获取
+        try:
+            conn = self._pool.get_nowait()
+            # 验证连接有效性
+            if self._is_connection_valid(conn):
+                return conn
+            else:
+                # 连接失效，关闭并创建新的
+                try:
+                    conn.close()
+                except:
+                    pass
+                with self._lock:
+                    self._created_count -= 1
+        except Empty:
+            pass
+        
+        # 池为空或连接失效，尝试创建新连接
+        with self._lock:
+            if self._created_count < self.pool_size:
+                conn = self._create_connection()
+                self._created_count += 1
+                return conn
+        
+        # 已达最大连接数，阻塞等待
+        try:
+            conn = self._pool.get(timeout=self.timeout)
+            if self._is_connection_valid(conn):
+                return conn
+            else:
+                try:
+                    conn.close()
+                except:
+                    pass
+                with self._lock:
+                    self._created_count -= 1
+                # 递归重试
+                return self.acquire()
+        except Empty:
+            raise TimeoutError(f"获取数据库连接超时 ({self.timeout}s)")
+    
+    def release(self, conn: sqlite3.Connection):
+        """归还连接到池"""
+        if self._closed:
+            try:
+                conn.close()
+            except:
+                pass
+            return
+        
+        try:
+            conn.rollback()  # 清理未提交事务
+            self._pool.put_nowait(conn)
+        except:
+            # 池已满，关闭连接
+            try:
+                conn.close()
+            except:
+                pass
+            with self._lock:
+                self._created_count -= 1
+    
+    @contextmanager
+    def get_connection(self) -> Generator[sqlite3.Connection, None, None]:
+        """上下文管理器：获取连接并自动归还"""
+        conn = self.acquire()
+        try:
+            yield conn
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise
+        finally:
+            self.release(conn)
+    
+    def close_all(self):
+        """关闭池中所有连接"""
+        self._closed = True
+        closed_count = 0
+        while True:
+            try:
+                conn = self._pool.get_nowait()
+                conn.close()
+                closed_count += 1
+            except Empty:
+                break
+            except:
+                pass
+        
+        if closed_count > 0:
+            logger.info(f"已关闭 {closed_count} 个数据库连接")
+    
+    @property
+    def stats(self) -> Dict[str, int]:
+        """连接池统计"""
+        return {
+            "pool_size": self.pool_size,
+            "created": self._created_count,
+            "available": self._pool.qsize()
+        }
+
+
+# 全局连接池实例
+_db_pool = DatabaseConnectionPool(DB_PATH, pool_size=5, timeout=30)
+
+
+def get_conn() -> sqlite3.Connection:
+    """
+    获取数据库连接（直接方式）
+    
+    注意：调用者负责关闭连接，推荐使用 get_db_context() 或 get_db()
+    """
+    return _db_pool.acquire()
+
+
+def release_conn(conn: sqlite3.Connection):
+    """归还数据库连接"""
+    _db_pool.release(conn)
+
 
 def get_db() -> Generator[sqlite3.Connection, None, None]:
     """FastAPI依赖注入：为每个请求提供数据库连接"""
     with _db_pool.get_connection() as conn:
         yield conn
 
+
 @contextmanager
 def get_db_context() -> Generator[sqlite3.Connection, None, None]:
     """上下文管理器：自动处理连接和事务"""
-    conn = get_conn()
-    try:
+    with _db_pool.get_connection() as conn:
         yield conn
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        logger.error(f"数据库事务回滚: {e}")
-        raise
-    finally:
-        conn.close()
+
+
+def get_pool_stats() -> Dict[str, int]:
+    """获取连接池统计信息"""
+    return _db_pool.stats
+
 
 def ensure_schema(conn: sqlite3.Connection):
     # Auth, Core, Trading, and other tables
@@ -140,6 +258,36 @@ def ensure_schema(conn: sqlite3.Connection):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(user_id) REFERENCES users(id),
             UNIQUE(user_id, type)
+        )
+        """
+    )
+    # 扩展 accounts 表
+    try:
+        cur = conn.execute("PRAGMA table_info(accounts)")
+        cols = [r[1] for r in cur.fetchall()]
+        if "total_assets" not in cols:
+            conn.execute("ALTER TABLE accounts ADD COLUMN total_assets REAL DEFAULT 100000.0")
+        if "day_pnl" not in cols:
+            conn.execute("ALTER TABLE accounts ADD COLUMN day_pnl REAL DEFAULT 0.0")
+    except Exception:
+        pass
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS positions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            account_id INTEGER,
+            symbol TEXT NOT NULL,
+            name TEXT,
+            quantity INTEGER NOT NULL,
+            average_cost REAL NOT NULL,
+            current_price REAL,
+            market_value REAL,
+            unrealized_pnl REAL,
+            unrealized_pnl_pct REAL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(account_id) REFERENCES accounts(id),
+            UNIQUE(account_id, symbol)
         )
         """
     )
@@ -597,22 +745,72 @@ def save_prompt_template(conn: sqlite3.Connection, user_id: int, name: str, key:
 
 # --- Market Data Helper Functions (Wrappers for AkShare) ---
 
-# 瘦身：行情缓存 TTL（秒）与内存中最多保留条数，避免囤积过多
-SPOT_CACHE_TTL = 45
-SPOT_CACHE_MAX_ROWS = 3000  # 满足 API limit≤2000 即可，多留余量
+# 使用统一的 TTLCache 替代手动缓存实现
+from app.cache_utils import TTLCache
 
-_spot_cache = {
-    "data": pd.DataFrame(),
-    "time": 0
-}
+# 行情缓存配置
+SPOT_CACHE_TTL = 45  # 秒
+SPOT_CACHE_MAX_ROWS = 3000  # 最大行数限制
+
+# 使用 TTLCache 实现行情缓存
+_spot_ttl_cache = TTLCache(ttl=SPOT_CACHE_TTL, max_entries=1, name="spot_data")
 _spot_lock = threading.Lock()
+
+
+# ========== 兼容层 ==========
+# 保留旧的 _spot_cache 字典接口，以兼容 market.py 和 system.py
+class _SpotCacheCompat(dict):
+    """
+    兼容层：让旧代码可以通过 _spot_cache["data"] 和 _spot_cache["time"] 访问缓存
+    实际数据存储在 _spot_ttl_cache 中
+    """
+    def __getitem__(self, key):
+        if key == "data":
+            cached = _spot_ttl_cache.get("all_stocks_spot")
+            return cached if cached is not None else pd.DataFrame()
+        elif key == "time":
+            entry = _spot_ttl_cache.cache.get("all_stocks_spot")
+            if entry:
+                return entry.get("timestamp", 0)
+            return 0
+        return super().__getitem__(key)
+    
+    def __setitem__(self, key, value):
+        if key == "data":
+            _spot_ttl_cache.set("all_stocks_spot", value)
+        elif key == "time":
+            # 时间戳由 TTLCache 自动管理，忽略外部设置
+            pass
+        else:
+            super().__setitem__(key, value)
+    
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+
+# 向后兼容：旧代码可以继续使用 _spot_cache
+_spot_cache = _SpotCacheCompat()
+
 
 def clear_spot_cache():
     """释放行情缓存，供系统「清理缓存」使用"""
-    global _spot_cache
-    with _spot_lock:
-        _spot_cache["data"] = pd.DataFrame()
-        _spot_cache["time"] = 0
+    _spot_ttl_cache.clear()
+    logger.info("行情缓存已清理")
+
+
+def _get_cached_spot():
+    """从缓存获取行情数据"""
+    return _spot_ttl_cache.get("all_stocks_spot")
+
+
+def _set_cached_spot(df: pd.DataFrame):
+    """设置行情缓存"""
+    _spot_ttl_cache.set("all_stocks_spot", df)
+
+
 
 def get_realtime_quotes_sina(stock_codes: Optional[List[str]] = None) -> pd.DataFrame:
     """
@@ -697,37 +895,46 @@ def get_realtime_quotes_sina(stock_codes: Optional[List[str]] = None) -> pd.Data
 
 
 async def get_all_stocks_spot():
-    global _spot_cache
-    current_time = time.time()
+    """
+    获取所有 A 股实时行情数据
     
-    # Return cached data if valid (TTL 内)
-    if not _spot_cache["data"].empty and (current_time - _spot_cache["time"] < SPOT_CACHE_TTL):
-        return _spot_cache["data"]
-        
+    数据源优先级:
+    1. TTLCache 缓存 (45秒TTL)
+    2. AkShare stock_zh_a_spot_em
+    3. 新浪财经 (通过静态列表)
+    4. 静态 CSV 文件
+    """
+    # 1. 尝试从缓存获取
+    cached = _get_cached_spot()
+    if cached is not None and not cached.empty:
+        return cached
+    
+    # 防止并发请求
+    if _spot_lock.locked():
+        await asyncio.sleep(1)
+        cached = _get_cached_spot()
+        if cached is not None and not cached.empty:
+            return cached
+
     loop = asyncio.get_event_loop()
     df = pd.DataFrame()
     
-    # Use lock to prevent multiple concurrent fetches
-    if _spot_lock.locked():
-         # If locked, wait briefly and check cache again
-         await asyncio.sleep(1)
-         if not _spot_cache["data"].empty:
-             return _spot_cache["data"]
-
     try:
-        # 尝试从 AkShare 获取实时数据
-        df = await asyncio.wait_for(loop.run_in_executor(None, ak.stock_zh_a_spot_em), timeout=10.0)
+        # 2. 尝试从 AkShare 获取实时数据
+        from app.utils.akshare_wrapper import async_ak_call
+        df = await async_ak_call(
+            lambda: ak.stock_zh_a_spot_em(),
+            timeout=30.0,
+            name="spot_em"
+        )
         if df is None or df.empty:
-            raise ValueError("AkShare stock_zh_a_spot_em returned empty or None.")
+            raise ValueError("AkShare stock_zh_a_spot_em returned empty.")
         logger.info("Successfully fetched spot data from AkShare.")
+        
     except Exception as e:
         logger.warning(f"AkShare spot fetch error: {e}. Falling back to Sina.")
         try:
-            # AkShare 失败，尝试从新浪获取
-            # 首先获取所有股票代码，以便向Sina请求
-            # 这里我们不再依赖 AkShare 获取股票列表，而是直接从静态文件加载，
-            # 因为 AkShare 本身可能不稳定，导致获取股票列表也失败。
-            # 静态文件作为最稳定的股票列表来源。
+            # 3. AkShare 失败，尝试从新浪获取
             _base = os.path.dirname(os.path.abspath(__file__))
             _csv_path = os.path.join(_base, "static", "stock_list.csv")
             static_df = pd.read_csv(_csv_path, dtype=str)
@@ -736,35 +943,35 @@ async def get_all_stocks_spot():
             
             stock_codes = static_df['代码'].tolist()
             
-            # 使用线程池并行获取Sina数据
+            # 使用线程池并行获取 Sina 数据
             def fetch_sina_batch(codes_batch):
                 return get_realtime_quotes_sina(codes_batch)
 
-            batch_size = 500 # 每次处理的股票数量
+            batch_size = 500
             batches = [stock_codes[i:i + batch_size] for i in range(0, len(stock_codes), batch_size)]
-            
-            # 使用 asyncio.gather 和 loop.run_in_executor 来并行执行同步函数
             tasks = [loop.run_in_executor(None, fetch_sina_batch, batch) for batch in batches]
             results = await asyncio.gather(*tasks)
             
             df = pd.concat(results, ignore_index=True) if results else pd.DataFrame()
 
             if df is None or df.empty:
-                raise ValueError("Sina real-time quotes returned empty or None.")
+                raise ValueError("Sina real-time quotes returned empty.")
             logger.info("Successfully fetched spot data from Sina.")
-        except Exception as e_sina:
-            logger.error(f"Sina spot fetch error: {e_sina}. Falling back to static list.")
-            # Sina 也失败，尝试返回旧缓存
-            if not _spot_cache["data"].empty:
-                logger.warning("Returning old cached data due to fetch failures.")
-                return _spot_cache["data"]
             
-            # 最后 fallback 到静态 CSV
+        except Exception as e_sina:
+            logger.error(f"Sina spot fetch error: {e_sina}. Falling back to cache/static.")
+            
+            # 尝试返回过期缓存
+            cached = _get_cached_spot()
+            if cached is not None and not cached.empty:
+                logger.warning("Returning expired cached data due to fetch failures.")
+                return cached
+            
+            # 4. 最后 fallback 到静态 CSV
             try:
                 _base = os.path.dirname(os.path.abspath(__file__))
                 _csv_path = os.path.join(_base, "static", "stock_list.csv")
                 df = pd.read_csv(_csv_path, dtype=str)
-                # 静态文件可能缺少实时数据中的列，补充常用列
                 if '涨跌幅' not in df.columns:
                     df['涨跌幅'] = 0.0
                 if '最新价' not in df.columns:
@@ -774,17 +981,20 @@ async def get_all_stocks_spot():
                 logger.error(f"Static stock list read error: {e_csv}. Returning empty DataFrame.")
                 return pd.DataFrame()
 
+    # 更新缓存
     if not df.empty:
-        # 瘦身：内存中只保留前 SPOT_CACHE_MAX_ROWS 条（按涨跌幅排序后），减少占用
+        # 瘦身：内存中只保留前 SPOT_CACHE_MAX_ROWS 条
         pct_col = next((c for c in df.columns if "涨跌幅" in c), None)
         if pct_col is not None and len(df) > SPOT_CACHE_MAX_ROWS:
             df = df.copy()
             df[pct_col] = pd.to_numeric(df[pct_col], errors="coerce").fillna(0)
             df = df.sort_values(by=pct_col, ascending=False).head(SPOT_CACHE_MAX_ROWS)
+        
         with _spot_lock:
-            _spot_cache["data"] = df
-            _spot_cache["time"] = time.time()
+            _set_cached_spot(df)
+    
     return df
+
 
 async def get_market_rankings():
     # Mock or Real
@@ -871,7 +1081,7 @@ async def get_latest_news():
                 news.append(item)
         
     except Exception as e:
-        print(f"News fetch error: {e}")
+        logger.error(f"News fetch error: {e}")
     return news[:50]
 
 async def get_north_fund():

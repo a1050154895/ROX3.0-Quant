@@ -1,8 +1,11 @@
 import akshare as ak
 import pandas as pd
 import asyncio
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from app.utils.ashare_fallback import get_daily_kline_ashare
+
+logger = logging.getLogger(__name__)
 
 class DataFetcher:
     def __init__(self):
@@ -25,13 +28,15 @@ class DataFetcher:
         def fetch():
             try:
                 # adjust="qfq" 前复权
-                df = ak.stock_zh_a_hist(
+                # adjust="qfq" 前复权
+                from app.utils.akshare_wrapper import safe_ak_call
+                df = safe_ak_call(lambda: ak.stock_zh_a_hist(
                     symbol=symbol, 
                     period="daily", 
                     start_date=start_dt_str, 
                     end_date=end_dt_str, 
                     adjust="qfq"
-                )
+                ), max_retries=3, timeout=10.0, name=f"hist_{symbol}")
                 if df is None or df.empty:
                     raise ValueError("AkShare returned empty")
                 
@@ -52,7 +57,7 @@ class DataFetcher:
                 required_cols = ['date', 'open', 'high', 'low', 'close', 'volume']
                 return df[required_cols]
             except Exception as e:
-                print(f"AkShare fetching data for {symbol} failed: {e}, trying fallback...")
+                logger.warning(f"AkShare fetching data for {symbol} failed: {e}, trying fallback...")
                 try:
                     # Fallback to Sina (Ashare)
                     # Note: get_daily_kline_ashare returns columns: date, open, close, high, low, volume
@@ -64,11 +69,11 @@ class DataFetcher:
                         df_fb = df_fb.loc[mask]
                         return df_fb[['date', 'open', 'high', 'low', 'close', 'volume']]
                 except Exception as e2:
-                    print(f"Fallback fetch failed for {symbol}: {e2}")
+                    logger.warning(f"Fallback fetch failed for {symbol}: {e2}")
                 
                 # Final Fallback: Synthetic Data (to prevent empty screens)
                 # Only for specific "demo" stocks or if we want to ensure system stability
-                print(f"Generating synthetic data for {symbol}")
+                logger.info(f"Generating synthetic data for {symbol}")
                 return self._generate_synthetic_data(symbol, start_date, end_date)
 
         return await loop.run_in_executor(self.executor, fetch)
@@ -144,5 +149,5 @@ class DataFetcher:
 
             return df
         except Exception as e:
-            print(f"Synthetic data generation failed: {e}")
+            logger.error(f"Synthetic data generation failed: {e}")
             return pd.DataFrame()

@@ -61,3 +61,5 @@ share.log
 .pytest_cache/
 
 # Large files (>100MB)
+/data/docs.db
+/data/docs.db*

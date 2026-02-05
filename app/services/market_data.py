@@ -92,7 +92,8 @@ async def get_market_stats_data():
         try:
             total_volume = df_spot['成交额'].sum()
             total_volume_str = f"{total_volume/100000000:.0f}亿"
-        except: pass
+        except Exception:
+            pass
     else:
         # Fallback stats
         import random
@@ -126,7 +127,7 @@ async def get_market_stats_data():
                     raise ValueError("Zero value from API")
                     
                 north_val = f"{val_yi:.2f}亿"
-        except:
+        except Exception:
             # Mock North
             import random
             north_val = f"{(random.random()-0.4)*50:.2f}亿"
@@ -147,12 +148,13 @@ async def get_market_stats_data():
                             if '亿' in s: v = float(s.replace('亿','')) * 100000000
                             elif '万' in s: v = float(s.replace('万','')) * 10000
                             else: v = float(s)
-                        except: pass
+                        except (ValueError, TypeError):
+                            pass
                         total_main += v
                     main_val = f"{total_main/100000000:.2f}亿"
             else:
                  raise Exception("Empty sector data")
-        except:
+        except Exception:
             # Mock Main
             import random
             main_val = f"{(random.random()-0.6)*100:.2f}亿"
@@ -198,7 +200,8 @@ async def get_real_market_sentiment():
                 elif '万' in s: v = float(s.replace('万','')) * 10000
                 else: v = float(s)
                 return v
-            except: return 0.0
+            except (ValueError, TypeError):
+                return 0.0
 
         # Columns: '今日主力净流入-净额', '今日小单净流入-净额' (Retail)
         # Note: '净额' is Net Inflow. Positive = In, Negative = Out.

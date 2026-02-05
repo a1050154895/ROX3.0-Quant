@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="zh" class="dark">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -15,14 +16,14 @@
             });
         }
     </script>
-    
+
     <!-- Localized Libraries (Fallback to CDN) -->
     <script src="/static/js/libs/tailwindcss.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script type="module" src="/static/js/libs/html2canvas.min.js"></script>
     <script type="module" src="/static/js/libs/jspdf.umd.min.js"></script>
     <link href="/static/css/all.min.css" rel="stylesheet">
-    
+
     <!-- Config & Styles -->
     <script>
         tailwind.config = {
@@ -61,7 +62,13 @@
         }
     </script>
     <style>
-        :root { --rox-primary: #38bdf8; --rox-bg: #0b1221; --rox-up: #ff4d4f; --rox-down: #00b578; }
+        :root {
+            --rox-primary: #38bdf8;
+            --rox-bg: #0b1221;
+            --rox-up: #ff4d4f;
+            --rox-down: #00b578;
+        }
+
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
         body {
@@ -72,30 +79,61 @@
             user-select: none;
             -webkit-font-smoothing: antialiased;
         }
-        
-        .font-mono, .text-up, .text-down, .trade-table td, .price-font {
+
+        .font-mono,
+        .text-up,
+        .text-down,
+        .trade-table td,
+        .price-font {
             font-family: 'JetBrains Mono', monospace !important;
             font-feature-settings: "tnum" on, "zero" on;
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
 
         /* Utilities */
-        .border-trade { border-color: rgba(255,255,255,0.08); }
-        .text-up { color: var(--rox-up); }
-        .text-down { color: var(--rox-down); }
-        .bg-up-dim { background-color: rgba(255, 77, 79, 0.1); }
-        .bg-down-dim { background-color: rgba(0, 181, 120, 0.1); }
-        
+        .border-trade {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .text-up {
+            color: var(--rox-up);
+        }
+
+        .text-down {
+            color: var(--rox-down);
+        }
+
+        .bg-up-dim {
+            background-color: rgba(255, 77, 79, 0.1);
+        }
+
+        .bg-down-dim {
+            background-color: rgba(0, 181, 120, 0.1);
+        }
+
         /* Glass Effect */
         .glass {
             background: rgba(21, 30, 50, 0.7);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* Modern Tabs */
@@ -108,7 +146,11 @@
             border-bottom: 2px solid transparent;
             font-weight: 500;
         }
-        .tab-btn:hover { color: #cbd5e1; }
+
+        .tab-btn:hover {
+            color: #cbd5e1;
+        }
+
         .tab-btn.active {
             color: #38bdf8;
             border-bottom-color: #38bdf8;
@@ -116,14 +158,15 @@
         }
 
         /* Table Styles */
-        .trade-table th { 
-            font-weight: 500; 
-            color: #64748b; 
-            font-size: 11px; 
-            padding: 6px 8px; 
+        .trade-table th {
+            font-weight: 500;
+            color: #64748b;
+            font-size: 11px;
+            padding: 6px 8px;
             text-align: right;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
+
         .trade-table td {
             font-size: 12px;
             padding: 4px 8px;
@@ -131,99 +174,171 @@
             cursor: default;
             color: #e2e8f0;
         }
-        .trade-table tr:hover { background-color: rgba(255,255,255,0.03); }
-        .trade-table td:first-child { text-align: left; }
-        
+
+        .trade-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .trade-table td:first-child {
+            text-align: left;
+        }
+
         /* Inputs */
         input {
-            background: rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: #f1f5f9;
             font-family: 'JetBrains Mono', monospace;
             transition: all 0.2s;
         }
-        input:focus { 
-            outline: none; 
-            border-color: #38bdf8; 
-            background: rgba(0,0,0,0.4);
+
+        input:focus {
+            outline: none;
+            border-color: #38bdf8;
+            background: rgba(0, 0, 0, 0.4);
             box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.1);
         }
 
         /* Animations */
-        @keyframes flash-up { 0% { background: rgba(255, 77, 79, 0.4); } 100% { background: transparent; } }
-        @keyframes flash-down { 0% { background: rgba(0, 181, 120, 0.4); } 100% { background: transparent; } }
-        .flash-up { animation: flash-up 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .flash-down { animation: flash-down 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes flash-up {
+            0% {
+                background: rgba(255, 77, 79, 0.4);
+            }
+
+            100% {
+                background: transparent;
+            }
+        }
+
+        @keyframes flash-down {
+            0% {
+                background: rgba(0, 181, 120, 0.4);
+            }
+
+            100% {
+                background: transparent;
+            }
+        }
+
+        .flash-up {
+            animation: flash-up 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flash-down {
+            animation: flash-down 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
         /* Compact Mode Overrides */
-        body.compact .trade-table td { padding: 2px 4px; font-size: 11px; }
-        body.compact .tab-btn { padding: 4px 8px; font-size: 11px; }
+        body.compact .trade-table td {
+            padding: 2px 4px;
+            font-size: 11px;
+        }
+
+        body.compact .tab-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+
+        /* Skeleton Loading Animation */
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .skeleton-text {
+            background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 2px;
+        }
     </style>
 </head>
+
 <body class="flex flex-col h-screen w-screen text-sm">
 
     <!-- TOP TOOLBAR -->
-    <header class="h-10 bg-slate-900/50 backdrop-blur-md border-b border-trade flex items-center justify-between px-3 shrink-0 select-none z-20">
+    <header
+        class="h-10 bg-slate-900/50 backdrop-blur-md border-b border-trade flex items-center justify-between px-3 shrink-0 select-none z-20">
         <div class="flex items-center gap-6">
             <div class="flex items-center gap-2">
                 <div class="flex items-center gap-2 text-trade-highlight font-bold text-lg tracking-tight">
                     <i class="fas fa-layer-group text-sky-500"></i>
-                    <span class="bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">ROX 3.0</span>
+                    <span class="bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">ROX
+                        3.0</span>
                 </div>
-                <a href="/" class="ml-6 px-5 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-lg text-sm font-bold transition-all flex items-center gap-2 border border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:shadow-[0_0_25px_rgba(245,158,11,0.6)] transform hover:scale-105" title="返回看板">
+                <a href="/"
+                    class="ml-6 px-5 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-lg text-sm font-bold transition-all flex items-center gap-2 border border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:shadow-[0_0_25px_rgba(245,158,11,0.6)] transform hover:scale-105"
+                    title="返回看板">
                     <i class="fas fa-home text-lg"></i> 返回 1.0 首页
                 </a>
             </div>
-            
+
             <!-- Desktop Nav -->
             <nav class="hidden md:flex items-center gap-1 text-xs font-medium text-slate-400">
-                <a href="/map" target="_blank" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-emerald-400 transition-all flex items-center gap-2">
+                <a href="/map" target="_blank"
+                    class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-emerald-400 transition-all flex items-center gap-2">
                     <i class="fas fa-th-large"></i> 市场热力
                 </a>
-                <button onclick="toggleAIAgent()" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-purple-400 transition-all flex items-center gap-2">
+                <button onclick="toggleAIAgent()"
+                    class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-purple-400 transition-all flex items-center gap-2">
                     <i class="fas fa-robot"></i> AI投研
                 </button>
-                <button onclick="runAIBacktest()" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-sky-400 transition-all flex items-center gap-2">
+                <button onclick="runAIBacktest()"
+                    class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-sky-400 transition-all flex items-center gap-2">
                     <i class="fas fa-chart-line"></i> 策略工场
                 </button>
-                <button onclick="openProfessionalWindow()" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-indigo-400 transition-all flex items-center gap-2">
+                <button onclick="openProfessionalWindow()"
+                    class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-indigo-400 transition-all flex items-center gap-2">
                     <i class="fas fa-microscope"></i> 深度分析
                 </button>
                 <div class="h-4 w-[1px] bg-slate-700 mx-1"></div>
-                <button onclick="openPythonSandbox()" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-green-400 transition-all" title="Python沙箱">
+                <button onclick="openPythonSandbox()"
+                    class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-green-400 transition-all" title="Python沙箱">
                     <i class="fas fa-code"></i>
                 </button>
-                <button onclick="openNewsCenter()" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-blue-400 transition-all" title="消息">
+                <button onclick="openNewsCenter()"
+                    class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-blue-400 transition-all" title="消息">
                     <i class="fas fa-bell"></i>
                 </button>
-                <button onclick="openAlerts()" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-orange-400 transition-all" title="预警">
+                <button onclick="openAlerts()"
+                    class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-orange-400 transition-all" title="预警">
                     <i class="fas fa-bolt"></i>
                 </button>
-                <button onclick="openContradictions()" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-yellow-400 transition-all" title="矛盾扫描">
+                <button onclick="openContradictions()"
+                    class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-yellow-400 transition-all" title="矛盾扫描">
                     <i class="fas fa-search"></i>
                 </button>
-                <button id="settings-btn" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-slate-200 transition-all" title="设置">
+                <button id="settings-btn"
+                    class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-slate-200 transition-all" title="设置">
                     <i class="fas fa-cog"></i>
                 </button>
             </nav>
         </div>
-        
-        <!-- Market Indices -->
-        <div class="hidden md:flex items-center gap-6 text-xs font-mono">
-            <div class="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-default">
+
+        <!-- Market Indices (Dynamic) -->
+        <div id="header-indices" class="hidden md:flex items-center gap-6 text-xs font-mono">
+            <div class="index-item flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-default"
+                data-index="sh">
                 <span class="text-slate-500 font-sans scale-90">上证</span>
-                <span class="text-up font-bold">3050.12</span>
-                <span class="text-up bg-up-dim px-1 rounded text-[10px]">+0.5%</span>
+                <span class="index-price text-slate-400 font-bold skeleton-text">----</span>
+                <span class="index-pct text-slate-500 bg-slate-800 px-1 rounded text-[10px]">--%</span>
             </div>
-            <div class="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-default">
+            <div class="index-item flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-default"
+                data-index="sz">
                 <span class="text-slate-500 font-sans scale-90">深证</span>
-                <span class="text-down font-bold">10120.55</span>
-                <span class="text-down bg-down-dim px-1 rounded text-[10px]">-0.2%</span>
+                <span class="index-price text-slate-400 font-bold skeleton-text">----</span>
+                <span class="index-pct text-slate-500 bg-slate-800 px-1 rounded text-[10px]">--%</span>
             </div>
-            <div class="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-default">
+            <div class="index-item flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-default"
+                data-index="cyb">
                 <span class="text-slate-500 font-sans scale-90">创业</span>
-                <span class="text-up font-bold">2100.33</span>
-                <span class="text-up bg-up-dim px-1 rounded text-[10px]">+1.2%</span>
+                <span class="index-price text-slate-400 font-bold skeleton-text">----</span>
+                <span class="index-pct text-slate-500 bg-slate-800 px-1 rounded text-[10px]">--%</span>
             </div>
         </div>
 
@@ -234,9 +349,12 @@
     </header>
 
     <!-- KEYBOARD COMMANDER (Hidden by default) -->
-    <div id="keyboard-commander" class="hidden fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-[400px] bg-[#1a1a1a] border border-yellow-500 shadow-2xl rounded-sm">
+    <div id="keyboard-commander"
+        class="hidden fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-[400px] bg-[#1a1a1a] border border-yellow-500 shadow-2xl rounded-sm">
         <div class="p-2 border-b border-[#333]">
-            <input id="commander-input" type="text" class="w-full bg-black text-yellow-500 font-mono text-lg px-2 py-1 outline-none border-none uppercase" placeholder="输入代码/拼音..." autocomplete="off">
+            <input id="commander-input" type="text"
+                class="w-full bg-black text-yellow-500 font-mono text-lg px-2 py-1 outline-none border-none uppercase"
+                placeholder="输入代码/拼音..." autocomplete="off">
         </div>
         <div id="commander-results" class="max-h-[300px] overflow-y-auto bg-[#121212]">
             <!-- Results populated by JS -->
@@ -255,7 +373,7 @@
 
     <!-- MAIN WORKSPACE (3-Pane Layout) -->
     <div class="flex-1 grid grid-cols-[260px_1fr_280px] overflow-hidden">
-        
+
         <!-- LEFT PANE: 自选股 | 涨跌排行 -->
         <aside class="flex flex-col border-r border-trade bg-slate-850/50 h-full overflow-hidden">
             <!-- Tabs -->
@@ -268,7 +386,8 @@
             </div>
 
             <!-- Table Header (仅涨跌排行显示) -->
-            <div id="left-rankings-header" class="grid grid-cols-[1fr_80px_60px] px-3 py-2 bg-slate-900/50 text-xs text-slate-500 font-medium border-b border-trade">
+            <div id="left-rankings-header"
+                class="grid grid-cols-[1fr_80px_60px] px-3 py-2 bg-slate-900/50 text-xs text-slate-500 font-medium border-b border-trade">
                 <span>代码/名称</span>
                 <span class="text-right">最新</span>
                 <span class="text-right">涨幅</span>
@@ -294,7 +413,8 @@
 
             <!-- 技能说明 -->
             <div id="skills-container" class="flex-1 overflow-y-auto bg-slate-900/30 min-h-0 hidden p-3 space-y-3">
-                <p class="text-xxs text-slate-500 mb-2 border-l-2 border-sky-500 pl-2">点击「显示」调取该技能参与分析/图表，点击「隐藏」则关闭。状态会保存。</p>
+                <p class="text-xxs text-slate-500 mb-2 border-l-2 border-sky-500 pl-2">
+                    点击「显示」调取该技能参与分析/图表，点击「隐藏」则关闭。状态会保存。</p>
                 <div id="skills-list" class="space-y-2">
                     <!-- 由 JS 根据 ROX_SKILLS 渲染 -->
                 </div>
@@ -304,7 +424,9 @@
             <div class="p-2 border-t border-trade bg-slate-900">
                 <div class="relative">
                     <i class="fas fa-search absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                    <input id="stock-search-input" type="text" placeholder="代码/拼音 (Enter搜索)" class="w-full text-xs pl-7 pr-2 py-1.5 rounded-md bg-slate-800 border-none focus:ring-1 focus:ring-sky-500" onkeydown="if(event.key==='Enter') searchStock()">
+                    <input id="stock-search-input" type="text" placeholder="代码/拼音 (Enter搜索)"
+                        class="w-full text-xs pl-7 pr-2 py-1.5 rounded-md bg-slate-800 border-none focus:ring-1 focus:ring-sky-500"
+                        onkeydown="if(event.key==='Enter') searchStock()">
                 </div>
             </div>
         </aside>
@@ -312,11 +434,13 @@
         <!-- CENTER PANE: Charts -->
         <main class="flex flex-col bg-slate-900 relative">
             <!-- Info Header -->
-            <div class="h-12 border-b border-trade flex items-center justify-between px-4 bg-slate-900/50 backdrop-blur-sm">
+            <div
+                class="h-12 border-b border-trade flex items-center justify-between px-4 bg-slate-900/50 backdrop-blur-sm">
                 <div class="flex items-center gap-4">
                     <div>
                         <h1 id="stock-name-header" class="text-xl font-bold text-slate-100 tracking-wide">贵州茅台</h1>
-                        <span id="stock-code-header" class="text-xs font-mono text-slate-500 bg-slate-800 px-1 rounded">600519</span>
+                        <span id="stock-code-header"
+                            class="text-xs font-mono text-slate-500 bg-slate-800 px-1 rounded">600519</span>
                     </div>
                     <div class="flex flex-col items-start pl-4 border-l border-trade h-8 justify-center">
                         <span class="text-2xl font-mono font-bold text-up price-font">1750.00</span>
@@ -349,27 +473,37 @@
             <!-- Chart Toolbar -->
             <div class="h-8 flex items-center px-2 bg-slate-850/30 border-b border-trade gap-1">
                 <div class="flex bg-slate-800 rounded p-0.5">
-                    <button class="text-xs px-3 py-0.5 rounded hover:bg-slate-700 text-slate-300 transition-colors" data-period="1min">分时</button>
-                    <button class="text-xs px-3 py-0.5 rounded bg-slate-700 text-sky-400 shadow-sm transition-colors" data-period="daily">日线</button>
-                    <button class="text-xs px-3 py-0.5 rounded hover:bg-slate-700 text-slate-300 transition-colors" data-period="weekly">周线</button>
-                    <button class="text-xs px-3 py-0.5 rounded hover:bg-slate-700 text-slate-300 transition-colors" data-period="monthly">月线</button>
+                    <button class="text-xs px-3 py-0.5 rounded hover:bg-slate-700 text-slate-300 transition-colors"
+                        data-period="1min">分时</button>
+                    <button class="text-xs px-3 py-0.5 rounded bg-slate-700 text-sky-400 shadow-sm transition-colors"
+                        data-period="daily">日线</button>
+                    <button class="text-xs px-3 py-0.5 rounded hover:bg-slate-700 text-slate-300 transition-colors"
+                        data-period="weekly">周线</button>
+                    <button class="text-xs px-3 py-0.5 rounded hover:bg-slate-700 text-slate-300 transition-colors"
+                        data-period="monthly">月线</button>
                 </div>
                 <div class="w-[1px] h-4 bg-trade-border mx-2"></div>
                 <div class="flex gap-1">
-                    <button class="text-xs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">MA</button>
-                    <button class="text-xs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">BOLL</button>
-                    <button class="text-xs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">SAR</button>
+                    <button
+                        class="text-xs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">MA</button>
+                    <button
+                        class="text-xs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">BOLL</button>
+                    <button
+                        class="text-xs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">SAR</button>
                 </div>
                 <div class="flex-1"></div>
                 <div class="flex gap-2 text-xs text-slate-500">
-                    <span class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-slate-700"></div> 休市中</span>
+                    <span class="flex items-center gap-1">
+                        <div class="w-2 h-2 rounded-full bg-slate-700"></div> 休市中
+                    </span>
                 </div>
             </div>
 
             <!-- K-Line / 分时 容器 -->
             <div class="flex-1 relative bg-slate-900">
                 <div id="kline-chart-container" class="absolute inset-0 w-full h-full"></div>
-                <div id="fenshi-placeholder" class="absolute inset-0 w-full h-full hidden flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-sm z-10">
+                <div id="fenshi-placeholder"
+                    class="absolute inset-0 w-full h-full hidden flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-sm z-10">
                     <div id="fenshi-chart" class="w-full h-full min-h-[200px]"></div>
                     <span id="fenshi-loading" class="text-slate-500 text-sm mt-2 animate-pulse">分时图加载中…</span>
                 </div>
@@ -377,17 +511,23 @@
 
             <!-- Indicator Container (Fixed Height) -->
             <div class="h-[160px] border-t border-trade relative bg-slate-900">
-                 <div class="absolute top-0 left-0 w-full h-7 flex items-center px-2 border-b border-white/5 bg-slate-800/20 z-10 gap-4">
-                     <span class="text-xs font-bold text-slate-500 select-none">副图</span>
-                     <div class="flex gap-1">
-                         <span data-indicator="hot_money" class="indicator-tab cursor-pointer text-xxs px-2 py-0.5 rounded bg-slate-800 text-sky-400 border border-sky-500/30">主力资金</span>
-                         <span data-indicator="vol" class="indicator-tab cursor-pointer text-xxs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">VOL</span>
-                         <span data-indicator="macd" class="indicator-tab cursor-pointer text-xxs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">MACD</span>
-                         <span data-indicator="kdj" class="indicator-tab cursor-pointer text-xxs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">KDJ</span>
-                         <span data-indicator="rsi" class="indicator-tab cursor-pointer text-xxs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">RSI</span>
-                     </div>
-                 </div>
-                 <div id="indicator-chart-container" class="absolute top-7 bottom-0 left-0 w-full"></div>
+                <div
+                    class="absolute top-0 left-0 w-full h-7 flex items-center px-2 border-b border-white/5 bg-slate-800/20 z-10 gap-4">
+                    <span class="text-xs font-bold text-slate-500 select-none">副图</span>
+                    <div class="flex gap-1">
+                        <span data-indicator="hot_money"
+                            class="indicator-tab cursor-pointer text-xxs px-2 py-0.5 rounded bg-slate-800 text-sky-400 border border-sky-500/30">主力资金</span>
+                        <span data-indicator="vol"
+                            class="indicator-tab cursor-pointer text-xxs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">VOL</span>
+                        <span data-indicator="macd"
+                            class="indicator-tab cursor-pointer text-xxs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">MACD</span>
+                        <span data-indicator="kdj"
+                            class="indicator-tab cursor-pointer text-xxs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">KDJ</span>
+                        <span data-indicator="rsi"
+                            class="indicator-tab cursor-pointer text-xxs px-2 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">RSI</span>
+                    </div>
+                </div>
+                <div id="indicator-chart-container" class="absolute top-7 bottom-0 left-0 w-full"></div>
             </div>
         </main>
 
@@ -395,57 +535,90 @@
         <aside class="flex flex-col border-l border-trade bg-slate-900/50">
             <!-- Order Book (5-Level) - COMPACT MODE -->
             <div class="flex-1 flex flex-col min-h-0 border-b border-trade">
-                <div class="px-2 py-1.5 text-xs font-medium text-slate-400 border-b border-trade flex items-center justify-between bg-slate-900/50">
+                <div
+                    class="px-2 py-1.5 text-xs font-medium text-slate-400 border-b border-trade flex items-center justify-between bg-slate-900/50">
                     <span>五档盘口 <span class="text-amber-500/90 text-[10px] font-normal">(模拟)</span></span>
                     <i class="fas fa-list-ol text-slate-600"></i>
                 </div>
-                <div class="px-2 py-1 bg-amber-500/10 border-b border-amber-500/20 text-[10px] text-amber-500/80 flex items-start gap-1">
+                <div
+                    class="px-2 py-1 bg-amber-500/10 border-b border-amber-500/20 text-[10px] text-amber-500/80 flex items-start gap-1">
                     <i class="fas fa-info-circle mt-0.5"></i>
                     <span>实盘数据需接入L2或券商API，当前显示模拟数据。</span>
                 </div>
-                
+
                 <div class="flex-1 p-0.5 font-mono text-xs flex flex-col justify-center bg-slate-900">
                     <!-- Sell 5 -->
-                    <div class="grid grid-cols-[30px_1fr_1fr] gap-0 mb-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
-                        <div class="text-slate-500 pl-1">卖5</div> <div class="text-up text-right">1755.00</div> <div class="text-yellow-500 text-right pr-1">12</div>
+                    <div
+                        class="grid grid-cols-[30px_1fr_1fr] gap-0 mb-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
+                        <div class="text-slate-500 pl-1">卖5</div>
+                        <div class="text-up text-right">1755.00</div>
+                        <div class="text-yellow-500 text-right pr-1">12</div>
                     </div>
-                    <div class="grid grid-cols-[30px_1fr_1fr] gap-0 mb-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
-                        <div class="text-slate-500 pl-1">卖4</div> <div class="text-up text-right">1754.00</div> <div class="text-yellow-500 text-right pr-1">45</div>
+                    <div
+                        class="grid grid-cols-[30px_1fr_1fr] gap-0 mb-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
+                        <div class="text-slate-500 pl-1">卖4</div>
+                        <div class="text-up text-right">1754.00</div>
+                        <div class="text-yellow-500 text-right pr-1">45</div>
                     </div>
-                    <div class="grid grid-cols-[30px_1fr_1fr] gap-0 mb-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
-                        <div class="text-slate-500 pl-1">卖3</div> <div class="text-up text-right">1753.00</div> <div class="text-yellow-500 text-right pr-1">8</div>
+                    <div
+                        class="grid grid-cols-[30px_1fr_1fr] gap-0 mb-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
+                        <div class="text-slate-500 pl-1">卖3</div>
+                        <div class="text-up text-right">1753.00</div>
+                        <div class="text-yellow-500 text-right pr-1">8</div>
                     </div>
-                    <div class="grid grid-cols-[30px_1fr_1fr] gap-0 mb-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
-                        <div class="text-slate-500 pl-1">卖2</div> <div class="text-up text-right">1752.00</div> <div class="text-yellow-500 text-right pr-1">156</div>
+                    <div
+                        class="grid grid-cols-[30px_1fr_1fr] gap-0 mb-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
+                        <div class="text-slate-500 pl-1">卖2</div>
+                        <div class="text-up text-right">1752.00</div>
+                        <div class="text-yellow-500 text-right pr-1">156</div>
                     </div>
-                    <div class="grid grid-cols-[30px_1fr_1fr] gap-0 mb-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
-                        <div class="text-slate-500 pl-1">卖1</div> <div class="text-up text-right">1751.00</div> <div class="text-yellow-500 text-right pr-1">23</div>
+                    <div
+                        class="grid grid-cols-[30px_1fr_1fr] gap-0 mb-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
+                        <div class="text-slate-500 pl-1">卖1</div>
+                        <div class="text-up text-right">1751.00</div>
+                        <div class="text-yellow-500 text-right pr-1">23</div>
                     </div>
-                    
+
                     <div class="border-t border-dashed border-slate-700/50 my-1 mx-1"></div>
 
                     <!-- Buy 5 -->
-                    <div class="grid grid-cols-[30px_1fr_1fr] gap-0 mt-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
-                        <div class="text-slate-500 pl-1">买1</div> <div class="text-up text-right">1750.00</div> <div class="text-yellow-500 text-right pr-1">56</div>
+                    <div
+                        class="grid grid-cols-[30px_1fr_1fr] gap-0 mt-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
+                        <div class="text-slate-500 pl-1">买1</div>
+                        <div class="text-up text-right">1750.00</div>
+                        <div class="text-yellow-500 text-right pr-1">56</div>
                     </div>
-                    <div class="grid grid-cols-[30px_1fr_1fr] gap-0 mt-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
-                        <div class="text-slate-500 pl-1">买2</div> <div class="text-up text-right">1749.00</div> <div class="text-yellow-500 text-right pr-1">102</div>
+                    <div
+                        class="grid grid-cols-[30px_1fr_1fr] gap-0 mt-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
+                        <div class="text-slate-500 pl-1">买2</div>
+                        <div class="text-up text-right">1749.00</div>
+                        <div class="text-yellow-500 text-right pr-1">102</div>
                     </div>
-                    <div class="grid grid-cols-[30px_1fr_1fr] gap-0 mt-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
-                        <div class="text-slate-500 pl-1">买3</div> <div class="text-up text-right">1748.00</div> <div class="text-yellow-500 text-right pr-1">33</div>
+                    <div
+                        class="grid grid-cols-[30px_1fr_1fr] gap-0 mt-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
+                        <div class="text-slate-500 pl-1">买3</div>
+                        <div class="text-up text-right">1748.00</div>
+                        <div class="text-yellow-500 text-right pr-1">33</div>
                     </div>
-                    <div class="grid grid-cols-[30px_1fr_1fr] gap-0 mt-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
-                        <div class="text-slate-500 pl-1">买4</div> <div class="text-up text-right">1747.00</div> <div class="text-yellow-500 text-right pr-1">11</div>
+                    <div
+                        class="grid grid-cols-[30px_1fr_1fr] gap-0 mt-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
+                        <div class="text-slate-500 pl-1">买4</div>
+                        <div class="text-up text-right">1747.00</div>
+                        <div class="text-yellow-500 text-right pr-1">11</div>
                     </div>
-                    <div class="grid grid-cols-[30px_1fr_1fr] gap-0 mt-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
-                        <div class="text-slate-500 pl-1">买5</div> <div class="text-up text-right">1746.00</div> <div class="text-yellow-500 text-right pr-1">98</div>
+                    <div
+                        class="grid grid-cols-[30px_1fr_1fr] gap-0 mt-1 leading-tight hover:bg-slate-800/50 transition-colors rounded-sm">
+                        <div class="text-slate-500 pl-1">买5</div>
+                        <div class="text-up text-right">1746.00</div>
+                        <div class="text-yellow-500 text-right pr-1">98</div>
                     </div>
                 </div>
             </div>
 
             <!-- Transaction Detail (Ticks) -->
             <div class="h-[250px] flex flex-col">
-                <div class="px-2 py-1.5 text-xs font-medium text-slate-400 border-b border-trade flex items-center justify-between bg-slate-900/50">
+                <div
+                    class="px-2 py-1.5 text-xs font-medium text-slate-400 border-b border-trade flex items-center justify-between bg-slate-900/50">
                     <span>成交明细</span>
                     <i class="fas fa-history text-slate-600"></i>
                 </div>
@@ -460,34 +633,53 @@
                         </thead>
                         <tbody id="tick-data-container" class="text-slate-300">
                             <!-- JS Populated -->
-                            <tr class="hover:bg-slate-800/30 transition-colors"><td class="text-left pl-2 py-0.5 text-slate-400">14:59:58</td><td class="text-up">1750.00</td><td class="text-yellow-500 pr-2">12</td></tr>
-                            <tr class="hover:bg-slate-800/30 transition-colors"><td class="text-left pl-2 py-0.5 text-slate-400">14:59:55</td><td class="text-up">1750.00</td><td class="text-yellow-500 pr-2">5</td></tr>
+                            <tr class="hover:bg-slate-800/30 transition-colors">
+                                <td class="text-left pl-2 py-0.5 text-slate-400">14:59:58</td>
+                                <td class="text-up">1750.00</td>
+                                <td class="text-yellow-500 pr-2">12</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition-colors">
+                                <td class="text-left pl-2 py-0.5 text-slate-400">14:59:55</td>
+                                <td class="text-up">1750.00</td>
+                                <td class="text-yellow-500 pr-2">5</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            
+
             <!-- Basic Info Summary -->
-             <div class="h-[100px] bg-slate-900/80 border-t border-trade p-2 grid grid-cols-2 gap-y-1 text-xs text-slate-400">
-                <div class="flex justify-between items-center"><span class="text-[10px]">市盈</span><span class="text-slate-200 font-mono">30.5</span></div>
-                <div class="flex justify-between items-center pl-2 border-l border-slate-800"><span class="text-[10px]">市净</span><span class="text-slate-200 font-mono">8.2</span></div>
-                <div class="flex justify-between items-center"><span class="text-[10px]">总值</span><span class="text-slate-200 font-mono">2.1T</span></div>
-                <div class="flex justify-between items-center pl-2 border-l border-slate-800"><span class="text-[10px]">流值</span><span class="text-slate-200 font-mono">2.1T</span></div>
-                <div class="flex justify-between items-center"><span class="text-[10px]">换手</span><span class="text-yellow-500 font-mono">0.8%</span></div>
-                <div class="flex justify-between items-center pl-2 border-l border-slate-800"><span class="text-[10px]">量比</span><span class="text-down font-mono">0.9</span></div>
-             </div>
+            <div
+                class="h-[100px] bg-slate-900/80 border-t border-trade p-2 grid grid-cols-2 gap-y-1 text-xs text-slate-400">
+                <div class="flex justify-between items-center"><span class="text-[10px]">市盈</span><span
+                        class="text-slate-200 font-mono">30.5</span></div>
+                <div class="flex justify-between items-center pl-2 border-l border-slate-800"><span
+                        class="text-[10px]">市净</span><span class="text-slate-200 font-mono">8.2</span></div>
+                <div class="flex justify-between items-center"><span class="text-[10px]">总值</span><span
+                        class="text-slate-200 font-mono">2.1T</span></div>
+                <div class="flex justify-between items-center pl-2 border-l border-slate-800"><span
+                        class="text-[10px]">流值</span><span class="text-slate-200 font-mono">2.1T</span></div>
+                <div class="flex justify-between items-center"><span class="text-[10px]">换手</span><span
+                        class="text-yellow-500 font-mono">0.8%</span></div>
+                <div class="flex justify-between items-center pl-2 border-l border-slate-800"><span
+                        class="text-[10px]">量比</span><span class="text-down font-mono">0.9</span></div>
+            </div>
         </aside>
 
     </div>
 
     <!-- BOTTOM STATUS BAR -->
-    <footer class="h-6 bg-slate-950 border-t border-trade flex items-center justify-between px-3 text-[10px] text-slate-500">
+    <footer
+        class="h-6 bg-slate-950 border-t border-trade flex items-center justify-between px-3 text-[10px] text-slate-500">
         <div class="flex gap-4">
-            <span class="flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]"></div> 连接正常</span>
+            <span class="flex items-center gap-1.5">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]"></div> 连接正常
+            </span>
             <span class="font-mono">15:00:00</span>
         </div>
         <div class="flex gap-4">
-            <span class="hover:text-sky-400 cursor-pointer transition-colors"><i class="fas fa-server mr-1"></i>ROX API</span>
+            <span class="hover:text-sky-400 cursor-pointer transition-colors"><i class="fas fa-server mr-1"></i>ROX
+                API</span>
             <span class="font-mono text-emerald-500">12ms</span>
         </div>
     </footer>
@@ -496,84 +688,117 @@
     {% include "components/ai_agent_card.html" %}
 
     <!-- Mobile Menu (仅保留已可用功能) -->
-    <div id="mobile-menu" class="fixed inset-0 bg-slate-900/95 z-40 hidden flex flex-col items-center justify-center gap-6 transition-opacity backdrop-blur-sm md:hidden">
-        <button type="button" onclick="typeof toggleAIAgent==='function'&&toggleAIAgent(); toggleMobileMenu();" class="text-lg font-bold text-slate-300 hover:text-purple-400 flex items-center gap-3">
+    <div id="mobile-menu"
+        class="fixed inset-0 bg-slate-900/95 z-40 hidden flex flex-col items-center justify-center gap-6 transition-opacity backdrop-blur-sm md:hidden">
+        <button type="button" onclick="typeof toggleAIAgent==='function'&&toggleAIAgent(); toggleMobileMenu();"
+            class="text-lg font-bold text-slate-300 hover:text-purple-400 flex items-center gap-3">
             <i class="fas fa-robot"></i> AI 投研
         </button>
-        <button type="button" onclick="typeof runAIBacktest==='function'&&runAIBacktest(); toggleMobileMenu();" class="text-lg font-bold text-slate-300 hover:text-sky-400 flex items-center gap-3">
+        <button type="button" onclick="typeof runAIBacktest==='function'&&runAIBacktest(); toggleMobileMenu();"
+            class="text-lg font-bold text-slate-300 hover:text-sky-400 flex items-center gap-3">
             <i class="fas fa-chart-line"></i> AI策略(Qbot)
         </button>
-        <button type="button" onclick="typeof openProfessionalWindow==='function'&&openProfessionalWindow(); toggleMobileMenu();" class="text-lg font-bold text-slate-300 hover:text-sky-400 flex items-center gap-3">
+        <button type="button"
+            onclick="typeof openProfessionalWindow==='function'&&openProfessionalWindow(); toggleMobileMenu();"
+            class="text-lg font-bold text-slate-300 hover:text-sky-400 flex items-center gap-3">
             <i class="fas fa-layer-group"></i> 分析
         </button>
-        <button type="button" onclick="toggleMobileMenu()" class="absolute top-4 right-4 text-slate-400 p-2 w-10 h-10 flex items-center justify-center border border-slate-700 rounded-full hover:bg-slate-800">
+        <button type="button" onclick="toggleMobileMenu()"
+            class="absolute top-4 right-4 text-slate-400 p-2 w-10 h-10 flex items-center justify-center border border-slate-700 rounded-full hover:bg-slate-800">
             <i class="fas fa-times text-xl"></i>
         </button>
     </div>
 
     <!-- Login/Register Modal (自 Rox 1.0 整合) -->
     <div id="auth-modal" class="fixed inset-0 bg-slate-900/90 z-[100] flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 w-full max-w-sm rounded-2xl border border-slate-700 flex flex-col shadow-2xl overflow-hidden relative">
+        <div
+            class="bg-slate-800 w-full max-w-sm rounded-2xl border border-slate-700 flex flex-col shadow-2xl overflow-hidden relative">
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-sky-500/10 rounded-full blur-3xl"></div>
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl"></div>
             </div>
             <div class="p-8 relative z-10">
-                <button type="button" onclick="typeof hideAuthModal==='function'&&hideAuthModal()" class="absolute top-3 right-3 text-slate-500 hover:text-white p-1"><i class="fas fa-times"></i></button>
+                <button type="button" onclick="typeof hideAuthModal==='function'&&hideAuthModal()"
+                    class="absolute top-3 right-3 text-slate-500 hover:text-white p-1"><i
+                        class="fas fa-times"></i></button>
                 <div class="text-center mb-6">
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent mb-1">ROX QUANT</h1>
+                    <h1
+                        class="text-2xl font-bold bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent mb-1">
+                        ROX QUANT</h1>
                     <p class="text-xs text-slate-400">量化投研 · 智能决策</p>
                 </div>
                 <div class="flex bg-slate-900/50 rounded-lg p-1 mb-4">
-                    <button type="button" onclick="typeof switchAuthMode==='function'&&switchAuthMode('login')" id="tab-login" class="flex-1 py-2 rounded text-sm font-medium transition-all bg-indigo-600 text-white">登录</button>
-                    <button type="button" onclick="typeof switchAuthMode==='function'&&switchAuthMode('register')" id="tab-register" class="flex-1 py-2 rounded text-sm font-medium transition-all text-slate-300 hover:text-white">注册</button>
+                    <button type="button" onclick="typeof switchAuthMode==='function'&&switchAuthMode('login')"
+                        id="tab-login"
+                        class="flex-1 py-2 rounded text-sm font-medium transition-all bg-indigo-600 text-white">登录</button>
+                    <button type="button" onclick="typeof switchAuthMode==='function'&&switchAuthMode('register')"
+                        id="tab-register"
+                        class="flex-1 py-2 rounded text-sm font-medium transition-all text-slate-300 hover:text-white">注册</button>
                 </div>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">用户名</label>
-                        <input id="auth-username" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm focus:border-sky-500 focus:outline-none" placeholder="用户名">
+                        <input id="auth-username" type="text"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm focus:border-sky-500 focus:outline-none"
+                            placeholder="用户名">
                     </div>
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">密码</label>
-                        <input id="auth-password" type="password" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm focus:border-sky-500 focus:outline-none" placeholder="密码" onkeydown="if(event.key==='Enter'){event.preventDefault();typeof submitAuth==='function'&&submitAuth();}">
+                        <input id="auth-password" type="password"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm focus:border-sky-500 focus:outline-none"
+                            placeholder="密码"
+                            onkeydown="if(event.key==='Enter'){event.preventDefault();typeof submitAuth==='function'&&submitAuth();}">
                     </div>
                     <div id="auth-error" class="text-xs text-red-400 text-center min-h-[16px]"></div>
-                    <button type="button" onclick="typeof submitAuth==='function'&&submitAuth()" id="btn-auth-submit" class="w-full bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold py-2.5 rounded-lg">登录</button>
+                    <button type="button" onclick="typeof submitAuth==='function'&&submitAuth()" id="btn-auth-submit"
+                        class="w-full bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold py-2.5 rounded-lg">登录</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 系统设置弹窗 -->
-    <div id="settings-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[90] hidden flex items-center justify-center p-4" onclick="if(event.target===this) this.classList.add('hidden')">
-        <div class="bg-slate-900 w-full max-w-sm rounded-xl border border-slate-700 p-6 shadow-2xl" onclick="event.stopPropagation()">
+    <div id="settings-modal"
+        class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[90] hidden flex items-center justify-center p-4"
+        onclick="if(event.target===this) this.classList.add('hidden')">
+        <div class="bg-slate-900 w-full max-w-sm rounded-xl border border-slate-700 p-6 shadow-2xl"
+            onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-4">
-                <span class="font-bold text-slate-200 flex items-center gap-2"><i class="fas fa-cog text-slate-400"></i> 系统设置</span>
-                <button type="button" onclick="document.getElementById('settings-modal').classList.add('hidden')" class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+                <span class="font-bold text-slate-200 flex items-center gap-2"><i class="fas fa-cog text-slate-400"></i>
+                    系统设置</span>
+                <button type="button" onclick="document.getElementById('settings-modal').classList.add('hidden')"
+                    class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
             </div>
             <div class="space-y-4 text-sm">
                 <div>
-                    <label class="block text-slate-400 mb-1.5 text-xs uppercase tracking-wider font-semibold">行情刷新间隔</label>
+                    <label
+                        class="block text-slate-400 mb-1.5 text-xs uppercase tracking-wider font-semibold">行情刷新间隔</label>
                     <div class="relative">
-                        <input id="settings-refresh-interval" type="number" min="30" max="300" value="60" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all font-mono">
+                        <input id="settings-refresh-interval" type="number" min="30" max="300" value="60"
+                            class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all font-mono">
                         <span class="absolute right-3 top-2.5 text-slate-500 text-xs">秒</span>
                     </div>
                 </div>
                 <div class="pt-2 border-t border-slate-800">
-                     <p class="text-xxs text-slate-500"><i class="fas fa-info-circle mr-1"></i> 修改后需重启生效。更多高级选项开发中。</p>
+                    <p class="text-xxs text-slate-500"><i class="fas fa-info-circle mr-1"></i> 修改后需重启生效。更多高级选项开发中。</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 消息中心 -->
-    <div id="news-center-modal" class="fixed top-[10%] right-[5%] w-[400px] max-h-[70vh] bg-slate-900 border border-slate-700 shadow-2xl z-50 flex flex-col rounded-xl overflow-hidden hidden ring-1 ring-white/5">
-        <div class="h-10 bg-slate-800/50 flex items-center justify-between px-4 cursor-move border-b border-slate-700" id="news-center-header">
-            <span class="text-sky-400 font-bold text-sm flex items-center gap-2"><i class="fas fa-newspaper"></i> 消息中心</span>
-            <button type="button" onclick="document.getElementById('news-center-modal').classList.add('hidden')" class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+    <div id="news-center-modal"
+        class="fixed top-[10%] right-[5%] w-[400px] max-h-[70vh] bg-slate-900 border border-slate-700 shadow-2xl z-50 flex flex-col rounded-xl overflow-hidden hidden ring-1 ring-white/5">
+        <div class="h-10 bg-slate-800/50 flex items-center justify-between px-4 cursor-move border-b border-slate-700"
+            id="news-center-header">
+            <span class="text-sky-400 font-bold text-sm flex items-center gap-2"><i class="fas fa-newspaper"></i>
+                消息中心</span>
+            <button type="button" onclick="document.getElementById('news-center-modal').classList.add('hidden')"
+                class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
         </div>
         <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-900/50">
-            <div id="news-center-content" class="text-slate-400 text-xs flex flex-col items-center justify-center h-20 gap-2">
+            <div id="news-center-content"
+                class="text-slate-400 text-xs flex flex-col items-center justify-center h-20 gap-2">
                 <i class="fas fa-circle-notch fa-spin text-sky-500"></i>
                 <span>加载中…</span>
             </div>
@@ -581,25 +806,33 @@
     </div>
 
     <!-- 提醒设置 -->
-    <div id="alerts-modal" class="fixed top-[15%] left-[20%] w-[600px] max-h-[70vh] bg-slate-900 border border-slate-700 shadow-2xl z-50 flex flex-col rounded-xl overflow-hidden hidden ring-1 ring-white/5">
-        <div class="h-10 bg-slate-800/50 flex items-center justify-between px-4 cursor-move border-b border-slate-700" id="alerts-header">
-            <span class="text-orange-400 font-bold text-sm flex items-center gap-2"><i class="fas fa-bell"></i> 价格提醒</span>
-            <button type="button" onclick="document.getElementById('alerts-modal').classList.add('hidden')" class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+    <div id="alerts-modal"
+        class="fixed top-[15%] left-[20%] w-[600px] max-h-[70vh] bg-slate-900 border border-slate-700 shadow-2xl z-50 flex flex-col rounded-xl overflow-hidden hidden ring-1 ring-white/5">
+        <div class="h-10 bg-slate-800/50 flex items-center justify-between px-4 cursor-move border-b border-slate-700"
+            id="alerts-header">
+            <span class="text-orange-400 font-bold text-sm flex items-center gap-2"><i class="fas fa-bell"></i>
+                价格提醒</span>
+            <button type="button" onclick="document.getElementById('alerts-modal').classList.add('hidden')"
+                class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
         </div>
         <div class="flex-1 overflow-y-auto p-4 bg-slate-900">
             <div class="mb-4 bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
                 <div class="flex items-center gap-2 mb-2">
-                    <input id="alert-stock-code" type="text" placeholder="股票代码" class="flex-1 bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:border-orange-500 focus:outline-none font-mono uppercase">
-                    <button id="alert-add-btn" class="bg-orange-600 hover:bg-orange-500 text-white text-xs px-4 py-1.5 rounded transition-colors font-medium">添加</button>
+                    <input id="alert-stock-code" type="text" placeholder="股票代码"
+                        class="flex-1 bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:border-orange-500 focus:outline-none font-mono uppercase">
+                    <button id="alert-add-btn"
+                        class="bg-orange-600 hover:bg-orange-500 text-white text-xs px-4 py-1.5 rounded transition-colors font-medium">添加</button>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div class="relative">
-                         <span class="absolute left-2 top-1.5 text-slate-500 text-xs">≥</span>
-                         <input id="alert-price-above" type="number" placeholder="价格上限" class="w-full bg-slate-950 border border-slate-700 rounded pl-6 pr-2 py-1.5 text-xs text-white focus:border-orange-500 focus:outline-none font-mono">
+                        <span class="absolute left-2 top-1.5 text-slate-500 text-xs">≥</span>
+                        <input id="alert-price-above" type="number" placeholder="价格上限"
+                            class="w-full bg-slate-950 border border-slate-700 rounded pl-6 pr-2 py-1.5 text-xs text-white focus:border-orange-500 focus:outline-none font-mono">
                     </div>
                     <div class="relative">
-                         <span class="absolute left-2 top-1.5 text-slate-500 text-xs">≤</span>
-                         <input id="alert-price-below" type="number" placeholder="价格下限" class="w-full bg-slate-950 border border-slate-700 rounded pl-6 pr-2 py-1.5 text-xs text-white focus:border-orange-500 focus:outline-none font-mono">
+                        <span class="absolute left-2 top-1.5 text-slate-500 text-xs">≤</span>
+                        <input id="alert-price-below" type="number" placeholder="价格下限"
+                            class="w-full bg-slate-950 border border-slate-700 rounded pl-6 pr-2 py-1.5 text-xs text-white focus:border-orange-500 focus:outline-none font-mono">
                     </div>
                 </div>
             </div>
@@ -610,14 +843,21 @@
     </div>
 
     <!-- Python沙箱 -->
-    <div id="python-sandbox-modal" class="fixed top-[5%] left-[10%] w-[800px] h-[85vh] bg-slate-900 border border-slate-700 shadow-2xl z-50 flex flex-col rounded-xl overflow-hidden hidden ring-1 ring-white/5">
-        <div class="h-10 bg-slate-800/50 flex items-center justify-between px-4 cursor-move border-b border-slate-700" id="python-sandbox-header">
-            <span class="text-green-400 font-bold text-sm flex items-center gap-2"><i class="fab fa-python"></i> Python 策略沙箱</span>
-            <button type="button" onclick="document.getElementById('python-sandbox-modal').classList.add('hidden')" class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+    <div id="python-sandbox-modal"
+        class="fixed top-[5%] left-[10%] w-[800px] h-[85vh] bg-slate-900 border border-slate-700 shadow-2xl z-50 flex flex-col rounded-xl overflow-hidden hidden ring-1 ring-white/5">
+        <div class="h-10 bg-slate-800/50 flex items-center justify-between px-4 cursor-move border-b border-slate-700"
+            id="python-sandbox-header">
+            <span class="text-green-400 font-bold text-sm flex items-center gap-2"><i class="fab fa-python"></i> Python
+                策略沙箱</span>
+            <button type="button" onclick="document.getElementById('python-sandbox-modal').classList.add('hidden')"
+                class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
         </div>
         <div class="flex-1 flex flex-col p-4 bg-slate-900">
             <div class="flex-1 relative rounded-lg overflow-hidden border border-slate-700 mb-3">
-                <textarea id="python-code-editor" class="absolute inset-0 w-full h-full bg-slate-950 p-3 text-xs font-mono text-slate-300 resize-none focus:outline-none leading-relaxed" spellcheck="false" placeholder="# 输入Python策略代码&#10;import pandas as pd&#10;&#10;def strategy(df):&#10;    # 你的策略逻辑&#10;    return signals">import pandas as pd
+                <textarea id="python-code-editor"
+                    class="absolute inset-0 w-full h-full bg-slate-950 p-3 text-xs font-mono text-slate-300 resize-none focus:outline-none leading-relaxed"
+                    spellcheck="false"
+                    placeholder="# 输入Python策略代码&#10;import pandas as pd&#10;&#10;def strategy(df):&#10;    # 你的策略逻辑&#10;    return signals">import pandas as pd
 
 def strategy(df):
     # 示例：简单均线策略
@@ -628,36 +868,50 @@ def strategy(df):
             </div>
             <div class="flex gap-3 items-center justify-between">
                 <div class="flex gap-2">
-                    <button id="python-run-btn" class="bg-green-600 hover:bg-green-500 text-white text-xs px-4 py-1.5 rounded transition-colors flex items-center gap-1"><i class="fas fa-play"></i> 运行</button>
-                    <button id="python-save-btn" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-4 py-1.5 rounded transition-colors flex items-center gap-1"><i class="fas fa-save"></i> 保存</button>
+                    <button id="python-run-btn"
+                        class="bg-green-600 hover:bg-green-500 text-white text-xs px-4 py-1.5 rounded transition-colors flex items-center gap-1"><i
+                            class="fas fa-play"></i> 运行</button>
+                    <button id="python-save-btn"
+                        class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-4 py-1.5 rounded transition-colors flex items-center gap-1"><i
+                            class="fas fa-save"></i> 保存</button>
                 </div>
                 <span class="text-xxs text-slate-500">支持 pandas, numpy, talib</span>
             </div>
-            <div id="python-output" class="mt-3 p-3 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono text-slate-400 min-h-[120px] max-h-[200px] overflow-y-auto shadow-inner">
+            <div id="python-output"
+                class="mt-3 p-3 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono text-slate-400 min-h-[120px] max-h-[200px] overflow-y-auto shadow-inner">
                 <span class="text-slate-600">// 输出控制台 ready...</span>
             </div>
         </div>
     </div>
 
     <!-- 矛盾分析 -->
-    <div id="contradictions-modal" class="fixed top-[12%] left-[15%] w-[720px] max-h-[75vh] bg-slate-900 border border-slate-700 shadow-2xl z-50 flex flex-col rounded-xl overflow-hidden hidden ring-1 ring-white/5">
-        <div class="h-10 bg-slate-800/50 flex items-center justify-between px-4 cursor-move border-b border-slate-700" id="contradictions-header">
-            <span class="text-yellow-400 font-bold text-sm flex items-center gap-2"><i class="fas fa-balance-scale"></i> 主矛盾扫描器</span>
-            <button type="button" onclick="document.getElementById('contradictions-modal').classList.add('hidden')" class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+    <div id="contradictions-modal"
+        class="fixed top-[12%] left-[15%] w-[720px] max-h-[75vh] bg-slate-900 border border-slate-700 shadow-2xl z-50 flex flex-col rounded-xl overflow-hidden hidden ring-1 ring-white/5">
+        <div class="h-10 bg-slate-800/50 flex items-center justify-between px-4 cursor-move border-b border-slate-700"
+            id="contradictions-header">
+            <span class="text-yellow-400 font-bold text-sm flex items-center gap-2"><i class="fas fa-balance-scale"></i>
+                主矛盾扫描器</span>
+            <button type="button" onclick="document.getElementById('contradictions-modal').classList.add('hidden')"
+                class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
         </div>
         <div class="flex-1 overflow-y-auto p-4 bg-slate-900/50">
-            <div id="contradictions-content" class="text-slate-300 text-sm flex flex-col items-center justify-center h-32 gap-3">
-                 <i class="fas fa-radar text-yellow-500/50 text-3xl"></i>
-                 <span class="text-slate-500">正在扫描市场主要矛盾...</span>
+            <div id="contradictions-content"
+                class="text-slate-300 text-sm flex flex-col items-center justify-center h-32 gap-3">
+                <i class="fas fa-radar text-yellow-500/50 text-3xl"></i>
+                <span class="text-slate-500">正在扫描市场主要矛盾...</span>
             </div>
         </div>
     </div>
 
     <!-- 价值散点图 -->
-    <div id="value-scatter-modal" class="fixed top-[8%] left-[10%] w-[900px] h-[80vh] bg-slate-900 border border-slate-700 shadow-2xl z-50 flex flex-col rounded-xl overflow-hidden hidden ring-1 ring-white/5">
-        <div class="h-10 bg-slate-800/50 flex items-center justify-between px-4 cursor-move border-b border-slate-700" id="value-scatter-header">
-            <span class="text-purple-400 font-bold text-sm flex items-center gap-2"><i class="fas fa-braille"></i> 价值散点图 <span class="text-slate-500 font-normal text-xs ml-2">(价格偏离度 vs 剩余价值能力)</span></span>
-            <button type="button" onclick="document.getElementById('value-scatter-modal').classList.add('hidden')" class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+    <div id="value-scatter-modal"
+        class="fixed top-[8%] left-[10%] w-[900px] h-[80vh] bg-slate-900 border border-slate-700 shadow-2xl z-50 flex flex-col rounded-xl overflow-hidden hidden ring-1 ring-white/5">
+        <div class="h-10 bg-slate-800/50 flex items-center justify-between px-4 cursor-move border-b border-slate-700"
+            id="value-scatter-header">
+            <span class="text-purple-400 font-bold text-sm flex items-center gap-2"><i class="fas fa-braille"></i> 价值散点图
+                <span class="text-slate-500 font-normal text-xs ml-2">(价格偏离度 vs 剩余价值能力)</span></span>
+            <button type="button" onclick="document.getElementById('value-scatter-modal').classList.add('hidden')"
+                class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
         </div>
         <div class="px-4 py-2 border-b border-slate-800 bg-slate-900 flex items-center justify-between gap-3">
             <div class="text-xs text-slate-400 flex items-center gap-3 flex-wrap">
@@ -666,13 +920,16 @@ def strategy(df):
                 <span id="value-scatter-regime-note" class="text-slate-500 italic"></span>
             </div>
             <div class="flex items-center gap-2">
-                <label class="text-xs text-slate-400 flex items-center gap-1.5 cursor-pointer select-none hover:text-slate-200 transition-colors">
+                <label
+                    class="text-xs text-slate-400 flex items-center gap-1.5 cursor-pointer select-none hover:text-slate-200 transition-colors">
                     <input id="value-scatter-follow" type="checkbox" class="accent-sky-500 rounded" checked>
                     跟随主矛盾
                 </label>
                 <div class="h-4 w-[1px] bg-slate-700 mx-1"></div>
-                <button id="value-scatter-refresh" type="button" class="text-xs px-3 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white transition-colors">刷新</button>
-                <button id="value-scatter-reset" type="button" class="text-xs px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors">重置</button>
+                <button id="value-scatter-refresh" type="button"
+                    class="text-xs px-3 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white transition-colors">刷新</button>
+                <button id="value-scatter-reset" type="button"
+                    class="text-xs px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors">重置</button>
             </div>
         </div>
         <div class="flex-1 p-2 bg-slate-950 relative">
@@ -682,7 +939,8 @@ def strategy(df):
     </div>
 
     <!-- Toast -->
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-lg bg-slate-800/90 backdrop-blur-md border border-slate-600 text-slate-200 text-sm opacity-0 transition-all duration-300 pointer-events-none z-[110] shadow-xl flex items-center gap-2 transform translate-y-4">
+    <div id="toast"
+        class="fixed bottom-10 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-lg bg-slate-800/90 backdrop-blur-md border border-slate-600 text-slate-200 text-sm opacity-0 transition-all duration-300 pointer-events-none z-[110] shadow-xl flex items-center gap-2 transform translate-y-4">
         <i class="fas fa-info-circle text-sky-400"></i>
         <span class="toast-message">Notification</span>
     </div>
@@ -695,7 +953,7 @@ def strategy(df):
                 menu.classList.toggle('hidden');
             }
         }
-        
+
         function showToast(message) {
             const toast = document.getElementById('toast');
             if (toast) {
@@ -706,7 +964,7 @@ def strategy(df):
                 }, 2000);
             }
         }
-        
+
         // Expose showToast globally immediately
         window.showToast = showToast;
     </script>
@@ -724,7 +982,8 @@ def strategy(df):
         <div class="bg-slate-800 rounded-xl w-full max-w-5xl h-[80vh] flex flex-col border border-slate-700 shadow-2xl">
             <div class="flex justify-between items-center p-4 border-b border-slate-700">
                 <h3 class="text-lg font-bold text-white" id="large-chart-title">大图查看</h3>
-                <button onclick="document.getElementById('large-chart-modal').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                <button onclick="document.getElementById('large-chart-modal').classList.add('hidden')"
+                    class="text-slate-400 hover:text-white">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -737,27 +996,27 @@ def strategy(df):
             const modal = document.getElementById('large-chart-modal');
             const container = document.getElementById('large-chart-container');
             const title = document.getElementById('large-chart-title');
-            
+
             modal.classList.remove('hidden');
             title.textContent = (type === 'fenshi' ? '分时图' : 'K线图') + ' - ' + code;
-            
+
             // Clear previous chart
             if (window.largeChartInstance) {
                 window.largeChartInstance.dispose();
             }
-            
+
             window.largeChartInstance = echarts.init(container);
             window.largeChartInstance.showLoading();
-            
-            const apiPath = type === 'fenshi' 
+
+            const apiPath = type === 'fenshi'
                 ? `/api/market/fenshi?code=${code}`
                 : `/api/market/kline?code=${code}&period=daily`;
-                
+
             fetch(apiPath)
                 .then(r => r.json())
                 .then(data => {
                     window.largeChartInstance.hideLoading();
-                    if(type === 'fenshi') {
+                    if (type === 'fenshi') {
                         // Render Fenshi
                         const times = data.times || [];
                         const prices = data.prices || [];
@@ -782,13 +1041,14 @@ def strategy(df):
                     }
                 })
                 .catch(e => {
-                     window.largeChartInstance.hideLoading();
-                     container.innerHTML = '加载失败';
+                    window.largeChartInstance.hideLoading();
+                    container.innerHTML = '加载失败';
                 });
-                
+
             // Resize observer
             new ResizeObserver(() => window.largeChartInstance.resize()).observe(container);
         }
     </script>
 </body>
+
 </html>

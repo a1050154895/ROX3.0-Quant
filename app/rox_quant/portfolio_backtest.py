@@ -281,7 +281,7 @@ class PortfolioBacktestEngine:
             # Filter valid codes roughly
             valid = [c for c in codes if c.startswith('6') or c.startswith('0') or c.startswith('3')]
             return list(set(valid))
-        except:
+        except Exception:
             return []
 
     def _preload_history(self, start_date: str, end_date: str):

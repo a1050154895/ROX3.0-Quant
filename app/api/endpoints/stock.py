@@ -21,9 +21,33 @@ def _normalize_code(code: str) -> str:
     return code.zfill(6)
 
 
+
+import time
+from functools import wraps
+
+def retry_request(max_retries=3, delay=1.0):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            last_err = None
+            for i in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    last_err = e
+                    logger.warning(f"Call {func.__name__} failed (attempt {i+1}/{max_retries}): {e}")
+                    time.sleep(delay * (i + 1))
+            logger.error(f"Call {func.__name__} failed after {max_retries} attempts: {last_err}")
+            raise last_err
+        return wrapper
+    return decorator
+
 async def run_in_executor(func, *args):
     loop = asyncio.get_event_loop()
+    # Apply retry if not already applied (for internal sync calls)
+    # Note: explicit retry_request on target sync function is better.
     return await loop.run_in_executor(None, lambda: func(*args))
+
 
 
 async def _get_stock_basic_info(code: str) -> dict:
@@ -119,6 +143,7 @@ def _get_info_value(stock_info: pd.DataFrame, item_names: list) -> str:
     return ""
 
 
+@retry_request(max_retries=3, delay=0.5)
 def calculate_fundamentals(code: str):
     code6 = _normalize_code(code)
     try:
@@ -303,6 +328,7 @@ async def get_value_law(stock_code: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 # --- Helper Functions for Fund Analysis ---
+@retry_request(max_retries=3, delay=0.5)
 def calculate_fund_flow(code: str):
     code6 = _normalize_code(code)
     try:
@@ -438,6 +464,7 @@ async def get_resistance_support(code: str = Query(..., description="股票代�
 
 
 # --- Helper Functions for News ---
+@retry_request(max_retries=2, delay=1.0)
 def _get_stock_news(code: str, limit: int = 3):
     """获取个股相关资讯"""
     code6 = _normalize_code(code)
@@ -474,7 +501,12 @@ async def get_stock_diagnose(code: str = Query(..., description="股票代码, �
     try:
         end_date = datetime.now().strftime('%Y%m%d')
         start_date = (datetime.now() - timedelta(days=365)).strftime('%Y%m%d')
-        hist_data = ak.stock_zh_a_hist(symbol=code6, period="daily", start_date=start_date, end_date=end_date, adjust="qfq")
+        
+        @retry_request(max_retries=3, delay=1.0)
+        def _get_hist():
+            return ak.stock_zh_a_hist(symbol=code6, period="daily", start_date=start_date, end_date=end_date, adjust="qfq")
+            
+        hist_data = await run_in_executor(_get_hist)
     except Exception as e:
         logger.warning(f"诊断获取历史K线失败 {code6}: {e}")
 

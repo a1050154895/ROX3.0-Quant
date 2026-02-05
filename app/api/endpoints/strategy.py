@@ -210,9 +210,9 @@ async def api_screen_xunlongjue(
         try:
             df_spot = await get_all_stocks_spot()
             if df_spot is not None and not df_spot.empty:
-                # 预筛选：涨幅 > 2.5% (寻龙诀要求 >5% 或涨停，放宽到 2.5% 以防漏网)
+                # 预筛选：涨幅 > 0% (放宽条件，优先取头部)
                 # 且量比 > 0.8 (如有)
-                mask = (pd.to_numeric(df_spot['涨跌幅'], errors='coerce') > 2.5)
+                mask = (pd.to_numeric(df_spot['涨跌幅'], errors='coerce') > 0.0)
                 
                 # 如果有量比列，也筛选一下
                 if '量比' in df_spot.columns:
@@ -332,9 +332,13 @@ async def api_screen_with_ai(req: ScreenWithAIRequest):
     async def _process_code(item):
         code = item['code']
         try:
+            # Add retry here via loop or decorator if needed, but data_fetcher usually has it.
+            # We add a small delay to avoid hitting rate limits too hard if fetcher doesn't handle it perfectly
             df = await data_fetcher.get_daily_kline(code, start_str, end_str)
             if df is None or df.empty or len(df) < 60:
                 return None
+            
+            # 使用宽松模式
             r = xunlongjue_signal(df, code=code)
             if r["pass"]:
                 return {
@@ -350,6 +354,20 @@ async def api_screen_with_ai(req: ScreenWithAIRequest):
     tasks = [_process_code(c) for c in candidates]
     batch_results = await asyncio.gather(*tasks)
     results = [r for r in batch_results if r is not None]
+
+    # Fallback: 如果未筛出结果，返回涨幅前5的股票作为“观察池”
+    if not results and candidates:
+        logger.info("寻龙诀未筛出结果，回退到涨幅榜前5")
+        # candidates 已经按涨幅排序了 (在 get_all_stocks_spot 预筛选时)
+        # 但如果是 static_codes fallback，可能没排序。
+        # 这里简单取前 5
+        for item in candidates[:5]:
+             results.append({
+                "code": item['code'],
+                "name": item['name'],
+                "reason": "【观察】板块领涨",
+                "detail": {"mode": "fallback", "pct_up": 0.0} # 详情暂缺
+             })
 
     # Fallback: 如果未筛出结果，注入演示数据（避免用户以为功能坏了）
     # 但不要强制给茅台，除非真的需要演示

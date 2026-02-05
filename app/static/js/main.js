@@ -860,6 +860,59 @@ function initMainLogic() {
         else if (t === 'sector') loadSectorList();
         else if (t === 'spot') loadSpotList();
     }, 60000);
+
+    // Load header indices dynamically
+    loadHeaderIndices();
+    setInterval(loadHeaderIndices, 60000);
+}
+
+// --- Header Indices Dynamic Loading ---
+async function loadHeaderIndices() {
+    const container = document.getElementById('header-indices');
+    if (!container) return;
+    
+    try {
+        const r = await fetch('/api/market/indices');
+        const data = await r.json().catch(() => ({}));
+        const indices = data.indices || [];
+        
+        // Map index names to element data-index attributes
+        const mapping = {
+            '上证指数': 'sh',
+            '深证成指': 'sz', 
+            '创业板指': 'cyb'
+        };
+        
+        for (const idx of indices) {
+            const key = mapping[idx.name];
+            if (!key) continue;
+            
+            const item = container.querySelector(`[data-index="${key}"]`);
+            if (!item) continue;
+            
+            const priceEl = item.querySelector('.index-price');
+            const pctEl = item.querySelector('.index-pct');
+            
+            if (priceEl) {
+                priceEl.textContent = idx.price?.toFixed(2) || '----';
+                priceEl.classList.remove('skeleton-text', 'text-slate-400');
+                priceEl.classList.add(idx.pct >= 0 ? 'text-up' : 'text-down');
+            }
+            
+            if (pctEl) {
+                const pctVal = idx.pct || 0;
+                pctEl.textContent = `${pctVal >= 0 ? '+' : ''}${pctVal.toFixed(2)}%`;
+                pctEl.classList.remove('text-slate-500', 'bg-slate-800');
+                if (pctVal >= 0) {
+                    pctEl.classList.add('text-up', 'bg-up-dim');
+                } else {
+                    pctEl.classList.add('text-down', 'bg-down-dim');
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('Failed to load header indices:', e);
+    }
 }
 
 // --- Phase 3: 消息中心、提醒系统 ---

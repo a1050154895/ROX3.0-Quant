@@ -233,7 +233,7 @@ class DataProvider:
                 if 'last_price' in tick:
                      try:
                         return float(tick['last_price'])
-                     except:
+                     except (ValueError, TypeError):
                         pass
 
                 bids = tick.get('bids', [])
@@ -304,7 +304,7 @@ class DataProvider:
             # Maybe use cached spot list if available?
             # For now, let's just return what we have if AllTick failed.
             pass
-        except:
+        except Exception:
             pass
             
         return res
@@ -420,7 +420,7 @@ class DataProvider:
                         }
                 if 'USDCNY' not in res:
                     res['USDCNY'] = {'price': 7.25, 'change': 0.0}
-            except:
+            except Exception:
                 res['USDCNY'] = {'price': 7.25, 'change': 0.0}
 
             # 2. 美元指数 (DXY) - 模拟或获取
@@ -428,7 +428,7 @@ class DataProvider:
             try:
                 # 尝试获取宏观数据
                 res['DXY'] = {'price': 102.5, 'change': 0.1} 
-            except:
+            except Exception:
                 res['DXY'] = {'price': 102.5, 'change': 0.1}
 
             # 3. 流向与流速估算
@@ -552,7 +552,7 @@ class DataProvider:
                         try:
                             num = float(v.replace(",", ""))
                             return round(num / 100.0, 4)
-                        except:
+                        except (ValueError, TypeError):
                             return 0.0
                     names = header[1:]
                     vals = tds[1:1+len(names)]
@@ -743,7 +743,7 @@ class DataProvider:
                 s = str(s).replace(',', '').replace('亿元', '').replace('亿', '').replace('%', '')
                 if s.strip() == '-' or s.strip() == '': return 0.0
                 try: return float(s)
-                except: return 0.0
+                except (ValueError, TypeError): return 0.0
             all_rows = []
             for t in tables or []:
                 for r in t or []:
