@@ -237,3 +237,146 @@ window.switchMode = function (mode) {
         loadConceptThemes();
     }
 }
+// ================= DEEP ANALYSIS DASHBOARD =================
+window.openDeepAnalysis = async function (symbol) {
+    if (!symbol) {
+        showToast("请输入或选择股票代码", "warning");
+        return;
+    }
+
+    // 1. Show Modal & Reset
+    const modal = document.getElementById('ai-dashboard-modal');
+    modal.classList.remove('hidden');
+
+    document.getElementById('dash-stock-code').innerText = symbol;
+    document.getElementById('dash-stock-name').innerText = "加载中...";
+    document.getElementById('dash-score-val').innerText = "--";
+    document.getElementById('dash-score-circle').style.strokeDashoffset = 440; // Reset
+    document.getElementById('dash-signal-badge').innerText = "AI 分析中...";
+    document.getElementById('dash-signal-badge').className = "px-4 py-1.5 rounded-full bg-slate-800 text-slate-300 font-bold text-sm border border-slate-700 animate-pulse";
+
+    document.getElementById('dash-core-conclusion').innerText = "正在连接量化大脑，读取技术面、资金面与舆情数据...";
+
+    // Reset other fields
+    ['dash-trend', 'dash-action', 'dash-confidence', 'dash-buy-point', 'dash-stop-loss', 'dash-target']
+        .forEach(id => document.getElementById(id).innerText = "--");
+    document.getElementById('dash-checklist').innerHTML = "";
+    ['dash-logic-tech', 'dash-logic-fund', 'dash-logic-chip']
+        .forEach(id => document.getElementById(id).innerText = "");
+
+    try {
+        // 2. Fetch Data
+        const res = await fetch(`/api/analysis/dashboard/${symbol}`);
+        const data = await res.json();
+
+        if (Object.keys(data).length === 0 || data.error) {
+            throw new Error(data.error || "分析失败");
+        }
+
+        // 3. Render Data
+        renderDashboard(data, symbol);
+
+    } catch (e) {
+        console.error(e);
+        document.getElementById('dash-core-conclusion').innerHTML = `<span class="text-rose-400"><i class="fas fa-exclamation-triangle"></i> 分析请求失败: ${e.message}</span>`;
+        document.getElementById('dash-signal-badge').innerText = "分析中断";
+        document.getElementById('dash-signal-badge').classList.remove('animate-pulse');
+    }
+};
+
+function renderDashboard(data, symbol) {
+    // Basic Info
+    const dash = data.dashboard || {};
+    // Try to get name from somewhere if not in response, but backend passes "stock_name" to AI, maybe not in root
+    // We can update name if we have it in global scope or response
+    if (window.selectStock && window.currentStockCode === symbol) {
+        document.getElementById('dash-stock-name').innerText = document.getElementById('stock-name-header')?.innerText || symbol;
+    }
+
+    // 0. Financial Overview (New)
+    const fin = data.fundamentals;
+    const finSection = document.getElementById('dash-finance-section');
+    if (fin && Object.keys(fin).length > 0 && fin.pe_ttm !== "N/A") {
+        finSection.classList.remove('hidden');
+        document.getElementById('dash-fin-mv').innerText = fin.total_mv || "--";
+        document.getElementById('dash-fin-pe').innerText = fin.pe_ttm || "--";
+        document.getElementById('dash-fin-pb').innerText = fin.pb || "--";
+        document.getElementById('dash-fin-roe').innerText = fin.roe || "--";
+        document.getElementById('dash-fin-gpm').innerText = fin.gross_margin || "--";
+        document.getElementById('dash-fin-npm').innerText = fin.net_margin || "--";
+        document.getElementById('dash-fin-rev').innerText = fin.revenue_growth || "--";
+        document.getElementById('dash-fin-prof').innerText = fin.profit_growth || "--";
+    } else {
+        finSection.classList.add('hidden');
+    }
+
+    // 1. Score Animation
+    // Circumference = 2 * pi * 70 ≈ 440
+    const score = data.sentiment_score || 0;
+    const offset = 440 - (score / 100) * 440;
+
+    setTimeout(() => {
+        document.getElementById('dash-score-val').innerText = score;
+        document.getElementById('dash-score-circle').style.strokeDashoffset = offset;
+    }, 100);
+
+    // 2. Core Conclusion
+    const core = dash.core_conclusion || {};
+    document.getElementById('dash-core-conclusion').innerText = core.one_sentence || "无核心结论";
+
+    // Signal Badge
+    const signal = core.signal_type || "观望";
+    const signalEl = document.getElementById('dash-signal-badge');
+    signalEl.classList.remove('animate-pulse', 'bg-slate-800', 'text-slate-300', 'border-slate-700');
+
+    if (signal.includes('买')) {
+        signalEl.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/50');
+    } else if (signal.includes('卖')) {
+        signalEl.classList.add('bg-rose-500/20', 'text-rose-400', 'border-rose-500/50');
+    } else {
+        signalEl.classList.add('bg-amber-500/20', 'text-amber-400', 'border-amber-500/50');
+    }
+    signalEl.innerText = signal;
+
+    // 3. Status Grid
+    document.getElementById('dash-trend').innerText = data.trend_prediction || "--";
+    document.getElementById('dash-action').innerText = data.operation_advice || "--";
+    document.getElementById('dash-confidence').innerText = data.confidence_level || "--";
+
+    // 4. Battle Plan
+    const battle = dash.battle_plan || {};
+    const points = battle.sniper_points || {};
+    document.getElementById('dash-buy-point').innerText = points.ideal_buy || "--";
+    document.getElementById('dash-stop-loss').innerText = points.stop_loss || "--";
+    document.getElementById('dash-target').innerText = points.take_profit || "--";
+
+    // Checklist
+    const checklist = battle.action_checklist || [];
+    const checkContainer = document.getElementById('dash-checklist');
+    checkContainer.innerHTML = checklist.map(item => {
+        let icon = '<i class="fas fa-check-circle text-emerald-500"></i>';
+        let color = 'text-slate-300';
+        if (item.includes('⚠️') || item.includes('注意')) {
+            icon = '<i class="fas fa-exclamation-circle text-amber-500"></i>';
+            color = 'text-amber-300';
+        } else if (item.includes('❌') || item.includes('禁止')) {
+            icon = '<i class="fas fa-times-circle text-rose-500"></i>';
+            color = 'text-rose-300';
+        }
+        return `
+            <div class="flex items-start gap-2 text-sm bg-slate-800/30 p-2 rounded">
+                <div class="mt-0.5">${icon}</div>
+                <div class="${color}">${item.replace(/✅|⚠️|❌/g, '')}</div>
+            </div>
+        `;
+    }).join('');
+
+    // 5. Logic Text (Markdown Simple Parse)
+    // We just set textcontent for now, or use a simple markdown parser if available. 
+    // Since we don't have a markdown lib loaded, we'll just show text with formatting
+    const formatText = (text) => (text || "").replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>');
+
+    document.getElementById('dash-logic-tech').innerHTML = formatText(data.technical_analysis);
+    document.getElementById('dash-logic-fund').innerHTML = formatText(data.fundamental_analysis);
+    document.getElementById('dash-logic-chip').innerHTML = formatText(data.chip_analysis);
+}

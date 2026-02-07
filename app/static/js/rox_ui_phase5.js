@@ -188,6 +188,35 @@ window.saveProfile = async function () {
     }
 };
 
+window.uploadAvatar = async function (input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const res = await fetch('/users/avatar', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            },
+            body: formData
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            document.getElementById('profile-avatar-img').src = data.avatar;
+            document.getElementById('header-avatar').src = data.avatar;
+            showToast("✅ 头像更新成功");
+        } else {
+            showToast("❌ 上传失败");
+        }
+    } catch (e) {
+        showToast("网络错误: " + e.message);
+    }
+};
+
 function renderTags(tagsStr) {
     const container = document.getElementById('profile-tags-display');
     if (!tagsStr) {
@@ -231,4 +260,69 @@ window.uploadRestore = async function (input) {
         showToast("网络错误");
     }
     input.value = '';
+};
+
+
+// ================= SYSTEM SETTINGS =================
+async function loadSystemSettings() {
+    try {
+        const res = await fetch('/api/settings/ai');
+        const data = await res.json();
+
+        document.getElementById('settings-ai-key').value = data.api_key || '';
+        document.getElementById('settings-ai-url').value = data.base_url || '';
+        document.getElementById('settings-ai-model').value = data.model || '';
+        document.getElementById('settings-ai-provider').value = data.provider || 'default';
+
+        if (data.has_key) {
+            document.getElementById('settings-ai-key').placeholder = "********** (已配置)";
+        }
+    } catch (e) {
+        console.error("Failed to load settings", e);
+    }
+}
+
+window.saveSystemSettings = async function () {
+    const key = document.getElementById('settings-ai-key').value;
+    const url = document.getElementById('settings-ai-url').value;
+    const model = document.getElementById('settings-ai-model').value;
+    const provider = document.getElementById('settings-ai-provider').value;
+
+    if (!url) {
+        showToast("❌ Base URL 不能为空");
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/settings/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                api_key: key,
+                base_url: url,
+                model: model,
+                provider: provider
+            })
+        });
+
+        if (res.ok) {
+            showToast("✅ AI 配置已保存");
+            // Reload to show masked key
+            loadSystemSettings();
+        } else {
+            const err = await res.json();
+            showToast("❌ 保存失败: " + (err.detail || "未知错误"));
+        }
+    } catch (e) {
+        showToast("网络错误");
+    }
+};
+
+// Hook into switchMode for System view
+const originalSwitchModeP5 = window.switchMode;
+window.switchMode = function (mode) {
+    if (originalSwitchModeP5) originalSwitchModeP5(mode);
+    if (mode === 'system') {
+        loadSystemSettings();
+    }
 };

@@ -4,8 +4,12 @@ from app.api.endpoints import auth, market, trade, analysis, kb, system, ws, ws_
 api_router = APIRouter()
 
 # ============ 身份验证路由 (顶级) ============
-# /token, /register, /users/me
+# /token, /register
 api_router.include_router(auth.router, tags=["auth"])
+
+# 用户管理
+from app.api.endpoints import users
+api_router.include_router(users.router)
 
 # ============ API路由组 (统一 /api 前缀) ============
 api_group = APIRouter(prefix="/api")
@@ -82,6 +86,10 @@ api_group.include_router(macro.router)
 # 市场资讯 (Phase 6)
 from app.api.endpoints import info
 api_group.include_router(info.router)
+
+# 设置相关 (新添加)
+from app.api.endpoints import settings
+api_group.include_router(settings.router, prefix="/settings", tags=["settings"])
 
 # 将API组添加到主路由
 api_router.include_router(api_group)

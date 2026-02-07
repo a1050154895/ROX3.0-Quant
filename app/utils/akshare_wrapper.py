@@ -245,7 +245,42 @@ class AkShareClient:
             timeout=timeout,
             name=f"stock_hist_{symbol}"
         )
+    async def get_chip_distribution(self, symbol: str, timeout: float = 15.0):
+        """
+        获取筹码分布 (东方财富)
+        
+        Args:
+            symbol: 股票代码 (6位)
+        """
+        import akshare as ak
+        
+        # 转换代码格式: sh600519 -> 600519
+        code = symbol
+        if symbol.startswith('sh') or symbol.startswith('sz'):
+            code = symbol[2:]
+            
+        # 东方财富筹码分布接口
+        return await async_ak_call(
+            lambda: ak.stock_cyq_em(symbol=code, adjust="qfq"),
+            timeout=timeout,
+            name=f"chip_dist_{code}"
+        )
+
+    async def get_realtime_indicators(self, symbol: str, timeout: float = 10.0):
+        """
+        获取实时指标 (量比, 换手率, 市盈率等)
+        """
+        import akshare as ak
+        
+        # 使用 stock_zh_a_spot_em 获取全市场数据，然后过滤
+        # 注意：这比较低效，但 akshare 没有好的单股实时指标接口
+        # 优化：可以使用 cache 缓存全市场数据
+        return await async_ak_call(
+            lambda: ak.stock_zh_a_spot_em(),
+            timeout=timeout,
+            name="spot_data_all"
+        )
 
 
-# 全局客户端实例
+
 akshare_client = AkShareClient()

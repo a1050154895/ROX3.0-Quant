@@ -10,7 +10,70 @@ from app.analysis.kang_long_you_hui import calculate_kang_long_you_hui
 from app.analysis.dark_pool_fund import calculate_dark_pool_fund
 from app.analysis.precise_trading import get_precise_trading_signals
 
-router = APIRouter()
+from app.services.dashboard_analyzer import dashboard_analyzer
+from app.utils.akshare_wrapper import akshare_client
+from app.quant.data_provider import DataProvider
+import pandas as pd
+
+@router.get("/dashboard/{symbol}")
+async def get_dashboard_analysis(symbol: str):
+    """
+    Get Deep Analysis Dashboard for a stock (A-Share)
+    """
+    # 1. Get History Data (for Technical Analysis)
+    provider = DataProvider()
+    history = provider.get_history(symbol, days=120) 
+    # Convert to DataFrame
+    if not history:
+        return {"error": "No history data found"}
+        
+    df = pd.DataFrame([vars(p) for p in history])
+    
+    # 2. Get Realtime & Chip Data (Parallel if poss, but sequential is fine for now)
+    # Note: symbol might need adjustment for akshare (6 digits)
+    ak_symbol = symbol
+    if symbol.startswith('sh') or symbol.startswith('sz'): 
+        ak_symbol = symbol
+    
+    # Chip Distribution (A-Share Only)
+    chip_data = None
+    realtime = None
+    stock_name = symbol
+    
+    try:
+        # Simple heuristic for A-Share
+        is_ashare = symbol.startswith('sh6') or symbol.startswith('sz0') or symbol.startswith('sz3') or (symbol.isdigit() and len(symbol)==6)
+        
+        if is_ashare:
+            chip_res = await akshare_client.get_chip_distribution(ak_symbol)
+            # Process chip data to summary dict if needed, or pass raw if small
+            # Actually akshare returns DataFrame usually. We need to parse it.
+            # Convert DF to list/dict
+            if hasattr(chip_res, 'to_dict'):
+                chip_data = chip_res.to_dict(orient='records')
+            
+            # Realtime Indicators
+            # For specific stock, we might just rely on provider's get_realtime_quote
+            # But we added get_realtime_indicators (all market) in wrapper. Let's send basic realtime quote from provider for now to save time/bandwidth
+            rt_quote = provider.data_manager.get_realtime_quote(symbol) # Returns dict
+            if rt_quote:
+                realtime = rt_quote
+                stock_name = rt_quote.get('name', symbol)
+                
+    except Exception as e:
+        print(f"Extra data fetch failed: {e}")
+        
+    # 3. Analyze
+    result = await dashboard_analyzer.analyze(
+        symbol=symbol,
+        stock_name=stock_name,
+        df=df,
+        chip_data=chip_data,
+        realtime=realtime
+    )
+    
+    return result
+
 
 @router.get("/hot-money/{stock_code}", tags=["Analysis"])
 async def get_hot_money_analysis(stock_code: str):
