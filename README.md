@@ -76,22 +76,90 @@ graph TD
 
 ---
 
-## 🚀 快速使用
+## 🚀 快速上手 (Quick Start)
 
-### 1. 安装
+请根据您的操作系统选择对应的启动方式。
+
+### 🍎 macOS / Linux 用户
+
+**1. 获取代码**
+打开终端 (Terminal)，执行：
 ```bash
 git clone https://github.com/a1050154895/ROX3.0-Quant.git
 cd ROX3.0-Quant
+```
+
+**2. 安装环境 (推荐使用 Virtualenv)**
+```bash
+# 创建虚拟环境
+python3 -m venv venv
+# 激活环境
+source venv/bin/activate
+
+# 安装依赖
 pip install -r requirements.txt
 ```
 
-### 2. 启动
+**3. 启动系统**
 ```bash
 python3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8002
 ```
 
-### 3. 访问
-打开浏览器访问 `http://localhost:8002`
+**4. 访问页面**
+点击链接或复制到浏览器: [http://localhost:8002](http://localhost:8002)
+
+---
+
+### 🪟 Windows 用户
+
+**1. 获取代码**
+打开 PowerShell 或 CMD，执行：
+```powershell
+git clone https://github.com/a1050154895/ROX3.0-Quant.git
+cd ROX3.0-Quant
+```
+
+**2. 安装环境**
+```powershell
+# 创建虚拟环境
+python -m venv venv
+# 激活环境 (注意反斜杠)
+.\venv\Scripts\activate
+
+# 安装依赖
+pip install -r requirements.txt
+```
+
+**3. 启动系统**
+```powershell
+# Windows 通常使用 python 而非 python3
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8002
+```
+
+**4. 访问页面**
+点击链接或复制到浏览器: [http://localhost:8002](http://localhost:8002)
+
+---
+
+## 📂 项目目录结构
+
+```
+ROX3.0-Quant/
+├── app/
+│   ├── api/                 # API 路由 (Endpoints for Market, Trade, Macro...)
+│   ├── rox_quant/           # 量化核心 (TickEngine, Algos, DataProviders)
+│   │   ├── datasources/     # 数据源适配器 (AkShare, CCXT...)
+│   │   └── algos/           # 交易算法实现
+│   ├── strategies/          # 用户策略目录 (Drop your .py files here)
+│   ├── static/              # 前端静态资源 (JS, CSS, Images)
+│   └── templates/           # HTML 模板入口
+├── data/
+│   ├── db/                  # SQLite 数据库 (rox.db)
+│   └── documents/           # 知识库与文档数据
+├── tests/                   # 单元测试与验证脚本
+├── requirements.txt         # 依赖清单
+└── README.md                # 项目文档
+```
 
 ---
 
