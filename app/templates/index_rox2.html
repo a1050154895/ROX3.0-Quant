@@ -271,6 +271,12 @@
 
             <!-- User / Actions -->
             <div class="flex items-center gap-4">
+                <!-- 小白模式切换 -->
+                <button onclick="toggleBeginnerMode()" id="btn-beginner-mode"
+                    class="px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all flex items-center gap-2 text-xs font-bold mr-2">
+                    <i class="fas fa-leaf"></i> <span>小白模式</span>
+                </button>
+
                 <button class="p-2 text-slate-400 hover:text-white transition-colors" title="通知"><i
                         class="fas fa-bell"></i></button>
                 <div onclick="openProfileModal()"
@@ -281,7 +287,74 @@
         </header>
 
         <!-- Main Scrollable Area -->
-        <main class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth relative">
+
+            <!-- BEGINNER MODE DASHBOARD (Overlay) -->
+            <div id="beginner-panel"
+                class="hidden absolute inset-0 bg-slate-950 z-50 p-8 flex flex-col items-center overflow-y-auto">
+                <div
+                    class="absolute inset-0 bg-gradient-to-b from-slate-900 via-[#0f172a] to-slate-950 z-0 pointer-events-none">
+                </div>
+
+                <!-- Welcome Header -->
+                <div class="z-10 text-center max-w-2xl mt-10 mb-12">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold mb-4">
+                        <i class="fas fa-check-circle"></i> 极简模式已开启
+                    </div>
+                    <h1 class="text-5xl font-bold text-white mb-4 tracking-tight">投资，从未如此简单</h1>
+                    <p class="text-slate-400 text-xl font-light">ROX 智能投研顾问为您全天候盯盘</p>
+                </div>
+
+                <!-- 3 Big Cards -->
+                <div class="z-10 grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl mb-12">
+
+                    <!-- Card 1: AI Consultant -->
+                    <div onclick="toggleAIAgent()"
+                        class="group cursor-pointer bg-slate-900/50 hover:bg-slate-800 border-2 border-slate-800 hover:border-purple-500 rounded-3xl p-8 transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-900/20 flex flex-col items-center text-center">
+                        <div
+                            class="w-20 h-20 rounded-full bg-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-robot text-4xl text-purple-400"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-100 mb-3">AI 投资顾问</h3>
+                        <p class="text-base text-slate-400 leading-relaxed mb-6">"这只股票能买吗？"<br>"现在大盘怎么样？"<br>有问题，直接问我。
+                        </p>
+                        <span
+                            class="mt-auto px-6 py-2 rounded-full bg-purple-600 text-white font-bold group-hover:bg-purple-500 transition-colors">立即咨询</span>
+                    </div>
+
+                    <!-- Card 2: Market Sentiment -->
+                    <div
+                        class="group cursor-pointer bg-slate-900/50 hover:bg-slate-800 border-2 border-slate-800 hover:border-amber-500 rounded-3xl p-8 transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-900/20 flex flex-col items-center text-center">
+                        <div
+                            class="w-20 h-20 rounded-full bg-amber-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-thermometer-half text-4xl text-amber-400"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-100 mb-3">市场温度计</h3>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span id="beginner-sentiment-val" class="text-4xl font-bold text-amber-400">55°</span>
+                            <span id="beginner-sentiment-text"
+                                class="text-sm bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">震荡</span>
+                        </div>
+                        <p class="text-base text-slate-400 leading-relaxed mb-6">多空力量实时监控<br>一眼看清入场时机</p>
+                        <span
+                            class="mt-auto px-6 py-2 rounded-full border border-slate-600 text-slate-300 group-hover:border-amber-500 group-hover:text-amber-400 transition-colors">查看详情</span>
+                    </div>
+
+                    <!-- Card 3: Smart Strategy -->
+                    <div onclick="toggleBeginnerMode()"
+                        class="group cursor-pointer bg-slate-900/50 hover:bg-slate-800 border-2 border-slate-800 hover:border-sky-500 rounded-3xl p-8 transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-sky-900/20 flex flex-col items-center text-center">
+                        <div
+                            class="w-20 h-20 rounded-full bg-sky-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-layer-group text-4xl text-sky-400"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-100 mb-3">进阶选股</h3>
+                        <p class="text-base text-slate-400 leading-relaxed mb-6">准备好了吗？<br>切换回专业模式<br>使用高级筛选功能</p>
+                        <span
+                            class="mt-auto px-6 py-2 rounded-full border border-slate-600 text-slate-300 group-hover:border-sky-500 group-hover:text-sky-400 transition-colors">进入系统</span>
+                    </div>
+                </div>
+            </div>
 
             <!-- VIEW: 市场看板 -->
             <div id="view-market" class="rox1-view view-active max-w-7xl mx-auto space-y-6" data-rox1-view="market">

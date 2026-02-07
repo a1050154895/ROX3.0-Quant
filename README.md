@@ -1,185 +1,105 @@
 
-# 🚀 ROX 3.0 Quant Platform - 专业级全资产量化投研系统
+# 🚀 ROX 3.0 Quant Platform - 下一代开源量化终端
+
+> **"让量化投资像玩游戏一样简单"**
 
 ![ROX 3.0 Banner](https://img.shields.io/badge/ROX-3.0_Pro-blueviolet?style=for-the-badge&logo=python)
-![Python](https://img.shields.io/badge/python-3.9+-blue?style=flat-square&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi&logoColor=white)
-![Vue/Tailwind](https://img.shields.io/badge/Frontend-Tailwind_CSS-38B2AC?style=flat-square&logo=tailwindcss&logoColor=white)
+![Beginner Friendly](https://img.shields.io/badge/Beginner-One_Click_Start-success?style=for-the-badge&logo=apple)
+![Pro Ready](https://img.shields.io/badge/Professional-Algo_Trading-blue?style=for-the-badge&logo=linux)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
-**ROX 3.0** 是一款专为高阶个人投资者和小型私募团队设计的**开源量化投研平台**。它打破了传统且昂贵的机构级终端限制，将**A股、美股、加密货币**三大市场数据整合于统一的现代化界面中，并提供从宏观分析、策略回测到模拟交易的全流程支持。
+**ROX 3.0** 不仅仅是一个量化软件，它是一个**双核**投研平台，完美平衡了专业深度与使用门槛：
 
-> **当前状态**: ✅ 生产就绪 (Production Ready) - Phase 1-6 功能已全部交付
-
----
-
-## 📺 两大核心试图 (Core Views)
-
-平台分为 **首页 (Standard)** 和 **专业版 (Professional)** 两种工作模式，满足不同深度的投研需求。
-
-### 🏠 1. 首页看板 (Home Dashboard)
-适合日常盯盘与快速市场扫描：
-- **全市场行情**: 顶部导航一键切换 **A股 / 美股 / Crypto**，自动适配指数与报价。
-- **宏观仪表盘**: 左侧面板集成 **GDP, CPI, PMI** 及 **M1-M2 剪刀差**，一眼洞察宏观周期。
-- **五档盘口与成交**: 右侧实时刷新 Level-2 级别的盘口深度与逐笔成交。
-- **资讯雷达**: 底部实时滚动全球 7x24 小时财经快讯与个股重要公告。
-
-### 🔬 2. 专业版分析 (Professional Analytics)
-适合深度复盘与策略生成（点击顶部“分析”按钮进入）：
-- **七大核心信号**: 集成 *亢龙有悔*、*游资暗盘*、*三色共振* 等 7 种机构级量化信号模型，自动扫描个股买卖点。
-- **风控中心 (Risk)**: 
-    - **Kelly 公式**: 自动计算最优仓位比例。
-    - **VaR / CVaR**: 基于蒙特卡洛模拟的风险价值评估。
-- **策略模板**: 内置 *CTA趋势*、*均值回归*、*波浪理论* 等策略模板，支持从 K 线图中直接生成回测报告。
+1.  🍃 **小白模式 (Beginner Mode)**：专为普通用户设计。内置 **AI 投研顾问**、**市场情绪温度计** 和 **一键选股**，无需看复杂的 K 线和代码。
+2.  ⚡️ **极客模式 (Pro Mode)**：专为宽客设计。集成了 **A股/美股/Crypto** 全球行情、**宏观数据引擎** (GDP/CPI/PMI)、**Tick 级回测** 与 **算法交易**。
 
 ---
 
-## 🌟 核心功能 (Key Features)
+## 🍃 新手极速上手 (For Beginners)
 
-### 🌍 全球市场覆盖 (Multi-Asset)
-- **A股 (CN)**: `AkShare` 驱动，支持沪深京全市场股票与指数。
-- **美股 (US)**: `yfinance` 驱动，直连纳斯达克/纽交所。
-- **加密货币 (Crypto)**: `ccxt` 驱动，支持 Binance/OKX 现货与永续合约。
+**零代码、零配置，下载即用。**
 
-### 🧠 机构级策略引擎
-- **Tick 级高精度回测**: 还原真实订单流与滑点。
-- **算法交易**: 提供 **TWAP** (时间加权) 和 **Grid** (网格交易) 算法。
-- **策略超市**: 社区化插件系统，一键安装/分享策略 (`.py` 格式)。
-
-### ☁️ 云端同步与社交
-- **私有云同步**: 完整的系统快照备份与恢复 (ZIP)，支持跨设备无缝迁移。
-- **交易员画像**: 自定义头像、简介与能力标签 (Tags)。
-- **一级市场热度**: 独创“概念资金流”组件，追踪 VC/PE 资金流向（如 *固态电池*、*低空经济*）。
-
----
-
-## 🛠️ 系统架构
-
-```mermaid
-graph TD
-    User[用户] --> Frontend[ROX UI (Home/Pro)]
-    Frontend --> |API| Backend[FastAPI Server]
-    
-    subgraph "Backend Core"
-        Backend --> QuantEngine[量化引擎]
-        Backend --> SignalSystem[专业信号系统]
-        Backend --> CloudSync[云同步模块]
-    end
-    
-    subgraph "Data Sources"
-        QuantEngine --> AkShare[A股]
-        QuantEngine --> YFinance[美股]
-        QuantEngine --> CCXT[Crypto]
-        SignalSystem --> StatsGov[宏观数据]
-    end
-```
-
----
-
-## 🚀 极速启动 (小白模式)
-
-如果您不熟悉命令行，请直接使用我们提供的 **一键启动脚本**：
+无需懂 Python，无需会命令行。我们为您准备了“一键启动脚本”。
 
 ### 🍎 macOS 用户
-1. 双击运行项目根目录下的 `start_with_mac.command`。
-2. 脚本会自动安装环境并打开浏览器。
+1. 点击右上角 **Code** -> **Download ZIP** 下载本项目并解压。
+2. 双击文件夹内的 `start_with_mac.command`。
+3. 脚本会自动安装环境，并为您打开游览器进入系统。
 
 ### 🪟 Windows 用户
-1. 双击运行项目根目录下的 `start_with_win.bat`。
-2. 脚本会自动配置环境并启动服务。
+1. 点击右上角 **Code** -> **Download ZIP** 下载本项目并解压。
+2. 双击文件夹内的 `start_with_win.bat`。
+3. 等待黑色窗口跑完代码，系统即刻启动。
+
+*(启动后，点击界面右上角的 “🍃 小白模式” 按钮，即可切换至极简界面)*
 
 ---
 
-## 👨‍💻 开发者模式 (Quick Start)
+## ⚡️ 专业极客模式 (For Developers)
 
-请根据您的操作系统选择对应的启动方式。
+如果您是开发者或量化交易员，ROX 3.0 为您提供了无限的扩展能力。
 
-### 🍎 macOS / Linux 用户
+### 🌟 核心特性 (Key Features)
 
-**1. 获取代码**
-打开终端 (Terminal)，执行：
+#### 1. 🌍 上帝视角 (All-in-One Market)
+*   **A股**: 深度集成 `AkShare`，支持沪深京全市场实时行情与历史数据。
+*   **美股**: 连接 `YFinance`，纳斯达克/纽交所毫秒级延迟。
+*   **Crypto**: 基于 `CCXT`，支持 Binance/OKX 等主流交易所。
+*   *一键切换市场，无需打开多个软件。*
+
+#### 2. 🧠 宏观罗盘 (Macro Engine)
+*   从国家统计局直连数据，可视化展示 **M1-M2 剪刀差** (流动性指标) 与 **社融/PMI** (经济景气度)。
+*   这是机构投资者做择时的大杀器，现在免费开放。
+
+#### 3. 🔬 深度投研 (Deep Research)
+*   **概念资金流**: 类似“一级市场”的热度扫描，捕捉独角兽与热门概念 (如固态电池、低空经济) 的资金流向。
+*   **资讯雷达**: 7x24 小时全球财经快讯滚动，不错过任何黑天鹅。
+*   **个股诊断**: 内置 7 大量化模型 (如亢龙有悔、三色共振) 自动评分。
+
+---
+
+## 🛠️ 安装与开发 (Manual Install)
+
+如果您希望参与开发或手动部署：
+
 ```bash
+# 1. 克隆代码
 git clone https://github.com/a1050154895/ROX3.0-Quant.git
 cd ROX3.0-Quant
-```
 
-**2. 安装环境 (推荐使用 Virtualenv)**
-```bash
-# 创建虚拟环境
+# 2. 创建虚拟环境 (推荐)
 python3 -m venv venv
-# 激活环境
-source venv/bin/activate
+source venv/bin/activate  # Windows: .\venv\Scripts\activate
 
-# 安装依赖
+# 3. 安装依赖
 pip install -r requirements.txt
-```
 
-**3. 启动系统**
-```bash
+# 4. 启动服务
 python3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8002
 ```
 
-**4. 访问页面**
-点击链接或复制到浏览器: [http://localhost:8002](http://localhost:8002)
+---
+
+## 📸 双模式展示
+
+### 🍃 小白模式
+*   **AI 投顾**: "这只股票能买吗？" —— 直接问 ROX QBot，基于 DeepSeek-V3 模型思考。
+*   **市场温度计**: 实时计算市场多空情绪（Fear & Greed），一眼看懂现在是该贪婪还是该恐惧。
+*   **本周金股**: AI 基于资金流与动量筛选的核心标的池，不做选择题。
+
+### ⚡️ 专业模式
+*   **K线复盘**: 多周期技术分析，叠加自研指标。
+*   **资金流向**: 北向/南向资金实时监控，板块热力图。
+*   **策略回测**: 在 `app/strategies/` 目录下编写您的 Python 策略，支持 Grid/TWAP/CTA。
 
 ---
 
-### 🪟 Windows 用户
+## 🛡️ 免责声明 (Disclaimer)
 
-**1. 获取代码**
-打开 PowerShell 或 CMD，执行：
-```powershell
-git clone https://github.com/a1050154895/ROX3.0-Quant.git
-cd ROX3.0-Quant
-```
-
-**2. 安装环境**
-```powershell
-# 创建虚拟环境
-python -m venv venv
-# 激活环境 (注意反斜杠)
-.\venv\Scripts\activate
-
-# 安装依赖
-pip install -r requirements.txt
-```
-
-**3. 启动系统**
-```powershell
-# Windows 通常使用 python 而非 python3
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8002
-```
-
-**4. 访问页面**
-点击链接或复制到浏览器: [http://localhost:8002](http://localhost:8002)
-
----
-
-## 📂 项目目录结构
-
-```
-ROX3.0-Quant/
-├── app/
-│   ├── api/                 # API 路由 (Endpoints for Market, Trade, Macro...)
-│   ├── rox_quant/           # 量化核心 (TickEngine, Algos, DataProviders)
-│   │   ├── datasources/     # 数据源适配器 (AkShare, CCXT...)
-│   │   └── algos/           # 交易算法实现
-│   ├── strategies/          # 用户策略目录 (Drop your .py files here)
-│   ├── static/              # 前端静态资源 (JS, CSS, Images)
-│   └── templates/           # HTML 模板入口
-├── data/
-│   ├── db/                  # SQLite 数据库 (rox.db)
-│   └── documents/           # 知识库与文档数据
-├── tests/                   # 单元测试与验证脚本
-├── requirements.txt         # 依赖清单
-└── README.md                # 项目文档
-```
-
----
-
-## ⚠️ 免责声明
-
-本项目 (`ROX 3.0`) 仅供**量化投研学习与研究**使用。投资有风险，入市需谨慎。
+本项目 (`ROX 3.0`) 仅供**量化投研学习与研究**使用，不构成任何投资建议。
+*   金融市场风险巨大，自动化交易可能导致资金损失。
+*   请务必在模拟盘充分测试后再考虑实盘。
+*   开发者不对任何交易损失负责。
 
 ---
 

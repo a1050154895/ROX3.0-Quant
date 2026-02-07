@@ -1,7 +1,44 @@
 /**
  * ROX 3.0 Phase 6 UI Logic
- * Handles Macro Dashboard, News Feed, and Concept/Theme Visualization
+ * Handles Macro Dashboard, News Feed, Concept/Theme Visualization, and Beginner Mode.
  */
+
+// ================= BEGINNER MODE =================
+window.isBeginnerMode = false;
+
+window.toggleBeginnerMode = function () {
+    window.isBeginnerMode = !window.isBeginnerMode;
+    const btn = document.getElementById('btn-beginner-mode');
+    const proWorkspace = document.getElementById('pro-workspace');
+    const beginnerPanel = document.getElementById('beginner-panel');
+
+    // Fallback for proWorkspace if id not found (in case HTML edit failed or cached)
+    const targetPro = proWorkspace || document.querySelector('.grid-cols-\\[260px_1fr_280px\\]');
+
+    if (window.isBeginnerMode) {
+        // Switch to Beginner
+        if (targetPro) targetPro.classList.add('hidden');
+        if (beginnerPanel) beginnerPanel.classList.remove('hidden');
+        beginnerPanel.style.display = 'flex'; // Force flex layout
+
+        btn.classList.add('bg-emerald-500', 'text-white');
+        btn.classList.remove('bg-gradient-to-r', 'text-emerald-400');
+        btn.innerHTML = '<i class="fas fa-check"></i> 小白模式 (ON)';
+
+        showToast('已切换至小白模式：简单、直观、智能');
+    } else {
+        // Switch back to Pro
+        if (targetPro) targetPro.classList.remove('hidden');
+        if (beginnerPanel) beginnerPanel.classList.add('hidden');
+        beginnerPanel.style.display = 'none';
+
+        btn.classList.remove('bg-emerald-500', 'text-white');
+        btn.classList.add('bg-gradient-to-r', 'text-emerald-400');
+        btn.innerHTML = '<i class="fas fa-leaf"></i> 小白模式';
+
+        showToast('已切回专业模式');
+    }
+};
 
 // ================= MACRO DASHBOARD =================
 let macroChart = null;
