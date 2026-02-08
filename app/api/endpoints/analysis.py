@@ -15,6 +15,8 @@ from app.utils.akshare_wrapper import akshare_client
 from app.quant.data_provider import DataProvider
 import pandas as pd
 
+router = APIRouter()
+
 @router.get("/dashboard/{symbol}")
 async def get_dashboard_analysis(symbol: str):
     """

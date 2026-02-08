@@ -545,8 +545,40 @@ def _index_symbol(code: str) -> str:
 @router.get("/kline")
 async def api_market_kline(code: str, period: str = "daily"):
     try:
-        # Use centralized data service with fallback
-        df, use_fallback = await get_stock_kline(code, period=period, limit=500)
+        # Normalize Period for Ashare
+        ashare_period = None
+        if period == 'daily': ashare_period = '1d'
+        elif period == 'weekly': ashare_period = '1w'
+        elif period == 'monthly': ashare_period = '1M'
+        
+        df = None
+        use_fallback = False
+        
+        # 1. Try Ashare Lite First (Faster for standard K-lines)
+        if ashare_period and (len(code) == 6 or code.startswith('sh') or code.startswith('sz')):
+            try:
+                from app.rox_quant.datasources.ashare_lite import get_price
+                loop = asyncio.get_event_loop()
+                # Fetch more data to ensure indicators can be calculated
+                df = await loop.run_in_executor(None, lambda: get_price(code, frequency=ashare_period, count=500))
+                if df is not None and not df.empty:
+                    # Normalize columns
+                    df = df.reset_index()
+                    # Ashare might return empty index name, so reset_index gives 'index' or ''
+                    df.rename(columns={'time': 'date', 'day': 'date', 'index': 'date', '': 'date'}, inplace=True)
+                    # Create standard columns if missing
+                    for c in ['open', 'close', 'high', 'low', 'volume']:
+                        if c not in df.columns: df[c] = 0.0
+                        else: df[c] = df[c].astype(float)
+                        
+                    df['date'] = pd.to_datetime(df['date'])
+                    use_fallback = False # Ashare is considered primary/fast here
+            except Exception as e:
+                logger.warning(f"Ashare Lite failed for {code}: {e}")
+        
+        # 2. Fallback to AkShare / Standard StockData
+        if df is None or df.empty:
+             df, use_fallback = await get_stock_kline(code, period=period, limit=500)
 
         if df is None or df.empty:
             return JSONResponse({"error": "No data found"}, status_code=404)
