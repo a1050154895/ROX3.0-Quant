@@ -11,6 +11,8 @@ from app.db import get_all_stocks_spot
 
 logger = logging.getLogger("stock-api")
 router = APIRouter()
+# Import Ashare Lite for reliable data fetching
+from app.rox_quant.datasources import ashare_lite
 
 
 def _normalize_code(code: str) -> str:
@@ -514,6 +516,19 @@ async def get_stock_diagnose(code: str = Query(..., description="股票代码, �
         end_date = datetime.now().strftime('%Y%m%d')
         start_date = (datetime.now() - timedelta(days=365)).strftime('%Y%m%d')
         loop = asyncio.get_running_loop()
+        # Use Ashare Lite for speed and reliability
+        try:
+            df = await loop.run_in_executor(None, lambda: ashare_lite.get_price(code6, count=300, frequency='1d'))
+            if df is not None and not df.empty:
+                # Rename columns to match existing logic (Chinese)
+                df = df.rename(columns={
+                    "open": "开盘", "close": "收盘", "high": "最高", "low": "最低", "volume": "成交量"
+                })
+                return df
+        except Exception as e:
+            logger.warning(f"Ashare Lite fetch failed for {code6}: {e}")
+        
+        # Fallback to AkShare if Ashare Lite fails (though Ashare is usually more robust)
         return await loop.run_in_executor(None, lambda: ak.stock_zh_a_hist(symbol=code6, period="daily", start_date=start_date, end_date=end_date, adjust="qfq"))
 
     # Task 2: Fetch Fundamentals

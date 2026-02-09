@@ -429,9 +429,37 @@
         var allDates = histDates.concat(predDates);
         var option = {
           backgroundColor: 'transparent',
-          tooltip: { trigger: 'axis', backgroundColor: 'rgba(30,41,59,0.95)', borderColor: '#334155', textStyle: { color: '#e2e8f0', fontSize: 11 } },
-          grid: { left: 40, right: 15, top: 10, bottom: 25 },
-          xAxis: { type: 'category', data: allDates, axisLabel: { color: '#94a3b8', fontSize: 10 } },
+          tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(30,41,59,0.95)',
+            borderColor: '#334155',
+            textStyle: { color: '#e2e8f0', fontSize: 11 },
+            formatter: function (params) {
+              if (!params || !params.length) return '';
+              var res = '<div class="font-bold border-b border-slate-600 pb-1 mb-1">' + params[0].name + '</div>';
+              params.forEach(function (p) {
+                if (p.value !== null && p.value !== undefined) {
+                  var color = p.seriesName === '预测' ? '#facc15' : '#38bdf8';
+                  res += '<div class="flex justify-between gap-4"><span style="color:' + color + '">● ' + p.seriesName + '</span><span class="font-mono">' + p.value + '</span></div>';
+                }
+              });
+              return res;
+            }
+          },
+          grid: { left: 40, right: 15, top: 10, bottom: 25, containLabel: false },
+          xAxis: {
+            type: 'category',
+            data: allDates,
+            axisLabel: {
+              color: '#94a3b8',
+              fontSize: 10,
+              interval: 'auto', // Let echarts decide, or use 0 if we want all
+              formatter: function (value) {
+                // Return simple date if it's too long? No, user wants detail.
+                return value;
+              }
+            }
+          },
           yAxis: { type: 'value', scale: true, axisLabel: { color: '#94a3b8' }, splitLine: { lineStyle: { color: '#334155' } } },
           series: []
         };
@@ -610,7 +638,7 @@
             ch.setOption({
               tooltip: { trigger: 'axis', backgroundColor: 'rgba(30,41,59,0.95)', borderColor: '#334155', textStyle: { color: '#e2e8f0', fontSize: 11 } },
               grid: { left: 10, right: 10, top: 20, bottom: 10, containLabel: true },
-              xAxis: { type: 'category', data: s334.labels || [], axisLabel: { color: '#94a3b8', interval: 0 } },
+              xAxis: { type: 'category', data: s334.labels || [], axisLabel: { color: '#94a3b8' } },
               yAxis: { type: 'value', max: 100, axisLabel: { color: '#94a3b8' }, splitLine: { lineStyle: { color: '#334155' } } },
               series: [{ type: 'bar', barWidth: '60%', data: (s334.data || []).map(function (v, i) { return { value: v, itemStyle: { color: barColors[i] } }; }) }]
             });

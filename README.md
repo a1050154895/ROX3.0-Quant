@@ -149,6 +149,8 @@ SECRET_KEY=change_this_to_a_random_string
 ```
 
 > **提示**：您也可以在启动软件后，进入 **[系统设置] -> [AI 模型配置]** 界面，直接在网页端修改 API Key 和 Base URL，配置将自动保存。
+>
+> **注意**：本项目不提供免费的 AI API Key。如需使用 AI 功能，请自行购买 API Key (推荐 DeepSeek 或 OpenAI 兼容服务商)，并在设置中填入。
 
 ---
 

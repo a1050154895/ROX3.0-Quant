@@ -814,7 +814,61 @@
                 <button type="button" onclick="document.getElementById('settings-modal').classList.add('hidden')"
                     class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
             </div>
-            <div class="space-y-4 text-sm">
+            <div class="space-y-4 text-sm max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
+                <!-- AI 配置区域 -->
+                <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                    <h4 class="text-xs font-bold text-sky-400 mb-3 flex items-center gap-2">
+                        <i class="fas fa-robot"></i> AI 模型配置
+                    </h4>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-slate-400 mb-1 text-xs">AI Provider (服务商)</label>
+                            <select id="settings-ai-provider"
+                                class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-slate-200 text-xs focus:border-sky-500 outline-none">
+                                <option value="default">Custom (自定义 / OpenAI兼容)</option>
+                                <option value="openai">OpenAI 官方</option>
+                                <option value="deepseek">DeepSeek 官方</option>
+                                <option value="ollama">Ollama (本地)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 mb-1 text-xs">Base URL (接口地址)</label>
+                            <div class="relative">
+                                <input id="settings-ai-url" type="text" placeholder="https://api.openai.com/v1"
+                                    class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-slate-200 text-xs focus:border-sky-500 outline-none font-mono">
+                                <i class="fas fa-link absolute right-2.5 top-2 text-slate-600"></i>
+                            </div>
+                            <p class="text-[10px] text-slate-500 mt-0.5">例如: https://aicanapi.com/v1</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 mb-1 text-xs">API Key (密钥)</label>
+                            <div class="relative">
+                                <input id="settings-ai-key" type="password" placeholder="sk-..."
+                                    class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-slate-200 text-xs focus:border-sky-500 outline-none font-mono">
+                                <i class="fas fa-key absolute right-2.5 top-2 text-slate-600"></i>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 mb-1 text-xs">Model Name (模型名称)</label>
+                            <input id="settings-ai-model" type="text" placeholder="gpt-4o"
+                                class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-slate-200 text-xs focus:border-sky-500 outline-none font-mono">
+                            <div class="flex gap-2 mt-1.5">
+                                <button onclick="document.getElementById('settings-ai-model').value='gpt-4o'"
+                                    class="px-2 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-[10px] text-slate-300 transition-colors">gpt-4o</button>
+                                <button onclick="document.getElementById('settings-ai-model').value='gpt-4o-mini'"
+                                    class="px-2 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-[10px] text-slate-300 transition-colors">Mini</button>
+                                <button onclick="document.getElementById('settings-ai-model').value='deepseek-chat'"
+                                    class="px-2 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-[10px] text-slate-300 transition-colors">DeepSeek</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 常规设置 -->
                 <div>
                     <label
                         class="block text-slate-400 mb-1.5 text-xs uppercase tracking-wider font-semibold">行情刷新间隔</label>
@@ -824,8 +878,13 @@
                         <span class="absolute right-3 top-2.5 text-slate-500 text-xs">秒</span>
                     </div>
                 </div>
-                <div class="pt-2 border-t border-slate-800">
-                    <p class="text-xxs text-slate-500"><i class="fas fa-info-circle mr-1"></i> 修改后需重启生效。更多高级选项开发中。</p>
+
+                <!-- 保存按钮 -->
+                <div class="pt-2 border-t border-slate-800 flex justify-end gap-3">
+                    <button onclick="saveSystemSettings()"
+                        class="px-4 py-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white text-xs font-bold rounded shadow-lg shadow-sky-900/20 transition-all transform active:scale-95">
+                        <i class="fas fa-save mr-1"></i> 保存配置
+                    </button>
                 </div>
             </div>
         </div>

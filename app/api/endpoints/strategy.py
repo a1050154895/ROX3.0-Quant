@@ -49,15 +49,15 @@ async def get_strategies():
     """
     return {
         "strategies": [
-            {"id": "jq_10y_52x", "name": "10年52倍 (ARBR)", "description": "Weekly rebalance based on ARBR sentiment factor"},
-            {"id": "jq_small_cap", "name": "Small Cap Rotation", "description": "Low price/Small cap rotation with trend filter"},
-            {"id": "jq_etf_rotation", "name": "ETF Momentum", "description": "Multi-asset ETF rotation based on R-Squared Momentum"},
-            {"id": "jq_dragon", "name": "Dragon Trend", "description": "Follow stocks with consecutive Limit Ups"},
-            {"id": "jq_snake_move", "name": "Snake Move (蛇皮走位)", "description": "Internalized: Small Cap + Variance Timing + Low Price"},
-            {"id": "book_small_cap_timing", "name": "Small Cap + 2-8 Timing", "description": "A-Share Classic: Small Cap Selection with Index Timing Filter"},
-            {"id": "book_dual_thrust", "name": "Dual Thrust", "description": "Classic CTA: Range Breakout Strategy"},
-            {"id": "book_double_ma", "name": "Double Moving Average", "description": "Classic Trend: Golden Cross / Death Cross"},
-            {"id": "book_turtle", "name": "Turtle Trading", "description": "Classic Trend: Donchian Channel Breakout"}
+            {"id": "jq_10y_52x", "name": "10年52倍 (ARBR)", "description": "基于 ARBR 情绪因子的周频调仓策略"},
+            {"id": "jq_small_cap", "name": "小市值轮动", "description": "低价小市值轮动策略，结合趋势过滤"},
+            {"id": "jq_etf_rotation", "name": "ETF 动量轮动", "description": "基于 R-Squared 动量的多资产 ETF 轮动"},
+            {"id": "jq_dragon", "name": "龙头趋势", "description": "追随连续涨停板的强势龙头股"},
+            {"id": "jq_snake_move", "name": "蛇皮走位", "description": "内盘策略：小市值 + 方差择时 + 低价"},
+            {"id": "book_small_cap_timing", "name": "小市值 + 二八择时", "description": "A股经典：小市值选股配合二八大小盘择时"},
+            {"id": "book_dual_thrust", "name": "Dual Thrust", "description": "经典 CTA：区间突破趋势跟踪"},
+            {"id": "book_double_ma", "name": "双均线交叉", "description": "经典趋势：金叉买入 / 死叉卖出"},
+            {"id": "book_turtle", "name": "海龟交易法则", "description": "经典趋势：唐奇安通道突破"}
         ]
     }
 

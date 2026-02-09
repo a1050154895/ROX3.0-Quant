@@ -747,7 +747,8 @@ async def api_market_news():
 async def api_market_macro():
     try:
         loop = asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, get_real_macro_data)
+        # Add timeout protection
+        data = await asyncio.wait_for(loop.run_in_executor(None, get_real_macro_data), timeout=5.0)
         return JSONResponse(data)
     except Exception as e:
         logger.error(f"Macro API failed: {e}")
@@ -1118,10 +1119,13 @@ async def api_market_prediction(horizon: int = 3):
         now = pd.Timestamp.now()
         future_dates = []
         d = 1
+        weekdays = ["一", "二", "三", "四", "五", "六", "日"]
         while len(future_dates) < horizon:
             t = now + pd.Timedelta(days=d)
             if t.weekday() < 5:  # 0=Mon .. 4=Fri
-                future_dates.append(t.strftime("%m-%d"))
+                # Format: MM-DD(周X)
+                wd = weekdays[t.weekday()]
+                future_dates.append(f"{t.strftime('%m-%d')}({wd})")
             d += 1
         future_dates = future_dates[:horizon]
         pred_prices = pred_prices[:len(future_dates)]

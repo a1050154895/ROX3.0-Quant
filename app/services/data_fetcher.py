@@ -3,7 +3,9 @@ import pandas as pd
 import asyncio
 import logging
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from app.utils.ashare_fallback import get_daily_kline_ashare
+from app.rox_quant.datasources import ashare_lite
 
 logger = logging.getLogger(__name__)
 
@@ -70,8 +72,23 @@ class DataFetcher:
                         return df_fb[['date', 'open', 'high', 'low', 'close', 'volume']]
                 except Exception as e2:
                     logger.warning(f"Fallback fetch failed for {symbol}: {e2}")
+
+                # Try Ashare Lite (Tencent/Sina Interface) - Very fast
+                try:
+                    df = ashare_lite.get_price(symbol, count=500, frequency='1d')
+                    if df is not None and not df.empty:
+                        df = df.reset_index() # index is time/date
+                        df.rename(columns={'time': 'date'}, inplace=True)
+                        df['date'] = pd.to_datetime(df['date'])
+                         # Filter
+                        mask = (df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))
+                        df = df.loc[mask]
+                        if not df.empty:
+                            return df[['date', 'open', 'high', 'low', 'close', 'volume']]
+                except Exception as e3:
+                     logger.warning(f"Ashare Lite fetch failed for {symbol}: {e3}")
                 
-                # Final Fallback: Synthetic Data (to prevent empty screens)
+                 # Final Fallback: Synthetic Data (to prevent empty screens)
                 # Only for specific "demo" stocks or if we want to ensure system stability
                 logger.info(f"Generating synthetic data for {symbol}")
                 return self._generate_synthetic_data(symbol, start_date, end_date)

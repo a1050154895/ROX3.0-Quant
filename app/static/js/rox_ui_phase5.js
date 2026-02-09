@@ -318,6 +318,7 @@ window.saveSystemSettings = async function () {
     }
 };
 
+
 // Hook into switchMode for System view
 const originalSwitchModeP5 = window.switchMode;
 window.switchMode = function (mode) {
@@ -326,3 +327,14 @@ window.switchMode = function (mode) {
         loadSystemSettings();
     }
 };
+
+// Initialize Settings Button
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('settings-btn');
+    if (btn) {
+        btn.onclick = function () {
+            loadSystemSettings();
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+    }
+});
