@@ -22,3 +22,6 @@ redis==5.0.1
 duckduckgo-search
 
 scipy
+ccxt
+websocket-client
+yfinance

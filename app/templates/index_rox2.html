@@ -858,6 +858,33 @@
                                     </select>
                                 </div>
                             </div>
+
+                            <!-- Secondary AI (Backup) -->
+                            <div class="mt-4 pt-4 border-t border-slate-700/50">
+                                <h4 class="text-sm font-bold text-slate-400 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-shield-alt text-emerald-500"></i> 备用线路 (Secondary / Backup)
+                                </h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="text-xs text-slate-500 mb-1 block">备用 API Key</label>
+                                        <input id="settings-ai-sec-key" type="password"
+                                            class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white focus:border-emerald-500 outline-none transition-colors"
+                                            placeholder="备用 Key (可选)...">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-slate-500 mb-1 block">备用 Base URL</label>
+                                        <input id="settings-ai-sec-url" type="text"
+                                            class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-300 focus:border-emerald-500 outline-none transition-colors"
+                                            placeholder="https://backup-api.example.com/v1">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-slate-500 mb-1 block">备用模型 (Model)</label>
+                                        <input id="settings-ai-sec-model" type="text"
+                                            class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-300 focus:border-emerald-500 outline-none transition-colors"
+                                            placeholder="gpt-3.5-turbo">
+                                    </div>
+                                </div>
+                            </div>
                             <button onclick="saveSystemSettings()"
                                 class="w-full py-2 bg-violet-600 hover:bg-violet-500 text-white rounded font-bold transition-all shadow-lg shadow-violet-900/20">
                                 <i class="fas fa-save mr-2"></i>保存 AI 配置
@@ -1372,7 +1399,7 @@
         </div>
     </div>
     <!-- Format Utils -->
-    <script src="/static/js/utils/format.js"></script>
+    <script src="/static/js/utils/format_utils.js"></script>
 
     <!-- Core Modules -->
     <script src="/static/js/modules/api-client.js"></script>

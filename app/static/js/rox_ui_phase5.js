@@ -277,6 +277,17 @@ async function loadSystemSettings() {
         if (data.has_key) {
             document.getElementById('settings-ai-key').placeholder = "********** (已配置)";
         }
+
+        // Secondary
+        if (document.getElementById('settings-ai-sec-key')) {
+            document.getElementById('settings-ai-sec-key').value = data.secondary_api_key || '';
+            document.getElementById('settings-ai-sec-url').value = data.secondary_base_url || '';
+            document.getElementById('settings-ai-sec-model').value = data.secondary_model || '';
+
+            if (data.has_secondary_key) {
+                document.getElementById('settings-ai-sec-key').placeholder = "********** (已配置)";
+            }
+        }
     } catch (e) {
         console.error("Failed to load settings", e);
     }
@@ -287,6 +298,11 @@ window.saveSystemSettings = async function () {
     const url = document.getElementById('settings-ai-url').value;
     const model = document.getElementById('settings-ai-model').value;
     const provider = document.getElementById('settings-ai-provider').value;
+
+    // Secondary
+    const secKey = document.getElementById('settings-ai-sec-key') ? document.getElementById('settings-ai-sec-key').value : "";
+    const secUrl = document.getElementById('settings-ai-sec-url') ? document.getElementById('settings-ai-sec-url').value : "";
+    const secModel = document.getElementById('settings-ai-sec-model') ? document.getElementById('settings-ai-sec-model').value : "";
 
     if (!url) {
         showToast("❌ Base URL 不能为空");
@@ -301,12 +317,15 @@ window.saveSystemSettings = async function () {
                 api_key: key,
                 base_url: url,
                 model: model,
-                provider: provider
+                provider: provider,
+                secondary_api_key: secKey,
+                secondary_base_url: secUrl,
+                secondary_model: secModel
             })
         });
 
         if (res.ok) {
-            showToast("✅ AI 配置已保存");
+            showToast("✅ AI 配置已保存 (主线路 + 备用线路)");
             // Reload to show masked key
             loadSystemSettings();
         } else {

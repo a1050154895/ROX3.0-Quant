@@ -23,8 +23,10 @@ async def get_dashboard_analysis(symbol: str):
     Get Deep Analysis Dashboard for a stock (A-Share)
     """
     # 1. Get History Data (for Technical Analysis)
-    provider = DataProvider()
-    history = provider.get_history(symbol, days=120) 
+    from app.quant.data_provider import get_data_provider
+    provider = get_data_provider()
+    start_date = (datetime.now() - timedelta(days=120)).strftime("%Y-%m-%d")
+    history = provider.get_history(symbol, start_date=start_date) 
     # Convert to DataFrame
     if not history:
         return {"error": "No history data found"}

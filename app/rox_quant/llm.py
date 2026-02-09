@@ -166,19 +166,34 @@ class AIClient:
         try:
             if not client:
                 return "请配置 AI_API_KEY 与 AI_BASE_URL（如 .env）后使用 AI 功能；或设置 AI_PROVIDER。"
-            response = await client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": message}
-                ]
-            )
+            
+            async def _do_chat(cli, mdl):
+                return await cli.chat.completions.create(
+                    model=mdl,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": message}
+                    ]
+                )
+
+            try:
+                response = await _do_chat(client, model)
+            except Exception as e:
+                # Failover logic
+                print(f"Primary AI failed: {e}. Trying secondary...")
+                sec_client = self.get_client("secondary")
+                if sec_client and sec_client != client:
+                    sec_model = self.get_default_model("secondary")
+                    response = await _do_chat(sec_client, sec_model)
+                else:
+                    raise e
+
             if isinstance(response, str):
                 return response
             return response.choices[0].message.content
         except Exception as e:
             import traceback
-            error_msg = f"AI 思考超时: {str(e)}\nTraceback: {traceback.format_exc()}"
+            error_msg = f"AI 思考超时 (Primary & Secondary failed): {str(e)}\nTraceback: {traceback.format_exc()}"
             print(error_msg)
             return f"AI 思考超时: {str(e)}"
 
@@ -257,14 +272,29 @@ class AIClient:
             model = model or self.get_default_model(provider)
             if not client:
                 return {"p_final": 70, "comment": "请配置 AI_API_KEY 与 AI_BASE_URL 后使用 AI 诊断。", "thinking": {"reason": "", "logic": "", "results": ""}, "t_suggestions": {"buy": price * 0.98, "sell": price * 1.02, "space": 4.0}}
-            response = await client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_content}
-                ],
-                temperature=0.3
-            )
+            
+            async def _do_analyze(cli, mdl):
+                return await cli.chat.completions.create(
+                    model=mdl,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_content}
+                    ],
+                    temperature=0.3
+                )
+
+            try:
+                response = await _do_analyze(client, model)
+            except Exception as e:
+                # Failover
+                print(f"Primary Analysis failed: {e}. Trying secondary...")
+                sec_client = self.get_client("secondary")
+                if sec_client and sec_client != client:
+                    sec_model = self.get_default_model("secondary")
+                    response = await _do_analyze(sec_client, sec_model)
+                else:
+                    raise e
+            
             content = response.choices[0].message.content
             # Clean up markdown code blocks if present
             if "```json" in content:

@@ -30,6 +30,9 @@ class DataProvider(abc.ABC):
     def subscribe(self, codes: List[str]):
         pass
 
+    def get_realtime_quote(self, code: str) -> Dict:
+        return self.get_snapshot(code)
+
 class MockDataProvider(DataProvider):
     def get_history(self, code: str, start_date: str = None, end_date: str = None) -> List[Dict]:
         # Simulate data

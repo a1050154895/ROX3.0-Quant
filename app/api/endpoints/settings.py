@@ -7,11 +7,17 @@ from app.rox_quant.llm import AIClient
 
 router = APIRouter()
 
+import json
+
 class AISettings(BaseModel):
     api_key: str
     base_url: str
     provider: Optional[str] = "default"
     model: Optional[str] = "deepseek-chat"
+    # Secondary (Backup)
+    secondary_api_key: Optional[str] = ""
+    secondary_base_url: Optional[str] = ""
+    secondary_model: Optional[str] = "gpt-3.5-turbo"
 
 def update_env_file(key: str, value: str):
     """Update or add a key-value pair in the .env file."""
@@ -51,18 +57,37 @@ def get_ai_settings():
     key = os.getenv("AI_API_KEY", "")
     masked_key = f"{key[:4]}...{key[-4:]}" if len(key) > 8 else "****"
     
+    # Parse Secondary from AI_PROVIDERS
+    secondary = {}
+    try:
+        raw = os.getenv("AI_PROVIDERS", "{}")
+        providers = json.loads(raw)
+        secondary = providers.get("secondary", {})
+        if not secondary and "backup" in providers: secondary = providers["backup"]
+    except:
+        pass
+
+    sec_key = secondary.get("api_key", "")
+    masked_sec_key = f"{sec_key[:4]}...{sec_key[-4:]}" if len(sec_key) > 8 else ""
+
     return {
         "api_key": masked_key,  # Don't return full key for security
         "base_url": os.getenv("AI_BASE_URL", ""),
         "provider": os.getenv("AI_PROVIDER", "default"),
         "model": os.getenv("AI_DEFAULT_MODEL", "deepseek-chat"),
-        "has_key": bool(key and key != "your_ai_api_key_here")
+        "has_key": bool(key and key != "your_ai_api_key_here"),
+        
+        "secondary_api_key": masked_sec_key,
+        "secondary_base_url": secondary.get("base_url", ""),
+        "secondary_model": secondary.get("default_model", ""),
+        "has_secondary_key": bool(sec_key)
     }
 
 @router.post("/ai")
 def update_ai_settings(config: AISettings):
     """Update AI settings in .env and reload client."""
     try:
+        # 1. Update Primary
         if config.api_key and "***" not in config.api_key:
             update_env_file("AI_API_KEY", config.api_key)
             settings.AI_API_KEY = config.api_key
@@ -78,14 +103,33 @@ def update_ai_settings(config: AISettings):
             update_env_file("AI_DEFAULT_MODEL", config.model)
             settings.AI_DEFAULT_MODEL = config.model
             
-        # Reload AI Client
-        # Force re-initialization of the singleton if possible, or just let the next request pick up os.environ
-        # AIClient re-reads os.environ in __init__, so we can re-instantiate or just let it be.
-        # But `AIClient` is instantiated in `app.rox_quant.llm` and used as a dependency or imported. 
-        # The simplest way is to update the instance if it's a singleton.
-        # However, looking at `app/services/dashboard_analyzer.py`, it instantiates `AIClient()` per request or caches it.
-        # Let's check `app/rox_quant/llm.py` usage. It seems to be used as `AIClient()`.
+        # 2. Update Secondary (stored in AI_PROVIDERS json)
+        # Read existing providers first
+        current_providers = {}
+        try:
+            raw = os.getenv("AI_PROVIDERS", "{}")
+            current_providers = json.loads(raw)
+        except:
+            pass
+            
+        # Update 'secondary' entry
+        if "secondary" not in current_providers:
+            current_providers["secondary"] = {"name": "备用线路"}
+            
+        if config.secondary_api_key and "***" not in config.secondary_api_key:
+            current_providers["secondary"]["api_key"] = config.secondary_api_key
+        # If blank and not masked, maybe user wants to clear it? For now assume update if provided.
         
-        return {"status": "success", "message": "AI settings updated. Restart may be required for some components."}
+        if config.secondary_base_url:
+            current_providers["secondary"]["base_url"] = config.secondary_base_url
+            
+        if config.secondary_model:
+            current_providers["secondary"]["default_model"] = config.secondary_model
+            
+        # Save back to .env
+        json_str = json.dumps(current_providers, ensure_ascii=False)
+        update_env_file("AI_PROVIDERS", json_str)
+        
+        return {"status": "success", "message": "AI settings updated (Primary & Secondary)."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
