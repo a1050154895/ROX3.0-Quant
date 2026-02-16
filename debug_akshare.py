@@ -1,60 +1,63 @@
 
 import akshare as ak
-import sys
 import time
-import os
+import pandas as pd
 
-# Try to bypass proxy
-os.environ["NO_PROXY"] = "*"
-os.environ["no_proxy"] = "*"
-
-def check_akshare():
-    print("Starting AkShare check...")
-    # List of checks to try in order
-    # 1. Shanghai Composite (sh000001)
-    # 2. Shanghai Composite (000001)
-    # 3. Shenzhen Component (sz399001)
-    # 4. General Spot Data (fallback)
-    
-    last_error = None
-    
-    # Try specific indices first (lightweight)
-    for symbol in ["sh000001", "000001", "sz399001", "399001"]:
-        print(f"Trying symbol: {symbol}")
-        try:
-            res = ak.stock_zh_index_spot_em(symbol=symbol)
-            if res is not None and not res.empty:
-                print(f"Success with {symbol}!")
-                print(res)
-                return True
-        except Exception as e:
-            print(f"Failed with {symbol}: {e} (Type: {type(e)})")
-            last_error = e
-            continue
-    
-    # Fallback to general spot data (heavier but reliable)
-    print("Trying fallback stock_zh_a_spot_em...")
+def test_fenshi(symbol):
+    print(f"Testing Fenshi for {symbol}...")
+    start = time.time()
     try:
-        res = ak.stock_zh_a_spot_em()
-        if res is not None and not res.empty:
-            print("Success with fallback!")
-            print(res.head())
-            return True
+        df = ak.stock_zh_a_minute(symbol=symbol, period="1")
+        elapsed = time.time() - start
+        if df is not None and not df.empty:
+            print(f"✅ Fenshi OK ({len(df)} rows) in {elapsed:.2f}s")
+        else:
+            print(f"❌ Fenshi Empty in {elapsed:.2f}s")
     except Exception as e:
-        print(f"Failed with fallback: {e} (Type: {type(e)})")
-        last_error = e
-        
-    # If we get here, all checks failed
-    if last_error:
-        print(f"Final Error: {last_error}")
-        print(f"Final Error str: '{str(last_error)}'")
-        raise last_error
-    else:
-        raise Exception("AkShare connectivity check failed")
+        print(f"❌ Fenshi Error: {e}")
+
+def test_info(symbol):
+    print(f"Testing Info for {symbol}...")
+    start = time.time()
+    try:
+        df = ak.stock_individual_info_em(symbol=symbol)
+        elapsed = time.time() - start
+        if df is not None and not df.empty:
+            print(f"✅ Info OK ({len(df)} rows) in {elapsed:.2f}s")
+        else:
+            print(f"❌ Info Empty in {elapsed:.2f}s")
+    except Exception as e:
+        print(f"❌ Info Error: {e}")
+
+def test_fund_flow(symbol):
+    print(f"Testing Fund Flow for {symbol}...")
+    start = time.time()
+    try:
+        market = "sh" if symbol.startswith("6") else "sz"
+        df = ak.stock_individual_fund_flow(stock=symbol, market=market)
+        elapsed = time.time() - start
+        if df is not None and not df.empty:
+            print(f"✅ Fund Flow OK ({len(df)} rows) in {elapsed:.2f}s")
+        else:
+            print(f"❌ Fund Flow Empty in {elapsed:.2f}s")
+    except Exception as e:
+        print(f"❌ Fund Flow Error: {e}")
+
+def test_news(symbol):
+    print(f"Testing News for {symbol}...")
+    start = time.time()
+    try:
+        df = ak.stock_news_em(symbol=symbol)
+        elapsed = time.time() - start
+        if df is not None and not df.empty:
+            print(f"✅ News OK ({len(df)} rows) in {elapsed:.2f}s")
+        else:
+            print(f"❌ News Empty in {elapsed:.2f}s")
+    except Exception as e:
+        print(f"❌ News Error: {e}")
 
 if __name__ == "__main__":
-    try:
-        check_akshare()
-        print("Overall Status: OK")
-    except Exception as e:
-        print(f"Overall Status: Error: {str(e)}")
+    # test_fenshi("sh000001") # Already tested and confirmed OK logic issue was in API code
+    # test_info("600519") # Fast
+    test_fund_flow("600519")
+    test_news("600519")

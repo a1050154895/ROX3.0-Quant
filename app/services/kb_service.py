@@ -4,15 +4,20 @@ from typing import List, Dict, Any, Optional
 from app.core.config import settings
 
 try:
-    from duckduckgo_search import DDGS
+    from ddgs import DDGS
 except ImportError:
-    DDGS = None
+    try:
+        from duckduckgo_search import DDGS
+    except ImportError:
+        DDGS = None
 
 logger = logging.getLogger("kb-service")
 
 class KBService:
     _instance = None
     _documents_dir_cache: Optional[List[Dict[str, Any]]] = None
+    _embedded_docs_cache: Optional[List[Dict[str, Any]]] = None
+    _kb_instance: Optional[Any] = None
     
     # Built-in fallback data (the "basic" knowledge for demo purposes)
     KNOWLEDGE_BASE_DATA: List[Dict] = [
@@ -32,6 +37,18 @@ class KBService:
         if cls._instance is None:
             cls._instance = super(KBService, cls).__new__(cls)
         return cls._instance
+    
+    def _get_kb_instance(self):
+        """获取或创建KnowledgeBase实例"""
+        if self._kb_instance is None:
+            try:
+                from app.rox_quant.knowledge_base import KnowledgeBase
+                self._kb_instance = KnowledgeBase()
+                self._kb_instance.load_embedded()
+            except Exception as e:
+                logger.error(f"Failed to create KnowledgeBase instance: {e}")
+                self._kb_instance = None
+        return self._kb_instance
 
     def _extract_text_snippet(self, fp: str, ext: str, max_chars: int = 1000) -> str:
         """Lightweight text extraction for search previews."""
@@ -66,8 +83,15 @@ class KBService:
                 return []
                 
             out = []
+            # 限制处理的文件数量，避免请求卡住
+            max_files = 50
+            processed_files = 0
+            
             for root, _, files in os.walk(doc_dir):
                 for f in files:
+                    if processed_files >= max_files:
+                        break
+                    
                     if f.startswith("~$") or f.startswith("."): continue
                     fp = os.path.join(root, f)
                     ext = os.path.splitext(fp)[1].lower()
@@ -78,7 +102,12 @@ class KBService:
                     subdir = os.path.basename(root)
                     tags = [subdir] if subdir in ["strategies", "books"] else []
                     
-                    snippet = self._extract_text_snippet(fp, ext)
+                    # 优化：对于 PDF 文件，只获取文件名而不提取文本，避免耗时操作
+                    if ext == ".pdf":
+                        snippet = "[PDF文档]"
+                    else:
+                        snippet = self._extract_text_snippet(fp, ext)
+                        
                     out.append({
                         "title": title,
                         "summary": snippet,
@@ -86,6 +115,10 @@ class KBService:
                         "source": f"本地文档/{subdir}",
                         "path": fp
                     })
+                    processed_files += 1
+                
+                if processed_files >= max_files:
+                    break
             
             self._documents_dir_cache = out
             logger.info(f"Loaded {len(out)} documents from {doc_dir}")
@@ -97,11 +130,15 @@ class KBService:
 
     def get_embedded_docs(self) -> List[Dict[str, Any]]:
         """Load embedded docs from codebase (if any)."""
+        if self._embedded_docs_cache is not None:
+            return self._embedded_docs_cache
+        
         try:
-            from app.rox_quant.knowledge_base import KnowledgeBase
-            kb = KnowledgeBase()
-            n = kb.load_embedded()
-            if n == 0: return []
+            kb = self._get_kb_instance()
+            if not kb or len(kb.documents) == 0:
+                self._embedded_docs_cache = []
+                return []
+            
             out = []
             for doc in kb.documents:
                 snippet = (doc.content or "")[:500]
@@ -111,8 +148,13 @@ class KBService:
                     "tags": ["内置"],
                     "source": "Rox 核心库"
                 })
+            
+            self._embedded_docs_cache = out
             return out
-        except Exception: return []
+        except Exception as e:
+            logger.error(f"Failed to get embedded docs: {e}")
+            self._embedded_docs_cache = []
+            return []
 
     def search_local(self, query: str, limit: int = 5) -> List[Dict]:
         """Search all local sources (Built-in + User Docs)."""
@@ -158,16 +200,36 @@ class KBService:
         if not DDGS: return []
         try:
             results = []
-            with DDGS() as ddgs:
-                # Add context keywords to improve relevance for financial queries
-                search_q = f"{query} 股票 财经 投资"
-                for r in ddgs.text(search_q, region='cn-zh', safesearch='Moderate', max_results=limit):
+            # Add context keywords to improve relevance for financial queries
+            search_q = f"{query} 股票 财经 投资"
+            
+            # 尝试使用新的DDGS API
+            try:
+                ddgs = DDGS()
+                # 新API可能使用不同的参数
+                for r in ddgs.text(search_q, max_results=limit):
                     results.append({
                         "title": r.get("title"),
                         "summary": r.get("body"),
                         "source": r.get("href"),
                         "type": "web"
                     })
+            except Exception as new_api_error:
+                logger.warning(f"New DDGS API failed: {new_api_error}")
+                # 尝试使用旧的API格式
+                try:
+                    with DDGS() as ddgs:
+                        for r in ddgs.text(search_q, region='cn-zh', safesearch='Moderate', max_results=limit):
+                            results.append({
+                                "title": r.get("title"),
+                                "summary": r.get("body"),
+                                "source": r.get("href"),
+                                "type": "web"
+                            })
+                except Exception as old_api_error:
+                    logger.warning(f"Old DDGS API failed: {old_api_error}")
+                    return []
+            
             return results
         except Exception as e:
             logger.warning(f"Web search failed: {e}")
@@ -176,4 +238,6 @@ class KBService:
     def refresh_cache(self):
         """Force re-scan of the data directory."""
         self._documents_dir_cache = None
+        self._embedded_docs_cache = None
+        self._kb_instance = None
         self._get_documents_from_data_dir()

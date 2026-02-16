@@ -284,3 +284,99 @@ class AkShareClient:
 
 
 akshare_client = AkShareClient()
+
+
+def get_akshare_stock_quote(symbol: str):
+    """
+    获取AKShare股票实时行情
+    
+    Args:
+        symbol: 股票代码
+        
+    Returns:
+        实时行情数据字典
+    """
+    try:
+        import akshare as ak
+        # 使用 AkShare 获取实时行情数据
+        df = ak.stock_zh_a_spot_em()
+        # 过滤指定股票
+        stock_data = df[df['代码'] == symbol]
+        if stock_data.empty:
+            return None
+        
+        # 转换为字典
+        data = stock_data.iloc[0].to_dict()
+        return {
+            "symbol": symbol,
+            "name": data.get('名称', ''),
+            "price": data.get('最新价', 0),
+            "open": data.get('开盘', 0),
+            "high": data.get('最高', 0),
+            "low": data.get('最低', 0),
+            "close": data.get('昨收', 0),
+            "volume": data.get('成交量', 0),
+            "amount": data.get('成交额', 0),
+            "change": data.get('涨跌幅', 0),
+            "time": data.get('date', '')
+        }
+    except Exception as e:
+        logger.error(f"Error getting AKShare stock quote: {e}")
+        return None
+
+
+def get_akshare_kline(symbol: str, interval: str, count: int):
+    """
+    获取AKShare股票K线数据
+    
+    Args:
+        symbol: 股票代码
+        interval: K线周期 (1min, 5min, 15min, 30min, 60min, daily, weekly, monthly)
+        count: 数据条数
+        
+    Returns:
+        K线数据列表
+    """
+    try:
+        import akshare as ak
+        # 转换周期
+        period_map = {
+            '1min': '1',
+            '5min': '5',
+            '15min': '15',
+            '30min': '30',
+            '60min': '60',
+            'daily': 'daily',
+            'weekly': 'weekly',
+            'monthly': 'monthly'
+        }
+        
+        period = period_map.get(interval, 'daily')
+        
+        if period in ['1', '5', '15', '30', '60']:
+            # 分钟级数据
+            df = ak.stock_zh_a_minute(symbol=symbol, period=period, adjust="qfq")
+        else:
+            # 日/周/月数据
+            df = ak.stock_zh_a_hist(symbol=symbol, period=period, adjust="qfq")
+        
+        # 限制数据条数
+        df = df.tail(count)
+        
+        # 转换为列表格式
+        kline_data = []
+        for _, row in df.iterrows():
+            kline_data.append([
+                row.get('date', ''),
+                row.get('open', 0),
+                row.get('close', 0),
+                row.get('high', 0),
+                row.get('low', 0),
+                row.get('volume', 0)
+            ])
+        
+        return kline_data
+    except Exception as e:
+        logger.error(f"Error getting AKShare kline data: {e}")
+        return None
+

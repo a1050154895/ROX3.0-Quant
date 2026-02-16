@@ -18,7 +18,7 @@ api_group = APIRouter(prefix="/api")
 api_group.include_router(ai.router, prefix="/ai", tags=["ai"])
 
 # 市场数据相关
-api_group.include_router(market.router, prefix="/market", tags=["market"])
+api_group.include_router(market.router, tags=["market"])
 
 # 个股诊断相关 (新添加)
 api_group.include_router(stock.router, prefix="/stock", tags=["stock"])
@@ -29,11 +29,23 @@ api_group.include_router(philosophy.router, prefix="/philosophy", tags=["philoso
 # 交易相关
 api_group.include_router(trade.router, prefix="/trade", tags=["trade"])
 
+# 账户管理相关
+from app.api.endpoints import accounts
+api_group.include_router(accounts.router, prefix="/accounts", tags=["accounts"])
+
 # 分析相关
 api_group.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
 
 # 知识库相关
 api_group.include_router(kb.router, prefix="/kb", tags=["kb"])
+
+# 知识管理系统 (新添加)
+from app.api.endpoints import knowledge
+api_group.include_router(knowledge.router, tags=["knowledge"])
+
+# 聚宽策略系统 (新添加)
+from app.api.endpoints import strategies
+api_group.include_router(strategies.router)
 
 # 系统相关
 api_group.include_router(system.router, prefix="/system", tags=["system"])
@@ -69,6 +81,22 @@ api_group.include_router(marketplace.router)
 # 数据导出 (新添加)
 from app.api.endpoints import export
 api_group.include_router(export.router, tags=["export"])
+
+# 卢麒元方法论预测系统 (新添加)
+from app.api.endpoints import lu_prediction
+api_group.include_router(lu_prediction.router, tags=["卢麒元预测"])
+
+# 哲学思想量化系统 (新添加)
+from app.api.endpoints import philosophy_prediction
+api_group.include_router(philosophy_prediction.router, tags=["哲学思想量化"])
+
+# 东方智慧量化系统 (新添加)
+from app.api.endpoints import eastern_wisdom
+api_group.include_router(eastern_wisdom.router, tags=["东方智慧量化"])
+
+# 增强版专业系统 (新添加)
+from app.api.endpoints import professional_plus
+api_group.include_router(professional_plus.router, tags=["增强版专业系统"])
 
 # 价格预警 (新添加)
 from app.api.endpoints import alerts

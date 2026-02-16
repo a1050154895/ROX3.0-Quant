@@ -161,11 +161,16 @@ class SignalFusion:
         """
         计算相对强弱指数 (RSI)
         """
+        # 优化：使用EWMA代替滚动平均，提高性能
         delta = close.diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+        gain = delta.where(delta > 0, 0)
+        loss = -delta.where(delta < 0, 0)
         
-        rs = gain / loss
+        # 使用指数加权移动平均
+        avg_gain = gain.ewm(alpha=1/period, adjust=False).mean()
+        avg_loss = loss.ewm(alpha=1/period, adjust=False).mean()
+        
+        rs = avg_gain / avg_loss
         rsi = 100 - (100 / (1 + rs))
         
         return rsi
@@ -198,12 +203,19 @@ class SignalFusion:
         讲座中提到的技术面信号
         """
         # 计算波动率
+        # 优化：使用EWMA计算波动率，提高性能
         returns = low.pct_change().abs()
-        volatility = returns.rolling(window=period).std()
+        volatility = returns.ewm(span=period, adjust=False).std()
         
         # 判断：是否创新低且波动率低
-        is_new_low = low == low.rolling(window=period).min()
-        is_low_vol = volatility < volatility.rolling(window=period).mean() * (1 - threshold)
+        # 优化：使用向量化操作计算创新低
+        # 计算滚动最小值
+        rolling_min = low.rolling(window=period).min()
+        is_new_low = low == rolling_min
+        
+        # 优化：使用EWMA计算波动率均值
+        volatility_mean = volatility.ewm(span=period, adjust=False).mean()
+        is_low_vol = volatility < volatility_mean * (1 - threshold)
         
         bottom_divergence = is_new_low & is_low_vol
         

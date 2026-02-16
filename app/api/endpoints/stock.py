@@ -507,20 +507,26 @@ async def get_stock_diagnose(code: str = Query(..., description="股票代码, �
     news_items = []
     hist_data = None
     
+    
     # Task 0: Fetch Basic Info (Name)
     async def _fetch_info():
-        return await _get_stock_basic_info(code6)
+        try:
+            return await asyncio.wait_for(_get_stock_basic_info(code6), timeout=3.0)
+        except Exception as e:
+            logger.warning(f"Info fetch failed: {e}")
+            return {"code": code6, "name": code6}  # Fallback to code as name
 
-    # Task 1: Fetch History (Technicals)
+    # Task 1: Fetch History (Technicals) - Critical, give more time
     async def _fetch_history():
         end_date = datetime.now().strftime('%Y%m%d')
         start_date = (datetime.now() - timedelta(days=365)).strftime('%Y%m%d')
         loop = asyncio.get_running_loop()
-        # Use Ashare Lite for speed and reliability
+        
+        # Try Ashare Lite first (Fast & Reliable)
         try:
+            # Run in executor with internal timeout
             df = await loop.run_in_executor(None, lambda: ashare_lite.get_price(code6, count=300, frequency='1d'))
             if df is not None and not df.empty:
-                # Rename columns to match existing logic (Chinese)
                 df = df.rename(columns={
                     "open": "开盘", "close": "收盘", "high": "最高", "low": "最低", "volume": "成交量"
                 })
@@ -528,65 +534,85 @@ async def get_stock_diagnose(code: str = Query(..., description="股票代码, �
         except Exception as e:
             logger.warning(f"Ashare Lite fetch failed for {code6}: {e}")
         
-        # Fallback to AkShare if Ashare Lite fails (though Ashare is usually more robust)
-        return await loop.run_in_executor(None, lambda: ak.stock_zh_a_hist(symbol=code6, period="daily", start_date=start_date, end_date=end_date, adjust="qfq"))
+        # Fallback to AkShare (Last resort)
+        try:
+            return await loop.run_in_executor(None, lambda: ak.stock_zh_a_hist(symbol=code6, period="daily", start_date=start_date, end_date=end_date, adjust="qfq"))
+        except Exception as e:
+             logger.warning(f"AkShare Hist fetch failed: {e}")
+             return None
 
-    # Task 2: Fetch Fundamentals
+    # Task 2: Fetch Fundamentals - Non-critical, fail fast
     async def _fetch_fundamentals():
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(None, calculate_fundamentals, code6)
+        try:
+            # Wrap synchronous call in wait_for? No, run_in_executor returns a future, wait_for works on it.
+            # But the executor thread might still be blocked. We use wait_for on the valid awaitable.
+            return await asyncio.wait_for(
+                loop.run_in_executor(None, calculate_fundamentals, code6), 
+                timeout=4.0
+            )
+        except Exception as e:
+            logger.warning(f"Fundamentals fetch timed out or failed: {e}")
+            return {"score": 50, "summary": "基本面数据暂不可用", "metrics": {}}
 
-    # Task 3: Fetch Flow
+    # Task 3: Fetch Flow - Non-critical, fail fast
     async def _fetch_flow():
         loop = asyncio.get_running_loop()
-        # calculate_fund_flow runs akshare internally
-        return await loop.run_in_executor(None, calculate_fund_flow, code6)
+        try:
+             return await asyncio.wait_for(
+                loop.run_in_executor(None, calculate_fund_flow, code6),
+                timeout=4.0
+             )
+        except Exception as e:
+            logger.warning(f"Flow fetch timed out or failed: {e}")
+            return {"score": 50, "summary": "资金流数据暂不可用", "flow": {}}
 
-    # Task 4: Fetch News
+    # Task 4: Fetch News - Non-critical
     async def _fetch_news():
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(None, lambda: _get_stock_news(code6, 3))
+        try:
+             return await asyncio.wait_for(
+                loop.run_in_executor(None, lambda: _get_stock_news(code6, 3)),
+                timeout=4.0
+             )
+        except Exception as e:
+            logger.warning(f"News fetch timed out: {e}")
+            return []
         
-    # Run ALL in parallel with timeout (Total 10s limit)
-    try:
-        results = await asyncio.wait_for(
-            asyncio.gather(
-                _fetch_info(),
-                _fetch_history(),
-                _fetch_fundamentals(),
-                _fetch_flow(),
-                _fetch_news(),
-                return_exceptions=True
-            ),
-            timeout=10.0
-        )
-        
-        # Process Info
-        if not isinstance(results[0], Exception) and isinstance(results[0], dict):
-             info = results[0]
+    # Run requests concurrently, but with individual handling
+    # We DO NOT use a global wait_for anymore.
+    results = await asyncio.gather(
+        _fetch_info(),
+        _fetch_history(),
+        _fetch_fundamentals(),
+        _fetch_flow(),
+        _fetch_news(),
+        return_exceptions=True
+    )
+    
+    # Process Info
+    if not isinstance(results[0], Exception) and isinstance(results[0], dict):
+            info = results[0]
 
-        # Process History
-        if not isinstance(results[1], Exception) and results[1] is not None:
-             hist_data = results[1]
-             if not hist_data.empty:
-                 tech_analysis = calculate_technicals(hist_data)
-        elif isinstance(results[1], Exception):
-             logger.warning(f"Hist fetch failed: {results[1]}")
+    # Process History
+    if not isinstance(results[1], Exception) and results[1] is not None:
+            hist_data = results[1]
+            if not hist_data.empty:
+                tech_analysis = calculate_technicals(hist_data)
+    elif isinstance(results[1], Exception):
+            logger.warning(f"Hist fetch exception: {results[1]}")
 
-        # Process Fundamentals
-        if not isinstance(results[2], Exception) and isinstance(results[2], dict):
-             fund_analysis = results[2]
+    # Process Fundamentals
+    if not isinstance(results[2], Exception) and isinstance(results[2], dict):
+            fund_analysis = results[2]
 
-        # Process Flow
-        if not isinstance(results[3], Exception) and isinstance(results[3], dict):
-             flow_analysis = results[3]
+    # Process Flow
+    if not isinstance(results[3], Exception) and isinstance(results[3], dict):
+            flow_analysis = results[3]
 
-        # Process News
-        if not isinstance(results[4], Exception) and isinstance(results[4], list):
-             news_items = results[4]
-             
-    except Exception as e:
-        logger.error(f"Diagnose parallel fetch error: {e}")
+    # Process News
+    if not isinstance(results[4], Exception) and isinstance(results[4], list):
+            news_items = results[4]
 
     # 3. 综合评分 (权重: 技术40%, 基本面40%, 资金20%)
     t_score = tech_analysis.get('score', 0)

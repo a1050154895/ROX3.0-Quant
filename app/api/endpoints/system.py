@@ -16,6 +16,7 @@ elif "eastmoney.com" not in os.environ["no_proxy"]:
 
 from app.rox_quant.data_provider import DataProvider
 from app import cache_utils
+from app.services.risk_monitor import get_risk_monitor
 
 router = APIRouter()
 _provider = DataProvider()
@@ -151,5 +152,38 @@ async def api_system_refresh():
     try:
         await get_all_stocks_spot()
         return JSONResponse({"status": "refreshed", "rows": len(_spot_cache["data"])})
+    except Exception as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
+
+@router.get("/system/monitor/status")
+async def api_system_monitor_status():
+    """获取系统监控状态"""
+    try:
+        risk_monitor = get_risk_monitor()
+        system_status = risk_monitor.get_system_status()
+        return JSONResponse({"status": "ok", "data": system_status})
+    except Exception as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
+
+@router.get("/system/monitor/alerts")
+async def api_system_monitor_alerts(limit: int = 50):
+    """获取系统监控告警"""
+    try:
+        risk_monitor = get_risk_monitor()
+        system_alerts = risk_monitor.get_system_alerts(limit=limit)
+        return JSONResponse({"status": "ok", "data": system_alerts})
+    except Exception as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
+
+@router.get("/system/monitor/summary")
+async def api_system_monitor_summary():
+    """获取系统监控摘要"""
+    try:
+        risk_monitor = get_risk_monitor()
+        system_summary = risk_monitor.get_system_summary()
+        return JSONResponse({"status": "ok", "data": system_summary})
     except Exception as e:
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)

@@ -184,7 +184,7 @@ class DatabaseConnectionPool:
 
 
 # 全局连接池实例
-_db_pool = DatabaseConnectionPool(DB_PATH, pool_size=5, timeout=30)
+_db_pool = DatabaseConnectionPool(DB_PATH, pool_size=10, timeout=60)
 
 
 def get_conn() -> sqlite3.Connection:
@@ -252,12 +252,12 @@ def ensure_schema(conn: sqlite3.Connection):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             type TEXT NOT NULL, -- 'sim' or 'real'
+            name TEXT, -- 账户名称
             initial_capital REAL DEFAULT 100000.0,
             balance REAL DEFAULT 100000.0,
             currency TEXT DEFAULT 'CNY',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(user_id) REFERENCES users(id),
-            UNIQUE(user_id, type)
+            FOREIGN KEY(user_id) REFERENCES users(id)
         )
         """
     )
@@ -265,12 +265,32 @@ def ensure_schema(conn: sqlite3.Connection):
     try:
         cur = conn.execute("PRAGMA table_info(accounts)")
         cols = [r[1] for r in cur.fetchall()]
+        if "name" not in cols:
+            conn.execute("ALTER TABLE accounts ADD COLUMN name TEXT")
         if "total_assets" not in cols:
             conn.execute("ALTER TABLE accounts ADD COLUMN total_assets REAL DEFAULT 100000.0")
         if "day_pnl" not in cols:
             conn.execute("ALTER TABLE accounts ADD COLUMN day_pnl REAL DEFAULT 0.0")
     except Exception:
         pass
+    
+    # 创建转账记录表
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS transfers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            from_account_id INTEGER,
+            to_account_id INTEGER,
+            user_id INTEGER,
+            amount REAL NOT NULL,
+            currency TEXT DEFAULT 'CNY',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(from_account_id) REFERENCES accounts(id),
+            FOREIGN KEY(to_account_id) REFERENCES accounts(id),
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+        """
+    )
 
     conn.execute(
         """
@@ -296,6 +316,7 @@ def ensure_schema(conn: sqlite3.Connection):
         CREATE TABLE IF NOT EXISTS trades (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
+            account_id INTEGER,
             account_type TEXT NOT NULL,
             symbol TEXT NOT NULL,
             name TEXT,
@@ -311,14 +332,17 @@ def ensure_schema(conn: sqlite3.Connection):
             strategy_note TEXT,
             stop_loss REAL,
             take_profit REAL,
-            FOREIGN KEY(user_id) REFERENCES users(id)
+            FOREIGN KEY(user_id) REFERENCES users(id),
+            FOREIGN KEY(account_id) REFERENCES accounts(id)
         )
         """
     )
-    # 兼容旧库：若无 stop_loss/take_profit 列则添加
+    # 兼容旧库：若无 stop_loss/take_profit/account_id 列则添加
     try:
         cur = conn.execute("PRAGMA table_info(trades)")
         cols = [r[1] for r in cur.fetchall()]
+        if "account_id" not in cols:
+            conn.execute("ALTER TABLE trades ADD COLUMN account_id INTEGER")
         if "stop_loss" not in cols:
             conn.execute("ALTER TABLE trades ADD COLUMN stop_loss REAL")
         if "take_profit" not in cols:
@@ -432,6 +456,17 @@ def ensure_schema(conn: sqlite3.Connection):
         """
     )
     conn.execute("CREATE INDEX IF NOT EXISTS idx_alerts_user_pending ON alerts(user_id, triggered_at)")
+    
+    # 添加更多索引，提高查询速度
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_trades_user_account ON trades(user_id, account_id, status, open_time)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_positions_account_symbol ON positions(account_id, symbol)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_watchlist_user_code ON watchlist(user_id, stock_code)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_history_user_time ON history(user_id, analyze_time)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_visual_strategies_user ON visual_strategies(user_id, updated_at)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_prompt_templates_key_scope ON prompt_templates(key, scope)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_condition_orders_user_status ON condition_orders(user_id, status, trigger_type)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_transfers_user_time ON transfers(user_id, created_at)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_accounts_user_type ON accounts(user_id, type)")
 
     # Multi-Asset Support Tables (Phase 1)
     # Crypto Spot Cache
@@ -471,8 +506,35 @@ def ensure_schema(conn: sqlite3.Connection):
             price REAL DEFAULT 0.0,
             install_count INTEGER DEFAULT 0,
             rating REAL DEFAULT 5.0,
+            rating_count INTEGER DEFAULT 0,
+            downloads INTEGER DEFAULT 0,
+            win_rate TEXT DEFAULT 'Unknown',
+            return_rate TEXT DEFAULT 'Unknown',
+            risk_level INTEGER DEFAULT 3, -- 1-5, 5 is highest risk
+            sharpe_ratio REAL DEFAULT 0.0, -- 夏普比率
+            max_drawdown REAL DEFAULT 0.0, -- 最大回撤
+            avg_return REAL DEFAULT 0.0, -- 平均收益率
+            total_trades INTEGER DEFAULT 0, -- 总交易次数
+            category TEXT DEFAULT '趋势跟踪', -- 策略分类
+            update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             file_path TEXT, -- e.g. "official/grid_master.py"
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    
+    # Marketplace Comments
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS marketplace_comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            item_id INTEGER,
+            user_id INTEGER,
+            username TEXT,
+            rating INTEGER,
+            comment TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(item_id) REFERENCES marketplace_items(id)
         )
         """
     )
@@ -652,18 +714,19 @@ def close_trade(conn: sqlite3.Connection, user_id: int, trade_id: int, close_pri
     conn.commit()
     return True
 
-def get_trades(conn: sqlite3.Connection, user_id: int, account_type: str, status: Optional[str] = None) -> List[Dict[str, Any]]:
-    query = "SELECT * FROM trades WHERE user_id = ? AND account_type = ?"
+def get_trades(conn: sqlite3.Connection, user_id: int, account_type: str, status: Optional[str] = None, limit: int = 100) -> List[Dict[str, Any]]:
+    query = "SELECT id, symbol, name, side, status, open_price, open_quantity, open_time, close_price, close_time, pnl, pnl_pct, strategy_note, stop_loss, take_profit FROM trades WHERE user_id = ? AND account_type = ?"
     params = [user_id, account_type]
     if status:
         query += " AND status = ?"
         params.append(status)
-    query += " ORDER BY open_time DESC"
+    query += " ORDER BY open_time DESC LIMIT ?"
+    params.append(limit)
     cur = conn.execute(query, params)
     return [dict(row) for row in cur.fetchall()]
 
 def get_history(conn: sqlite3.Connection, user_id: int, limit: int = 20) -> List[Dict[str, Any]]:
-    cur = conn.execute("SELECT * FROM history WHERE user_id = ? ORDER BY analyze_time DESC LIMIT ?", (user_id, limit))
+    cur = conn.execute("SELECT id, stock_name, stock_code, sector, win_rate, rating, comment, analyze_time FROM history WHERE user_id = ? ORDER BY analyze_time DESC LIMIT ?", (user_id, limit))
     return [dict(row) for row in cur.fetchall()]
 
 def add_history(conn: sqlite3.Connection, user_id: int, stock_name: str, stock_code: str, sector: str, win_rate: float, rating: str, comment: str, json_data: str):

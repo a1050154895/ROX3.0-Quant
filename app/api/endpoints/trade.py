@@ -100,24 +100,79 @@ def api_open_trade(req: TradeRequest, current_user: User = Depends(get_current_u
         err = _check_risk_params(req.open_price, getattr(req, 'stop_loss', None), getattr(req, 'take_profit', None))
         if err:
             return JSONResponse({"error": err}, status_code=400)
+        
+        # 验证交易参数
+        if not req.symbol or not isinstance(req.symbol, str):
+            return JSONResponse({"error": "无效的股票代码"}, status_code=400)
+        if req.open_price <= 0:
+            return JSONResponse({"error": "无效的价格"}, status_code=400)
+        if req.open_quantity <= 0 or req.open_quantity % 100 != 0:
+            return JSONResponse({"error": "无效的数量"}, status_code=400)
+        
         trade_data = req.dict()
         trade_data['order_type'] = 'market'
         trade_data['stop_loss'] = getattr(req, 'stop_loss', None)
         trade_data['take_profit'] = getattr(req, 'take_profit', None)
+        trade_data['order_status'] = 'pending'
+        
         if req.account_type == 'real':
             try:
                 from app.rox_quant.trade_executor import get_trader
                 trader = get_trader('real')
+                
+                # 先检查连接状态
+                if not trader._ensure_connected():
+                    return JSONResponse({"error": "无法连接到交易账户"}, status_code=503)
+                
+                # 执行交易
                 res = trader.buy(req.symbol, req.open_price, req.open_quantity)
-                if res.get('status') in ('error', 'blocked') or (res.get('msg') and 'not connected' in str(res.get('msg', '')).lower()):
-                    return JSONResponse({"error": res.get('msg', '实盘下单失败')}, status_code=400)
+                
+                # 处理交易结果
+                if res.get('status') == 'error':
+                    error_code = res.get('code', 'UNKNOWN_ERROR')
+                    error_msg = res.get('msg', '实盘下单失败')
+                    logger.error(f"Real trade failed: {error_code} - {error_msg}")
+                    
+                    # 根据错误类型返回不同的状态码
+                    if error_code in ('CONNECTION_ERROR', 'INSUFFICIENT_FUNDS'):
+                        return JSONResponse({"error": error_msg, "code": error_code}, status_code=503)
+                    elif error_code in ('INVALID_PARAMETER', 'INVALID_PRICE', 'INVALID_AMOUNT'):
+                        return JSONResponse({"error": error_msg, "code": error_code}, status_code=400)
+                    elif error_code == 'MARKET_CLOSED':
+                        return JSONResponse({"error": error_msg, "code": error_code}, status_code=423)
+                    else:
+                        return JSONResponse({"error": error_msg, "code": error_code}, status_code=400)
+                elif res.get('status') == 'blocked':
+                    return JSONResponse({"error": res.get('msg', '交易被阻止'), "code": res.get('code')}, status_code=403)
+                
+                # 更新交易数据
+                trade_data['order_status'] = 'sent'
+                trade_data['order_id'] = res.get('order_id')
+                trade_data['execution_info'] = res.get('raw')
+                
             except Exception as e:
-                logger.warning(f"Real trader buy failed: {e}")
-                return JSONResponse({"error": f"实盘执行失败: {e}"}, status_code=502)
-        create_trade(conn, current_user.id, trade_data)
-        return JSONResponse({"status": "ok", "msg": "下单成功"})
+                logger.error(f"Real trader execution failed: {e}")
+                return JSONResponse({"error": f"实盘执行失败: {str(e)}", "code": "EXECUTION_ERROR"}, status_code=502)
+        
+        # 创建交易记录
+        trade_id = create_trade(conn, current_user.id, trade_data)
+        
+        # 返回详细的交易信息
+        return JSONResponse({
+            "status": "ok", 
+            "msg": "下单成功",
+            "trade_id": trade_id,
+            "order_id": trade_data.get('order_id'),
+            "account_type": req.account_type,
+            "symbol": req.symbol,
+            "price": req.open_price,
+            "quantity": req.open_quantity,
+            "stop_loss": trade_data.get('stop_loss'),
+            "take_profit": trade_data.get('take_profit')
+        })
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        logger.error(f"API open trade failed: {e}")
+        return JSONResponse({"error": f"系统错误: {str(e)}"}, status_code=500)
 
 @router.post("/close")
 def api_close_trade(req: CloseTradeRequest, current_user: User = Depends(get_current_user), conn: sqlite3.Connection = Depends(get_db)):
@@ -216,6 +271,25 @@ async def api_trade_review(
     summary = await _generate_review_summary(label, in_range)
     return JSONResponse({"summary": summary, "trades_count": len(in_range)})
 
+
+@router.get("/review/advanced")
+async def api_advanced_trade_review(
+    period: str = Query("week", description="week | month | quarter | year"),
+    current_user: User = Depends(get_current_user),
+):
+    """高级AI交易复盘，生成详细的交易分析和改进建议"""
+    try:
+        from app.services.ai_review_service import get_ai_review_service
+        ai_review_service = get_ai_review_service()
+        
+        # 生成AI复盘报告
+        review = await ai_review_service.generate_review(current_user.id, period)
+        
+        return JSONResponse(review)
+    except Exception as e:
+        logger.error(f"Error in advanced trade review: {e}")
+        return JSONResponse({"error": "生成复盘报告失败"}, status_code=500)
+
 @router.get("/watchlist")
 async def api_get_watchlist(current_user: User = Depends(get_current_user), conn: sqlite3.Connection = Depends(get_db)):
     items = get_watchlist(conn, current_user.id)
@@ -310,6 +384,54 @@ def api_check_conditions(current_user: User = Depends(get_current_user), conn: s
         fill_condition_order(conn, co["id"])
         filled.append({"condition_order_id": co["id"], "symbol": co["symbol"], "price": price})
     return JSONResponse({"status": "ok", "filled": filled})
+
+
+# --- Risk Management API ---
+@router.get("/risk/summary")
+def api_get_risk_summary(current_user: User = Depends(get_current_user)):
+    """获取用户风险摘要"""
+    try:
+        from app.services.risk_monitor import get_risk_monitor
+        risk_monitor = get_risk_monitor()
+        summary = risk_monitor.get_risk_summary(current_user.id)
+        return JSONResponse(summary)
+    except Exception as e:
+        logger.error(f"Error getting risk summary: {e}")
+        return JSONResponse({"error": "获取风险摘要失败"}, status_code=500)
+
+@router.get("/risk/alerts")
+def api_get_risk_alerts(current_user: User = Depends(get_current_user), limit: int = 50):
+    """获取用户风险警报"""
+    try:
+        from app.services.risk_monitor import get_risk_monitor
+        risk_monitor = get_risk_monitor()
+        alerts = risk_monitor.get_alerts(current_user.id, limit=limit)
+        return JSONResponse({"alerts": alerts})
+    except Exception as e:
+        logger.error(f"Error getting risk alerts: {e}")
+        return JSONResponse({"error": "获取风险警报失败"}, status_code=500)
+
+@router.post("/risk/start-monitor")
+def api_start_risk_monitor(current_user: User = Depends(get_current_user)):
+    """启动风险监控服务"""
+    try:
+        from app.services.risk_monitor import start_risk_monitor
+        start_risk_monitor()
+        return JSONResponse({"status": "ok", "message": "风险监控服务已启动"})
+    except Exception as e:
+        logger.error(f"Error starting risk monitor: {e}")
+        return JSONResponse({"error": "启动风险监控服务失败"}, status_code=500)
+
+@router.post("/risk/stop-monitor")
+def api_stop_risk_monitor(current_user: User = Depends(get_current_user)):
+    """停止风险监控服务"""
+    try:
+        from app.services.risk_monitor import stop_risk_monitor
+        stop_risk_monitor()
+        return JSONResponse({"status": "ok", "message": "风险监控服务已停止"})
+    except Exception as e:
+        logger.error(f"Error stopping risk monitor: {e}")
+        return JSONResponse({"error": "停止风险监控服务失败"}, status_code=500)
 
 # --- Event Bus Integration ---
 from app.core.event_bus import EventBus

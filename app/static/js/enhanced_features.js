@@ -391,23 +391,174 @@ function switchToView(view) {
 }
 
 // ============ 通用工具 ============
-function showToast(message, type = 'info') {
+// 通知队列管理
+let toastQueue = [];
+const MAX_TOASTS = 5;
+
+function showToast(message, type = 'info', title = '', duration = 3000, position = 'top-right') {
     const colors = {
-        success: 'bg-green-500',
-        error: 'bg-red-500',
-        warning: 'bg-yellow-500',
-        info: 'bg-blue-500'
+        success: {
+            bg: 'bg-emerald-900/90 border-emerald-500/30',
+            text: 'text-emerald-400',
+            icon: 'fa-check-circle',
+            border: 'border-l-4 border-emerald-500'
+        },
+        error: {
+            bg: 'bg-red-900/90 border-red-500/30',
+            text: 'text-red-400',
+            icon: 'fa-exclamation-circle',
+            border: 'border-l-4 border-red-500'
+        },
+        warning: {
+            bg: 'bg-amber-900/90 border-amber-500/30',
+            text: 'text-amber-400',
+            icon: 'fa-exclamation-triangle',
+            border: 'border-l-4 border-amber-500'
+        },
+        info: {
+            bg: 'bg-sky-900/90 border-sky-500/30',
+            text: 'text-sky-400',
+            icon: 'fa-info-circle',
+            border: 'border-l-4 border-sky-500'
+        }
     };
 
+    const config = colors[type] || colors.info;
+    
+    // 创建通知元素
     const toast = document.createElement('div');
-    toast.className = `fixed top-4 right-4 z-[200] ${colors[type]} text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-slide-in`;
-    toast.innerHTML = `<span>${message}</span>`;
+    toast.className = `fixed z-[200] ${config.bg} ${config.text} ${config.border} px-4 py-3 rounded-lg shadow-lg flex items-start space-x-3 transition-all duration-300 scale-in max-w-sm w-full`;
+    
+    // 设置位置
+    const positionClasses = {
+        'top-right': 'top-4 right-4',
+        'top-left': 'top-4 left-4',
+        'bottom-right': 'bottom-4 right-4',
+        'bottom-left': 'bottom-4 left-4',
+        'top-center': 'top-4 left-1/2 transform -translate-x-1/2',
+        'bottom-center': 'bottom-4 left-1/2 transform -translate-x-1/2'
+    };
+    
+    Object.assign(toast.style, {
+        ...positionClasses[position] ? {} : positionClasses['top-right'],
+        animation: 'slideInRight 0.3s ease forwards'
+    });
+    
+    // 添加位置类
+    if (positionClasses[position]) {
+        toast.classList.add(...positionClasses[position].split(' '));
+    }
+    
+    // 构建通知内容
+    const content = `
+        <div class="text-lg ${config.text}">
+            <i class="fas ${config.icon}"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+            ${title ? `<div class="font-bold text-sm mb-1">${title}</div>` : ''}
+            <div class="text-sm">${message}</div>
+        </div>
+        <button type="button" class="text-slate-400 hover:text-white transition-colors ml-2 flex-shrink-0" onclick="this.closest('div').remove();">
+            <i class="fas fa-times text-xs"></i>
+        </button>
+    `;
+    
+    toast.innerHTML = content;
     document.body.appendChild(toast);
-
+    
+    // 添加到队列
+    toastQueue.push(toast);
+    
+    // 限制通知数量
+    if (toastQueue.length > MAX_TOASTS) {
+        const oldestToast = toastQueue.shift();
+        if (oldestToast) {
+            oldestToast.style.animation = 'fadeOut 0.3s ease forwards';
+            setTimeout(() => oldestToast.remove(), 300);
+        }
+    }
+    
+    // 自动关闭
     setTimeout(() => {
-        toast.classList.add('animate-fade-out');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+        toast.style.animation = 'fadeOut 0.3s ease forwards';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+                // 从队列中移除
+                toastQueue = toastQueue.filter(t => t !== toast);
+            }
+        }, 300);
+    }, duration);
+    
+    // 返回通知元素，以便外部可以手动控制
+    return toast;
+}
+
+// 添加动画样式
+if (!document.getElementById('toast-animations')) {
+    const style = document.createElement('style');
+    style.id = 'toast-animations';
+    style.innerHTML = `
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        
+        .scale-in {
+            animation: scaleIn 0.3s ease forwards;
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 // 请求通知权限

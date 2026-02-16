@@ -116,29 +116,34 @@ async def get_risk_dashboard(user_id: int = Depends(get_current_user_id)):
 
 
 @router.get("/summary", response_model=Dict[str, Any])
-async def get_portfolio_summary(user_id: int = Depends(get_current_user_id)):
+async def get_portfolio_summary(user_id: int = Depends(get_current_user_id), mode: str = "sim"):
     """
-    获取模拟账户概览
+    Get portfolio summary.
+    Mode: "sim" (default) or "real"
     """
     try:
-        pm = PortfolioManager(user_id=user_id)
-        summary = pm.get_account_summary()
-        if not summary:
-            # 自动初始化
-            return {"message": "Account initialized", "balance": 1000000.0}
+        from app.quant.trade_provider import get_trade_provider
+        provider = get_trade_provider(user_id, mode)
+        summary = provider.get_account_summary()
+        
+        # Auto-init sim account if needed
+        if mode == "sim" and not summary:
+             return {"message": "Account initialized", "balance": 1000000.0}
         return summary
     except Exception as e:
         logger.error(f"Failed to get portfolio summary: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/positions", response_model=List[Dict[str, Any]])
-async def get_portfolio_positions(user_id: int = Depends(get_current_user_id)):
+async def get_portfolio_positions(user_id: int = Depends(get_current_user_id), mode: str = "sim"):
     """
-    获取当前持仓
+    Get current positions.
+    Mode: "sim" (default) or "real"
     """
     try:
-        pm = PortfolioManager(user_id=user_id)
-        return pm.get_positions()
+        from app.quant.trade_provider import get_trade_provider
+        provider = get_trade_provider(user_id, mode)
+        return provider.get_positions()
     except Exception as e:
         logger.error(f"Failed to get positions: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -149,19 +154,25 @@ async def place_order(
     side: str, 
     quantity: int, 
     price: float, 
+    mode: str = "sim",
     name: str = "",
     user_id: int = Depends(get_current_user_id)
 ):
     """
-    手动下单 (测试用)
+    Place an order.
+    Mode: "sim" (default) or "real"
     """
     try:
-        pm = PortfolioManager(user_id=user_id)
-        success = pm.execute_order(symbol, name, side, price, quantity, reason="Manual Order")
-        if success:
-            return {"status": "success", "message": f"Order {side} {symbol} filled"}
+        from app.quant.trade_provider import get_trade_provider
+        provider = get_trade_provider(user_id, mode)
+        result = provider.place_order(symbol, side, price, quantity, name)
+        
+        if result.get("status") == "success":
+            return result
         else:
-            raise HTTPException(status_code=400, detail="Order failed (Insufficient funds or holdings)")
+            raise HTTPException(status_code=400, detail=result.get("message", "Order failed"))
+    except HTTPException as e:
+        raise e
     except Exception as e:
         logger.error(f"Order placement failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))

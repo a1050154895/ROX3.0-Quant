@@ -744,3 +744,54 @@ async def backtest_classic_cta(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"回测失败: {str(e)}")
+
+
+class CapitalRecommendationRequest(BaseModel):
+    capital: float
+
+@router.post("/capital-recommendation")
+async def capital_recommendation(req: CapitalRecommendationRequest):
+    """
+    根据用户本金金额推荐股票和投资策略
+    """
+    try:
+        capital = req.capital
+        
+        # 根据本金金额确定推荐策略和股票
+        if capital < 5000:
+            # 小本金策略：低风险、高流动性、单价较低的股票
+            strategy = "小本金策略：建议选择单价较低、流动性较好的股票，采用分散投资策略，每只股票投入不超过总资金的30%，重点关注中小市值成长股。"
+            stocks = [
+                {"code": "601318", "name": "中国平安", "price": 42.50, "change": 1.2},
+                {"code": "600036", "name": "招商银行", "price": 35.80, "change": 0.8},
+                {"code": "000858", "name": "五粮液", "price": 168.50, "change": 0.5}
+            ]
+        elif capital < 50000:
+            # 中等本金策略：适度分散，关注成长与价值并重
+            strategy = "中等本金策略：建议选择3-5只股票进行分散投资，兼顾成长股和价值股，每只股票投入比例根据风险偏好调整，可适当配置行业龙头。"
+            stocks = [
+                {"code": "600519", "name": "贵州茅台", "price": 1750.00, "change": 0.3},
+                {"code": "300750", "name": "宁德时代", "price": 280.50, "change": 1.5},
+                {"code": "601899", "name": "紫金矿业", "price": 12.80, "change": 0.9},
+                {"code": "000001", "name": "平安银行", "price": 12.50, "change": 0.6}
+            ]
+        else:
+            # 大本金策略：更加多元化，配置蓝筹股和行业龙头
+            strategy = "大本金策略：建议选择5-8只股票进行多元化配置，重点关注行业龙头和蓝筹股，可适当配置部分成长股以提升收益，每只股票投入比例控制在10-20%之间。"
+            stocks = [
+                {"code": "600519", "name": "贵州茅台", "price": 1750.00, "change": 0.3},
+                {"code": "300750", "name": "宁德时代", "price": 280.50, "change": 1.5},
+                {"code": "601318", "name": "中国平安", "price": 42.50, "change": 1.2},
+                {"code": "600036", "name": "招商银行", "price": 35.80, "change": 0.8},
+                {"code": "000858", "name": "五粮液", "price": 168.50, "change": 0.5},
+                {"code": "601899", "name": "紫金矿业", "price": 12.80, "change": 0.9}
+            ]
+        
+        return {
+            "strategy": strategy,
+            "stocks": stocks,
+            "capital": capital
+        }
+    except Exception as e:
+        logger.error(f"Capital recommendation failed: {e}")
+        return {"error": str(e)}

@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import logging
 from app.auth import get_current_user, User
 from app.rox_quant.llm import AIClient
 from app.db import get_db, list_prompt_templates, get_prompt_template, save_prompt_template
+from app.ai.decision_assistant import AIDecisionAssistant
+from app.rox_quant.market_analysis import MarketAnalyzer
 
 router = APIRouter()
 logger = logging.getLogger("rox-ai")
@@ -15,6 +17,15 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize AI Client: {e}")
     ai_client = None
+
+# Initialize AI Assistant and Market Analyzer
+try:
+    ai_assistant = AIDecisionAssistant()
+    market_analyzer = MarketAnalyzer()
+except Exception as e:
+    logger.error(f"Failed to initialize AI components: {e}")
+    ai_assistant = None
+    market_analyzer = None
 
 class ChatRequest(BaseModel):
     message: str
@@ -129,4 +140,112 @@ async def api_create_template(
     if tid is None:
         raise HTTPException(status_code=500, detail="保存失败")
     return {"id": tid, "key": req.key, "name": req.name}
+
+
+# ---------- AI 决策助手 ----------
+class TradeRecommendationRequest(BaseModel):
+    symbol: str
+    signals: Dict[str, Any] = {}
+
+class PortfolioRequest(BaseModel):
+    positions: List[Dict[str, Any]] = []
+    cash: float = 0
+
+
+@router.post("/decision/trade")
+async def get_trade_recommendation(
+    req: TradeRecommendationRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    获取交易建议
+    """
+    try:
+        recommendation = await ai_assistant.generate_trade_recommendation(
+            req.symbol, req.signals
+        )
+        return recommendation
+    except Exception as e:
+        logger.error(f"Trade recommendation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/decision/portfolio")
+async def get_portfolio_advice(
+    req: PortfolioRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    获取投资组合建议
+    """
+    try:
+        portfolio = {
+            "positions": req.positions,
+            "cash": req.cash
+        }
+        advice = await ai_assistant.get_portfolio_advice(portfolio)
+        return advice
+    except Exception as e:
+        logger.error(f"Portfolio advice failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/decision/market-insights")
+async def get_market_insights(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    获取市场洞察
+    """
+    try:
+        insights = await ai_assistant.get_market_insights()
+        return insights
+    except Exception as e:
+        logger.error(f"Market insights failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/decision/sector-performance")
+async def get_sector_performance(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    获取行业表现
+    """
+    try:
+        performance = await market_analyzer.get_sector_performance()
+        return performance
+    except Exception as e:
+        logger.error(f"Sector performance failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/decision/market-opportunities")
+async def get_market_opportunities(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    获取市场机会
+    """
+    try:
+        opportunities = await market_analyzer.get_market_opportunities()
+        return {"opportunities": opportunities}
+    except Exception as e:
+        logger.error(f"Market opportunities failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/decision/history-analysis")
+async def get_recommendation_history(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    获取建议历史分析
+    """
+    try:
+        analysis = ai_assistant.analyze_recommendation_history()
+        return analysis
+    except Exception as e:
+        logger.error(f"History analysis failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 

@@ -39,5 +39,5 @@ echo "🌐 请在浏览器中访问: http://localhost:8002"
 echo "⚠️  注意: 请勿关闭此终端窗口"
 echo "--------------------------------------------------"
 
-python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8002
+python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload
 

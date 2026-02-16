@@ -1,0 +1,5106 @@
+/* Enhanced UI Styles for ROX 3.0 */
+
+/* Modern Glass Effects */
+.glass-effect {
+    background: rgba(21, 30, 50, 0.8);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.glass-effect:hover {
+    background: rgba(21, 30, 50, 0.9);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Gradient Enhancements */
+.gradient-text {
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+}
+
+.gradient-border {
+    position: relative;
+    border-radius: 0.5rem;
+    z-index: 0;
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: 0.5rem;
+    background: linear-gradient(90deg, #38bdf8, #818cf8, #38bdf8);
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Smooth Animations */
+.smooth-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modern Button Styles */
+.btn-primary {
+    background: linear-gradient(90deg, #3b82f6, #2563eb);
+    border: none;
+    border-radius: 0.375rem;
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(90deg, #2563eb, #1d4ed8);
+    box-shadow: 0 6px 8px -1px rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: rgba(148, 163, 184, 0.1);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 0.375rem;
+    color: #cbd5e1;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: rgba(148, 163, 184, 0.2);
+    border-color: rgba(148, 163, 184, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Enhanced Cards */
+.card {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Custom Scrollbar Enhancement */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 3px;
+    transition: background 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.5);
+}
+
+/* Loading Animations */
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top: 2px solid #38bdf8;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.badge-success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-info {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Enhanced Tabs */
+.tab-enhanced {
+    position: relative;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-enhanced:hover {
+    color: #cbd5e1;
+}
+
+.tab-enhanced.active {
+    color: #38bdf8;
+    border-bottom-color: #38bdf8;
+}
+
+.tab-enhanced.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+}
+
+/* Enhanced Inputs */
+.input-enhanced {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.375rem;
+    color: #f1f5f9;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.input-enhanced:focus {
+    outline: none;
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+    background: rgba(15, 23, 42, 0.9);
+}
+
+/* Tooltip Enhancement */
+.tooltip {
+    position: relative;
+}
+
+.tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.95);
+    color: #f1f5f9;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tooltip:hover::after {
+    opacity: 1;
+    visibility: visible;
+    bottom: calc(100% + 0.5rem);
+}
+
+/* Enhanced Alerts */
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-left: 4px solid transparent;
+}
+
+.alert-info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #93c5fd;
+    border-left-color: #3b82f6;
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #86efac;
+    border-left-color: #10b981;
+}
+
+.alert-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fde68a;
+    border-left-color: #f59e0b;
+}
+
+.alert-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    border-left-color: #ef4444;
+}
+
+/* Enhanced Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+/* Enhanced Table */
+.table-enhanced {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-enhanced th {
+    background: rgba(30, 41, 59, 0.8);
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 500;
+    color: #94a3b8;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.table-enhanced td {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.table-enhanced tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .glass-effect {
+        backdrop-filter: blur(8px);
+    }
+    
+    .card {
+        padding: 1rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Dark Mode Enhancements */
+.dark .text-shadow {
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.dark .border-glow {
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
+}
+
+/* Animation Enhancements */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.fade-in-down {
+    animation: fadeInDown 0.5s ease forwards;
+}
+
+.fade-in-left {
+    animation: fadeInLeft 0.5s ease forwards;
+}
+
+.fade-in-right {
+    animation: fadeInRight 0.5s ease forwards;
+}
+
+/* Enhanced Dropdown */
+.dropdown-enhanced {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 0.5rem;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.375rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem 0;
+    min-width: 12rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.dropdown-enhanced:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    color: #cbd5e1;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+}
+
+/* Enhanced Badge with Pulse Animation */
+.badge-pulse {
+    position: relative;
+}
+
+.badge-pulse::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background: currentColor;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.3;
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+/* Enhanced Scrollbar for Windows */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.5);
+}
+
+/* Firefox Scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.3) rgba(15, 23, 42, 0.5);
+}
+
+/* Enhanced Focus States */
+*:focus {
+    outline: 2px solid rgba(56, 189, 248, 0.5);
+    outline-offset: 2px;
+}
+
+button:focus,
+a:focus {
+    outline: 2px solid rgba(56, 189, 248, 0.5);
+    outline-offset: 2px;
+}
+
+/* Enhanced Selection */
+::selection {
+    background: rgba(56, 189, 248, 0.2);
+    color: #f1f5f9;
+}
+
+/* Enhanced Transitions for All Elements */
+a, button, input, select, textarea, div {
+    transition: all 0.3s ease;
+}
+
+/* Enhanced Background Patterns */
+.bg-pattern {
+    background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+    background-size: 20px 20px;
+}
+
+/* Enhanced Border Radius Utilities */
+.rounded-xl {
+    border-radius: 0.75rem;
+}
+
+.rounded-2xl {
+    border-radius: 1rem;
+}
+
+.rounded-3xl {
+    border-radius: 1.5rem;
+}
+
+/* Enhanced Shadow Utilities */
+.shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Enhanced Opacity Utilities */
+.opacity-0 {
+    opacity: 0;
+}
+
+.opacity-25 {
+    opacity: 0.25;
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+.opacity-100 {
+    opacity: 1;
+}
+
+/* Enhanced Display Utilities */
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.flex-start {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.flex-end {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* Enhanced Position Utilities */
+.absolute-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Enhanced Typography Utilities */
+.font-light {
+    font-weight: 300;
+}
+
+.font-normal {
+    font-weight: 400;
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+/* Enhanced Text Alignment Utilities */
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+/* Enhanced Text Transformation Utilities */
+.text-uppercase {
+    text-transform: uppercase;
+}
+
+.text-lowercase {
+    text-transform: lowercase;
+}
+
+.text-capitalize {
+    text-transform: capitalize;
+}
+
+/* Enhanced Letter Spacing Utilities */
+.letter-spacing-tight {
+    letter-spacing: -0.05em;
+}
+
+.letter-spacing-normal {
+    letter-spacing: 0;
+}
+
+.letter-spacing-wide {
+    letter-spacing: 0.05em;
+}
+
+.letter-spacing-wider {
+    letter-spacing: 0.1em;
+}
+
+.letter-spacing-widest {
+    letter-spacing: 0.25em;
+}
+
+/* Enhanced Line Height Utilities */
+.line-height-none {
+    line-height: 1;
+}
+
+.line-height-tight {
+    line-height: 1.25;
+}
+
+.line-height-snug {
+    line-height: 1.375;
+}
+
+.line-height-normal {
+    line-height: 1.5;
+}
+
+.line-height-relaxed {
+    line-height: 1.625;
+}
+
+.line-height-loose {
+    line-height: 2;
+}
+
+/* Enhanced Word Break Utilities */
+.word-break-normal {
+    word-break: normal;
+}
+
+.word-break-words {
+    word-break: break-words;
+}
+
+.word-break-all {
+    word-break: break-all;
+}
+
+/* Enhanced Whitespace Utilities */
+.whitespace-normal {
+    white-space: normal;
+}
+
+.whitespace-nowrap {
+    white-space: nowrap;
+}
+
+.whitespace-pre {
+    white-space: pre;
+}
+
+.whitespace-pre-line {
+    white-space: pre-line;
+}
+
+.whitespace-pre-wrap {
+    white-space: pre-wrap;
+}
+
+/* Enhanced Overflow Utilities */
+.overflow-auto {
+    overflow: auto;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.overflow-visible {
+    overflow: visible;
+}
+
+.overflow-scroll {
+    overflow: scroll;
+}
+
+/* Enhanced Visibility Utilities */
+.visibility-visible {
+    visibility: visible;
+}
+
+.visibility-hidden {
+    visibility: hidden;
+}
+
+.visibility-collapse {
+    visibility: collapse;
+}
+
+/* Enhanced Z-Index Utilities */
+.z-0 {
+    z-index: 0;
+}
+
+.z-10 {
+    z-index: 10;
+}
+
+.z-20 {
+    z-index: 20;
+}
+
+.z-30 {
+    z-index: 30;
+}
+
+.z-40 {
+    z-index: 40;
+}
+
+.z-50 {
+    z-index: 50;
+}
+
+/* Enhanced Cursor Utilities */
+.cursor-auto {
+    cursor: auto;
+}
+
+.cursor-default {
+    cursor: default;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.cursor-wait {
+    cursor: wait;
+}
+
+.cursor-text {
+    cursor: text;
+}
+
+.cursor-move {
+    cursor: move;
+}
+
+.cursor-not-allowed {
+    cursor: not-allowed;
+}
+
+/* Enhanced User Select Utilities */
+.user-select-none {
+    user-select: none;
+}
+
+.user-select-text {
+    user-select: text;
+}
+
+.user-select-all {
+    user-select: all;
+}
+
+.user-select-auto {
+    user-select: auto;
+}
+
+/* Enhanced Pointer Events Utilities */
+.pointer-events-none {
+    pointer-events: none;
+}
+
+.pointer-events-auto {
+    pointer-events: auto;
+}
+
+/* Enhanced Touch Action Utilities */
+.touch-action-auto {
+    touch-action: auto;
+}
+
+.touch-action-none {
+    touch-action: none;
+}
+
+.touch-action-pan-x {
+    touch-action: pan-x;
+}
+
+.touch-action-pan-left {
+    touch-action: pan-left;
+}
+
+.touch-action-pan-right {
+    touch-action: pan-right;
+}
+
+.touch-action-pan-y {
+    touch-action: pan-y;
+}
+
+.touch-action-pan-up {
+    touch-action: pan-up;
+}
+
+.touch-action-pan-down {
+    touch-action: pan-down;
+}
+
+.touch-action-manipulation {
+    touch-action: manipulation;
+}
+
+/* Enhanced Resize Utilities */
+.resize-none {
+    resize: none;
+}
+
+.resize-y {
+    resize: vertical;
+}
+
+.resize-x {
+    resize: horizontal;
+}
+
+.resize {
+    resize: both;
+}
+
+/* Enhanced Object Fit Utilities */
+.object-contain {
+    object-fit: contain;
+}
+
+.object-cover {
+    object-fit: cover;
+}
+
+.object-fill {
+    object-fit: fill;
+}
+
+.object-none {
+    object-fit: none;
+}
+
+.object-scale-down {
+    object-fit: scale-down;
+}
+
+/* Enhanced Object Position Utilities */
+.object-bottom {
+    object-position: bottom;
+}
+
+.object-center {
+    object-position: center;
+}
+
+.object-left {
+    object-position: left;
+}
+
+.object-left-bottom {
+    object-position: left bottom;
+}
+
+.object-left-top {
+    object-position: left top;
+}
+
+.object-right {
+    object-position: right;
+}
+
+.object-right-bottom {
+    object-position: right bottom;
+}
+
+.object-right-top {
+    object-position: right top;
+}
+
+.object-top {
+    object-position: top;
+}
+
+/* Enhanced Mix Blend Mode Utilities */
+.mix-blend-normal {
+    mix-blend-mode: normal;
+}
+
+.mix-blend-multiply {
+    mix-blend-mode: multiply;
+}
+
+.mix-blend-screen {
+    mix-blend-mode: screen;
+}
+
+.mix-blend-overlay {
+    mix-blend-mode: overlay;
+}
+
+.mix-blend-darken {
+    mix-blend-mode: darken;
+}
+
+.mix-blend-lighten {
+    mix-blend-mode: lighten;
+}
+
+.mix-blend-color-dodge {
+    mix-blend-mode: color-dodge;
+}
+
+.mix-blend-color-burn {
+    mix-blend-mode: color-burn;
+}
+
+.mix-blend-hard-light {
+    mix-blend-mode: hard-light;
+}
+
+.mix-blend-soft-light {
+    mix-blend-mode: soft-light;
+}
+
+.mix-blend-difference {
+    mix-blend-mode: difference;
+}
+
+.mix-blend-exclusion {
+    mix-blend-mode: exclusion;
+}
+
+.mix-blend-hue {
+    mix-blend-mode: hue;
+}
+
+.mix-blend-saturation {
+    mix-blend-mode: saturation;
+}
+
+.mix-blend-color {
+    mix-blend-mode: color;
+}
+
+.mix-blend-luminosity {
+    mix-blend-mode: luminosity;
+}
+
+/* Enhanced Isolation Utilities */
+.isolation-auto {
+    isolation: auto;
+}
+
+.isolation-isolate {
+    isolation: isolate;
+}
+
+/* Enhanced Filter Utilities */
+.filter-none {
+    filter: none;
+}
+
+.filter-grayscale {
+    filter: grayscale(100%);
+}
+
+.filter-sepia {
+    filter: sepia(100%);
+}
+
+.filter-invert {
+    filter: invert(100%);
+}
+
+.filter-blur {
+    filter: blur(8px);
+}
+
+/* Enhanced Backdrop Filter Utilities */
+.backdrop-blur-none {
+    backdrop-filter: none;
+}
+
+.backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+}
+
+.backdrop-blur {
+    backdrop-filter: blur(8px);
+}
+
+.backdrop-blur-md {
+    backdrop-filter: blur(12px);
+}
+
+.backdrop-blur-lg {
+    backdrop-filter: blur(16px);
+}
+
+.backdrop-blur-xl {
+    backdrop-filter: blur(24px);
+}
+
+/* Enhanced Sepia Utilities */
+.sepia-0 {
+    --tw-sepia: 0;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.sepia {
+    --tw-sepia: 1;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Saturate Utilities */
+.saturate-0 {
+    --tw-saturate: 0;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.saturate-50 {
+    --tw-saturate: 0.5;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.saturate-100 {
+    --tw-saturate: 1;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.saturate-150 {
+    --tw-saturate: 1.5;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.saturate-200 {
+    --tw-saturate: 2;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Invert Utilities */
+.invert-0 {
+    --tw-invert: 0;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.invert {
+    --tw-invert: 1;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Hue Rotate Utilities */
+.hue-rotate-0 {
+    --tw-hue-rotate: hue-rotate(0deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hue-rotate-15 {
+    --tw-hue-rotate: hue-rotate(15deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hue-rotate-30 {
+    --tw-hue-rotate: hue-rotate(30deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hue-rotate-60 {
+    --tw-hue-rotate: hue-rotate(60deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hue-rotate-90 {
+    --tw-hue-rotate: hue-rotate(90deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hue-rotate-180 {
+    --tw-hue-rotate: hue-rotate(180deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Contrast Utilities */
+.contrast-0 {
+    --tw-contrast: contrast(0);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-50 {
+    --tw-contrast: contrast(0.5);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-75 {
+    --tw-contrast: contrast(0.75);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-100 {
+    --tw-contrast: contrast(1);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-125 {
+    --tw-contrast: contrast(1.25);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-150 {
+    --tw-contrast: contrast(1.5);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-200 {
+    --tw-contrast: contrast(2);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Brightness Utilities */
+.brightness-0 {
+    --tw-brightness: brightness(0);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-50 {
+    --tw-brightness: brightness(0.5);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-75 {
+    --tw-brightness: brightness(0.75);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-100 {
+    --tw-brightness: brightness(1);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-125 {
+    --tw-brightness: brightness(1.25);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-150 {
+    --tw-brightness: brightness(1.5);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-200 {
+    --tw-brightness: brightness(2);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Blur Utilities */
+.blur-none {
+    --tw-blur: blur(0);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur-sm {
+    --tw-blur: blur(4px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur {
+    --tw-blur: blur(8px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur-md {
+    --tw-blur: blur(12px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur-lg {
+    --tw-blur: blur(16px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur-xl {
+    --tw-blur: blur(24px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Grayscale Utilities */
+.grayscale-0 {
+    --tw-grayscale: grayscale(0);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.grayscale {
+    --tw-grayscale: grayscale(100%);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Drop Shadow Utilities */
+.drop-shadow-none {
+    --tw-drop-shadow: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow-sm {
+    --tw-drop-shadow: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow {
+    --tw-drop-shadow: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.06));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow-md {
+    --tw-drop-shadow: drop-shadow(0 4px 6px -1px rgba(0, 0, 0, 0.1)) drop-shadow(0 2px 4px -1px rgba(0, 0, 0, 0.06));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow-lg {
+    --tw-drop-shadow: drop-shadow(0 10px 15px -3px rgba(0, 0, 0, 0.1)) drop-shadow(0 4px 6px -2px rgba(0, 0, 0, 0.05));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow-xl {
+    --tw-drop-shadow: drop-shadow(0 20px 25px -5px rgba(0, 0, 0, 0.1)) drop-shadow(0 10px 10px -5px rgba(0, 0, 0, 0.04));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Transform Utilities */
+.transform-none {
+    transform: none;
+}
+
+.transform {
+    transform: var(--tw-translate-x, 0) var(--tw-translate-y, 0) var(--tw-rotate, 0) var(--tw-skew-x, 0) var(--tw-skew-y, 0) var(--tw-scale-x, 1) var(--tw-scale-y, 1);
+}
+
+/* Enhanced Translate Utilities */
+.translate-x-0 {
+    --tw-translate-x: 0;
+}
+
+.translate-x-1 {
+    --tw-translate-x: 0.25rem;
+}
+
+.translate-x-2 {
+    --tw-translate-x: 0.5rem;
+}
+
+.translate-x-3 {
+    --tw-translate-x: 0.75rem;
+}
+
+.translate-x-4 {
+    --tw-translate-x: 1rem;
+}
+
+.translate-x-5 {
+    --tw-translate-x: 1.25rem;
+}
+
+.translate-x-6 {
+    --tw-translate-x: 1.5rem;
+}
+
+.translate-x-8 {
+    --tw-translate-x: 2rem;
+}
+
+.translate-x-10 {
+    --tw-translate-x: 2.5rem;
+}
+
+.translate-x-12 {
+    --tw-translate-x: 3rem;
+}
+
+.translate-x-16 {
+    --tw-translate-x: 4rem;
+}
+
+.translate-x-20 {
+    --tw-translate-x: 5rem;
+}
+
+.translate-x-24 {
+    --tw-translate-x: 6rem;
+}
+
+.translate-x-32 {
+    --tw-translate-x: 8rem;
+}
+
+.translate-x-40 {
+    --tw-translate-x: 10rem;
+}
+
+.translate-x-48 {
+    --tw-translate-x: 12rem;
+}
+
+.translate-x-56 {
+    --tw-translate-x: 14rem;
+}
+
+.translate-x-64 {
+    --tw-translate-x: 16rem;
+}
+
+.translate-x-px {
+    --tw-translate-x: 1px;
+}
+
+.translate-x-12 {
+    --tw-translate-x: 50%;
+}
+
+.translate-x-full {
+    --tw-translate-x: 100%;
+}
+
+.-translate-x-1 {
+    --tw-translate-x: -0.25rem;
+}
+
+.-translate-x-2 {
+    --tw-translate-x: -0.5rem;
+}
+
+.-translate-x-3 {
+    --tw-translate-x: -0.75rem;
+}
+
+.-translate-x-4 {
+    --tw-translate-x: -1rem;
+}
+
+.-translate-x-5 {
+    --tw-translate-x: -1.25rem;
+}
+
+.-translate-x-6 {
+    --tw-translate-x: -1.5rem;
+}
+
+.-translate-x-8 {
+    --tw-translate-x: -2rem;
+}
+
+.-translate-x-10 {
+    --tw-translate-x: -2.5rem;
+}
+
+.-translate-x-12 {
+    --tw-translate-x: -3rem;
+}
+
+.-translate-x-16 {
+    --tw-translate-x: -4rem;
+}
+
+.-translate-x-20 {
+    --tw-translate-x: -5rem;
+}
+
+.-translate-x-24 {
+    --tw-translate-x: -6rem;
+}
+
+.-translate-x-32 {
+    --tw-translate-x: -8rem;
+}
+
+.-translate-x-40 {
+    --tw-translate-x: -10rem;
+}
+
+.-translate-x-48 {
+    --tw-translate-x: -12rem;
+}
+
+.-translate-x-56 {
+    --tw-translate-x: -14rem;
+}
+
+.-translate-x-64 {
+    --tw-translate-x: -16rem;
+}
+
+.-translate-x-px {
+    --tw-translate-x: -1px;
+}
+
+.-translate-x-12 {
+    --tw-translate-x: -50%;
+}
+
+.-translate-x-full {
+    --tw-translate-x: -100%;
+}
+
+.translate-y-0 {
+    --tw-translate-y: 0;
+}
+
+.translate-y-1 {
+    --tw-translate-y: 0.25rem;
+}
+
+.translate-y-2 {
+    --tw-translate-y: 0.5rem;
+}
+
+.translate-y-3 {
+    --tw-translate-y: 0.75rem;
+}
+
+.translate-y-4 {
+    --tw-translate-y: 1rem;
+}
+
+.translate-y-5 {
+    --tw-translate-y: 1.25rem;
+}
+
+.translate-y-6 {
+    --tw-translate-y: 1.5rem;
+}
+
+.translate-y-8 {
+    --tw-translate-y: 2rem;
+}
+
+.translate-y-10 {
+    --tw-translate-y: 2.5rem;
+}
+
+.translate-y-12 {
+    --tw-translate-y: 3rem;
+}
+
+.translate-y-16 {
+    --tw-translate-y: 4rem;
+}
+
+.translate-y-20 {
+    --tw-translate-y: 5rem;
+}
+
+.translate-y-24 {
+    --tw-translate-y: 6rem;
+}
+
+.translate-y-32 {
+    --tw-translate-y: 8rem;
+}
+
+.translate-y-40 {
+    --tw-translate-y: 10rem;
+}
+
+.translate-y-48 {
+    --tw-translate-y: 12rem;
+}
+
+.translate-y-56 {
+    --tw-translate-y: 14rem;
+}
+
+.translate-y-64 {
+    --tw-translate-y: 16rem;
+}
+
+.translate-y-px {
+    --tw-translate-y: 1px;
+}
+
+.translate-y-12 {
+    --tw-translate-y: 50%;
+}
+
+.translate-y-full {
+    --tw-translate-y: 100%;
+}
+
+.-translate-y-1 {
+    --tw-translate-y: -0.25rem;
+}
+
+.-translate-y-2 {
+    --tw-translate-y: -0.5rem;
+}
+
+.-translate-y-3 {
+    --tw-translate-y: -0.75rem;
+}
+
+.-translate-y-4 {
+    --tw-translate-y: -1rem;
+}
+
+.-translate-y-5 {
+    --tw-translate-y: -1.25rem;
+}
+
+.-translate-y-6 {
+    --tw-translate-y: -1.5rem;
+}
+
+.-translate-y-8 {
+    --tw-translate-y: -2rem;
+}
+
+.-translate-y-10 {
+    --tw-translate-y: -2.5rem;
+}
+
+.-translate-y-12 {
+    --tw-translate-y: -3rem;
+}
+
+.-translate-y-16 {
+    --tw-translate-y: -4rem;
+}
+
+.-translate-y-20 {
+    --tw-translate-y: -5rem;
+}
+
+.-translate-y-24 {
+    --tw-translate-y: -6rem;
+}
+
+.-translate-y-32 {
+    --tw-translate-y: -8rem;
+}
+
+.-translate-y-40 {
+    --tw-translate-y: -10rem;
+}
+
+.-translate-y-48 {
+    --tw-translate-y: -12rem;
+}
+
+.-translate-y-56 {
+    --tw-translate-y: -14rem;
+}
+
+.-translate-y-64 {
+    --tw-translate-y: -16rem;
+}
+
+.-translate-y-px {
+    --tw-translate-y: -1px;
+}
+
+.-translate-y-12 {
+    --tw-translate-y: -50%;
+}
+
+.-translate-y-full {
+    --tw-translate-y: -100%;
+}
+
+/* Enhanced Rotate Utilities */
+.rotate-0 {
+    --tw-rotate: rotate(0deg);
+}
+
+.rotate-1 {
+    --tw-rotate: rotate(1deg);
+}
+
+.rotate-2 {
+    --tw-rotate: rotate(2deg);
+}
+
+.rotate-3 {
+    --tw-rotate: rotate(3deg);
+}
+
+.rotate-6 {
+    --tw-rotate: rotate(6deg);
+}
+
+.rotate-12 {
+    --tw-rotate: rotate(12deg);
+}
+
+.rotate-45 {
+    --tw-rotate: rotate(45deg);
+}
+
+.rotate-90 {
+    --tw-rotate: rotate(90deg);
+}
+
+.rotate-180 {
+    --tw-rotate: rotate(180deg);
+}
+
+.rotate-270 {
+    --tw-rotate: rotate(270deg);
+}
+
+.rotate-360 {
+    --tw-rotate: rotate(360deg);
+}
+
+.-rotate-1 {
+    --tw-rotate: rotate(-1deg);
+}
+
+.-rotate-2 {
+    --tw-rotate: rotate(-2deg);
+}
+
+.-rotate-3 {
+    --tw-rotate: rotate(-3deg);
+}
+
+.-rotate-6 {
+    --tw-rotate: rotate(-6deg);
+}
+
+.-rotate-12 {
+    --tw-rotate: rotate(-12deg);
+}
+
+.-rotate-45 {
+    --tw-rotate: rotate(-45deg);
+}
+
+.-rotate-90 {
+    --tw-rotate: rotate(-90deg);
+}
+
+.-rotate-180 {
+    --tw-rotate: rotate(-180deg);
+}
+
+.-rotate-270 {
+    --tw-rotate: rotate(-270deg);
+}
+
+.-rotate-360 {
+    --tw-rotate: rotate(-360deg);
+}
+
+/* Enhanced Skew Utilities */
+.skew-x-0 {
+    --tw-skew-x: skewX(0deg);
+}
+
+.skew-x-1 {
+    --tw-skew-x: skewX(1deg);
+}
+
+.skew-x-2 {
+    --tw-skew-x: skewX(2deg);
+}
+
+.skew-x-3 {
+    --tw-skew-x: skewX(3deg);
+}
+
+.skew-x-6 {
+    --tw-skew-x: skewX(6deg);
+}
+
+.skew-x-12 {
+    --tw-skew-x: skewX(12deg);
+}
+
+.-skew-x-1 {
+    --tw-skew-x: skewX(-1deg);
+}
+
+.-skew-x-2 {
+    --tw-skew-x: skewX(-2deg);
+}
+
+.-skew-x-3 {
+    --tw-skew-x: skewX(-3deg);
+}
+
+.-skew-x-6 {
+    --tw-skew-x: skewX(-6deg);
+}
+
+.-skew-x-12 {
+    --tw-skew-x: skewX(-12deg);
+}
+
+.skew-y-0 {
+    --tw-skew-y: skewY(0deg);
+}
+
+.skew-y-1 {
+    --tw-skew-y: skewY(1deg);
+}
+
+.skew-y-2 {
+    --tw-skew-y: skewY(2deg);
+}
+
+.skew-y-3 {
+    --tw-skew-y: skewY(3deg);
+}
+
+.skew-y-6 {
+    --tw-skew-y: skewY(6deg);
+}
+
+.skew-y-12 {
+    --tw-skew-y: skewY(12deg);
+}
+
+.-skew-y-1 {
+    --tw-skew-y: skewY(-1deg);
+}
+
+.-skew-y-2 {
+    --tw-skew-y: skewY(-2deg);
+}
+
+.-skew-y-3 {
+    --tw-skew-y: skewY(-3deg);
+}
+
+.-skew-y-6 {
+    --tw-skew-y: skewY(-6deg);
+}
+
+.-skew-y-12 {
+    --tw-skew-y: skewY(-12deg);
+}
+
+/* Enhanced Scale Utilities */
+.scale-0 {
+    --tw-scale-x: 0;
+    --tw-scale-y: 0;
+}
+
+.scale-50 {
+    --tw-scale-x: 0.5;
+    --tw-scale-y: 0.5;
+}
+
+.scale-75 {
+    --tw-scale-x: 0.75;
+    --tw-scale-y: 0.75;
+}
+
+.scale-90 {
+    --tw-scale-x: 0.9;
+    --tw-scale-y: 0.9;
+}
+
+.scale-95 {
+    --tw-scale-x: 0.95;
+    --tw-scale-y: 0.95;
+}
+
+.scale-100 {
+    --tw-scale-x: 1;
+    --tw-scale-y: 1;
+}
+
+.scale-105 {
+    --tw-scale-x: 1.05;
+    --tw-scale-y: 1.05;
+}
+
+.scale-110 {
+    --tw-scale-x: 1.1;
+    --tw-scale-y: 1.1;
+}
+
+.scale-125 {
+    --tw-scale-x: 1.25;
+    --tw-scale-y: 1.25;
+}
+
+.scale-150 {
+    --tw-scale-x: 1.5;
+    --tw-scale-y: 1.5;
+}
+
+.scale-x-0 {
+    --tw-scale-x: 0;
+}
+
+.scale-x-50 {
+    --tw-scale-x: 0.5;
+}
+
+.scale-x-75 {
+    --tw-scale-x: 0.75;
+}
+
+.scale-x-90 {
+    --tw-scale-x: 0.9;
+}
+
+.scale-x-95 {
+    --tw-scale-x: 0.95;
+}
+
+.scale-x-100 {
+    --tw-scale-x: 1;
+}
+
+.scale-x-105 {
+    --tw-scale-x: 1.05;
+}
+
+.scale-x-110 {
+    --tw-scale-x: 1.1;
+}
+
+.scale-x-125 {
+    --tw-scale-x: 1.25;
+}
+
+.scale-x-150 {
+    --tw-scale-x: 1.5;
+}
+
+.scale-y-0 {
+    --tw-scale-y: 0;
+}
+
+.scale-y-50 {
+    --tw-scale-y: 0.5;
+}
+
+.scale-y-75 {
+    --tw-scale-y: 0.75;
+}
+
+.scale-y-90 {
+    --tw-scale-y: 0.9;
+}
+
+.scale-y-95 {
+    --tw-scale-y: 0.95;
+}
+
+.scale-y-100 {
+    --tw-scale-y: 1;
+}
+
+.scale-y-105 {
+    --tw-scale-y: 1.05;
+}
+
+.scale-y-110 {
+    --tw-scale-y: 1.1;
+}
+
+.scale-y-125 {
+    --tw-scale-y: 1.25;
+}
+
+.scale-y-150 {
+    --tw-scale-y: 1.5;
+}
+
+/* Enhanced Transition Utilities */
+.transition-none {
+    transition-property: none;
+}
+
+.transition-all {
+    transition-property: all;
+}
+
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+}
+
+.transition-opacity {
+    transition-property: opacity;
+}
+
+.transition-shadow {
+    transition-property: box-shadow;
+}
+
+.transition-transform {
+    transition-property: transform;
+}
+
+.transition {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-opacity {
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-shadow {
+    transition-property: box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-transform {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Enhanced Transition Duration Utilities */
+.transition-duration-75 {
+    transition-duration: 75ms;
+}
+
+.transition-duration-100 {
+    transition-duration: 100ms;
+}
+
+.transition-duration-150 {
+    transition-duration: 150ms;
+}
+
+.transition-duration-200 {
+    transition-duration: 200ms;
+}
+
+.transition-duration-300 {
+    transition-duration: 300ms;
+}
+
+.transition-duration-500 {
+    transition-duration: 500ms;
+}
+
+/* Enhanced Transition Timing Function Utilities */
+.transition-timing-function-linear {
+    transition-timing-function: linear;
+}
+
+.transition-timing-function-in-out {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-timing-function-in {
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.transition-timing-function-out {
+    transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Enhanced Z-Index Utilities */
+.z-0 {
+    z-index: 0;
+}
+
+.z-10 {
+    z-index: 10;
+}
+
+.z-20 {
+    z-index: 20;
+}
+
+.z-30 {
+    z-index: 30;
+}
+
+.z-40 {
+    z-index: 40;
+}
+
+.z-50 {
+    z-index: 50;
+}
+
+.z-100 {
+    z-index: 100;
+}
+
+.z-200 {
+    z-index: 200;
+}
+
+.z-300 {
+    z-index: 300;
+}
+
+.z-400 {
+    z-index: 400;
+}
+
+.z-500 {
+    z-index: 500;
+}
+
+/* Enhanced Order Utilities */
+.order-first {
+    order: -9999;
+}
+
+.order-last {
+    order: 9999;
+}
+
+.order-none {
+    order: 0;
+}
+
+.order-1 {
+    order: 1;
+}
+
+.order-2 {
+    order: 2;
+}
+
+.order-3 {
+    order: 3;
+}
+
+.order-4 {
+    order: 4;
+}
+
+.order-5 {
+    order: 5;
+}
+
+.order-6 {
+    order: 6;
+}
+
+.order-7 {
+    order: 7;
+}
+
+.order-8 {
+    order: 8;
+}
+
+.order-9 {
+    order: 9;
+}
+
+.order-10 {
+    order: 10;
+}
+
+/* Enhanced Flex Utilities */
+.flex-1 {
+    flex: 1 1 0%;
+}
+
+.flex-auto {
+    flex: 1 1 auto;
+}
+
+.flex-initial {
+    flex: 0 1 auto;
+}
+
+.flex-none {
+    flex: none;
+}
+
+/* Enhanced Grid Utilities */
+.grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.grid-cols-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.grid-cols-7 {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.grid-cols-8 {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.grid-cols-9 {
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.grid-cols-10 {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.grid-cols-11 {
+    grid-template-columns: repeat(11, minmax(0, 1fr));
+}
+
+.grid-cols-12 {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+/* Enhanced Gap Utilities */
+.gap-0 {
+    gap: 0;
+}
+
+.gap-1 {
+    gap: 0.25rem;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-3 {
+    gap: 0.75rem;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.gap-5 {
+    gap: 1.25rem;
+}
+
+.gap-6 {
+    gap: 1.5rem;
+}
+
+.gap-8 {
+    gap: 2rem;
+}
+
+.gap-10 {
+    gap: 2.5rem;
+}
+
+.gap-12 {
+    gap: 3rem;
+}
+
+.gap-16 {
+    gap: 4rem;
+}
+
+.gap-20 {
+    gap: 5rem;
+}
+
+.gap-24 {
+    gap: 6rem;
+}
+
+.gap-32 {
+    gap: 8rem;
+}
+
+/* Enhanced Place Items Utilities */
+.place-items-start {
+    place-items: start;
+}
+
+.place-items-end {
+    place-items: end;
+}
+
+.place-items-center {
+    place-items: center;
+}
+
+.place-items-baseline {
+    place-items: baseline;
+}
+
+.place-items-stretch {
+    place-items: stretch;
+}
+
+/* Enhanced Place Content Utilities */
+.place-content-start {
+    place-content: start;
+}
+
+.place-content-end {
+    place-content: end;
+}
+
+.place-content-center {
+    place-content: center;
+}
+
+.place-content-between {
+    place-content: space-between;
+}
+
+.place-content-around {
+    place-content: space-around;
+}
+
+.place-content-evenly {
+    place-content: space-evenly;
+}
+
+.place-content-stretch {
+    place-content: stretch;
+}
+
+/* Enhanced Place Self Utilities */
+.place-self-auto {
+    place-self: auto;
+}
+
+.place-self-start {
+    place-self: start;
+}
+
+.place-self-end {
+    place-self: end;
+}
+
+.place-self-center {
+    place-self: center;
+}
+
+.place-self-baseline {
+    place-self: baseline;
+}
+
+.place-self-stretch {
+    place-self: stretch;
+}
+
+/* Enhanced Justify Items Utilities */
+.justify-items-start {
+    justify-items: start;
+}
+
+.justify-items-end {
+    justify-items: end;
+}
+
+.justify-items-center {
+    justify-items: center;
+}
+
+.justify-items-baseline {
+    justify-items: baseline;
+}
+
+.justify-items-stretch {
+    justify-items: stretch;
+}
+
+/* Enhanced Justify Content Utilities */
+.justify-content-start {
+    justify-content: flex-start;
+}
+
+.justify-content-end {
+    justify-content: flex-end;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.justify-content-around {
+    justify-content: space-around;
+}
+
+.justify-content-evenly {
+    justify-content: space-evenly;
+}
+
+.justify-content-stretch {
+    justify-content: stretch;
+}
+
+/* Enhanced Justify Self Utilities */
+.justify-self-auto {
+    justify-self: auto;
+}
+
+.justify-self-start {
+    justify-self: start;
+}
+
+.justify-self-end {
+    justify-self: end;
+}
+
+.justify-self-center {
+    justify-self: center;
+}
+
+.justify-self-baseline {
+    justify-self: baseline;
+}
+
+.justify-self-stretch {
+    justify-self: stretch;
+}
+
+/* Enhanced Align Items Utilities */
+.align-items-start {
+    align-items: flex-start;
+}
+
+.align-items-end {
+    align-items: flex-end;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.align-items-baseline {
+    align-items: baseline;
+}
+
+.align-items-stretch {
+    align-items: stretch;
+}
+
+/* Enhanced Align Content Utilities */
+.align-content-start {
+    align-content: flex-start;
+}
+
+.align-content-end {
+    align-content: flex-end;
+}
+
+.align-content-center {
+    align-content: center;
+}
+
+.align-content-between {
+    align-content: space-between;
+}
+
+.align-content-around {
+    align-content: space-around;
+}
+
+.align-content-stretch {
+    align-content: stretch;
+}
+
+/* Enhanced Align Self Utilities */
+.align-self-auto {
+    align-self: auto;
+}
+
+.align-self-start {
+    align-self: flex-start;
+}
+
+.align-self-end {
+    align-self: flex-end;
+}
+
+.align-self-center {
+    align-self: center;
+}
+
+.align-self-baseline {
+    align-self: baseline;
+}
+
+.align-self-stretch {
+    align-self: stretch;
+}
+
+/* Enhanced Position Utilities */
+.static {
+    position: static;
+}
+
+.fixed {
+    position: fixed;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.relative {
+    position: relative;
+}
+
+.sticky {
+    position: sticky;
+}
+
+/* Enhanced Top/Right/Bottom/Left Utilities */
+.top-0 {
+    top: 0;
+}
+
+.right-0 {
+    right: 0;
+}
+
+.bottom-0 {
+    bottom: 0;
+}
+
+.left-0 {
+    left: 0;
+}
+
+.inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.inset-x-0 {
+    left: 0;
+    right: 0;
+}
+
+.inset-y-0 {
+    top: 0;
+    bottom: 0;
+}
+
+/* Enhanced Display Utilities */
+.block {
+    display: block;
+}
+
+.inline {
+    display: inline;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.flex {
+    display: flex;
+}
+
+.inline-flex {
+    display: inline-flex;
+}
+
+.grid {
+    display: grid;
+}
+
+.inline-grid {
+    display: inline-grid;
+}
+
+.table {
+    display: table;
+}
+
+.inline-table {
+    display: inline-table;
+}
+
+.table-caption {
+    display: table-caption;
+}
+
+.table-cell {
+    display: table-cell;
+}
+
+.table-column {
+    display: table-column;
+}
+
+.table-column-group {
+    display: table-column-group;
+}
+
+.table-footer-group {
+    display: table-footer-group;
+}
+
+.table-header-group {
+    display: table-header-group;
+}
+
+.table-row-group {
+    display: table-row-group;
+}
+
+.table-row {
+    display: table-row;
+}
+
+.flow-root {
+    display: flow-root;
+}
+
+.contents {
+    display: contents;
+}
+
+.list-item {
+    display: list-item;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Enhanced Float Utilities */
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.float-none {
+    float: none;
+}
+
+/* Enhanced Clear Utilities */
+.clear-left {
+    clear: left;
+}
+
+.clear-right {
+    clear: right;
+}
+
+.clear-both {
+    clear: both;
+}
+
+.clear-none {
+    clear: none;
+}
+
+/* Enhanced Box Sizing Utilities */
+.box-border {
+    box-sizing: border-box;
+}
+
+.box-content {
+    box-sizing: content-box;
+}
+
+/* Enhanced Overflow Utilities */
+.overflow-auto {
+    overflow: auto;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.overflow-visible {
+    overflow: visible;
+}
+
+.overflow-scroll {
+    overflow: scroll;
+}
+
+.overflow-x-auto {
+    overflow-x: auto;
+}
+
+.overflow-y-auto {
+    overflow-y: auto;
+}
+
+.overflow-x-hidden {
+    overflow-x: hidden;
+}
+
+.overflow-y-hidden {
+    overflow-y: hidden;
+}
+
+.overflow-x-visible {
+    overflow-x: visible;
+}
+
+.overflow-y-visible {
+    overflow-y: visible;
+}
+
+.overflow-x-scroll {
+    overflow-x: scroll;
+}
+
+.overflow-y-scroll {
+    overflow-y: scroll;
+}
+
+/* Enhanced Position Utilities */
+.z-0 {
+    z-index: 0;
+}
+
+.z-10 {
+    z-index: 10;
+}
+
+.z-20 {
+    z-index: 20;
+}
+
+.z-30 {
+    z-index: 30;
+}
+
+.z-40 {
+    z-index: 40;
+}
+
+.z-50 {
+    z-index: 50;
+}
+
+.z-auto {
+    z-index: auto;
+}
+
+/* Enhanced Visibility Utilities */
+.visibility-visible {
+    visibility: visible;
+}
+
+.visibility-hidden {
+    visibility: hidden;
+}
+
+.visibility-collapse {
+    visibility: collapse;
+}
+
+/* Enhanced Cursor Utilities */
+.cursor-auto {
+    cursor: auto;
+}
+
+.cursor-default {
+    cursor: default;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.cursor-wait {
+    cursor: wait;
+}
+
+.cursor-text {
+    cursor: text;
+}
+
+.cursor-move {
+    cursor: move;
+}
+
+.cursor-help {
+    cursor: help;
+}
+
+.cursor-not-allowed {
+    cursor: not-allowed;
+}
+
+.cursor-none {
+    cursor: none;
+}
+
+.cursor-context-menu {
+    cursor: context-menu;
+}
+
+.cursor-progress {
+    cursor: progress;
+}
+
+.cursor-cell {
+    cursor: cell;
+}
+
+.cursor-crosshair {
+    cursor: crosshair;
+}
+
+.cursor-vertical-text {
+    cursor: vertical-text;
+}
+
+.cursor-alias {
+    cursor: alias;
+}
+
+.cursor-copy {
+    cursor: copy;
+}
+
+.cursor-no-drop {
+    cursor: no-drop;
+}
+
+.cursor-grab {
+    cursor: grab;
+}
+
+.cursor-grabbing {
+    cursor: grabbing;
+}
+
+.cursor-all-scroll {
+    cursor: all-scroll;
+}
+
+.cursor-col-resize {
+    cursor: col-resize;
+}
+
+.cursor-row-resize {
+    cursor: row-resize;
+}
+
+.cursor-n-resize {
+    cursor: n-resize;
+}
+
+.cursor-e-resize {
+    cursor: e-resize;
+}
+
+.cursor-s-resize {
+    cursor: s-resize;
+}
+
+.cursor-w-resize {
+    cursor: w-resize;
+}
+
+.cursor-ne-resize {
+    cursor: ne-resize;
+}
+
+.cursor-nw-resize {
+    cursor: nw-resize;
+}
+
+.cursor-se-resize {
+    cursor: se-resize;
+}
+
+.cursor-sw-resize {
+    cursor: sw-resize;
+}
+
+.cursor-ew-resize {
+    cursor: ew-resize;
+}
+
+.cursor-ns-resize {
+    cursor: ns-resize;
+}
+
+.cursor-nesw-resize {
+    cursor: nesw-resize;
+}
+
+.cursor-nwse-resize {
+    cursor: nwse-resize;
+}
+
+.cursor-zoom-in {
+    cursor: zoom-in;
+}
+
+.cursor-zoom-out {
+    cursor: zoom-out;
+}
+
+/* Enhanced User Select Utilities */
+.user-select-none {
+    user-select: none;
+}
+
+.user-select-text {
+    user-select: text;
+}
+
+.user-select-all {
+    user-select: all;
+}
+
+.user-select-auto {
+    user-select: auto;
+}
+
+/* Enhanced Pointer Events Utilities */
+.pointer-events-none {
+    pointer-events: none;
+}
+
+.pointer-events-auto {
+    pointer-events: auto;
+}
+
+/* Enhanced Touch Action Utilities */
+.touch-action-auto {
+    touch-action: auto;
+}
+
+.touch-action-none {
+    touch-action: none;
+}
+
+.touch-action-pan-x {
+    touch-action: pan-x;
+}
+
+.touch-action-pan-left {
+    touch-action: pan-left;
+}
+
+.touch-action-pan-right {
+    touch-action: pan-right;
+}
+
+.touch-action-pan-y {
+    touch-action: pan-y;
+}
+
+.touch-action-pan-up {
+    touch-action: pan-up;
+}
+
+.touch-action-pan-down {
+    touch-action: pan-down;
+}
+
+.touch-action-manipulation {
+    touch-action: manipulation;
+}
+
+/* Enhanced Resize Utilities */
+.resize-none {
+    resize: none;
+}
+
+.resize-y {
+    resize: vertical;
+}
+
+.resize-x {
+    resize: horizontal;
+}
+
+.resize {
+    resize: both;
+}
+
+/* Enhanced Object Fit Utilities */
+.object-contain {
+    object-fit: contain;
+}
+
+.object-cover {
+    object-fit: cover;
+}
+
+.object-fill {
+    object-fit: fill;
+}
+
+.object-none {
+    object-fit: none;
+}
+
+.object-scale-down {
+    object-fit: scale-down;
+}
+
+/* Enhanced Object Position Utilities */
+.object-bottom {
+    object-position: bottom;
+}
+
+.object-center {
+    object-position: center;
+}
+
+.object-left {
+    object-position: left;
+}
+
+.object-left-bottom {
+    object-position: left bottom;
+}
+
+.object-left-top {
+    object-position: left top;
+}
+
+.object-right {
+    object-position: right;
+}
+
+.object-right-bottom {
+    object-position: right bottom;
+}
+
+.object-right-top {
+    object-position: right top;
+}
+
+.object-top {
+    object-position: top;
+}
+
+/* Enhanced Mix Blend Mode Utilities */
+.mix-blend-normal {
+    mix-blend-mode: normal;
+}
+
+.mix-blend-multiply {
+    mix-blend-mode: multiply;
+}
+
+.mix-blend-screen {
+    mix-blend-mode: screen;
+}
+
+.mix-blend-overlay {
+    mix-blend-mode: overlay;
+}
+
+.mix-blend-darken {
+    mix-blend-mode: darken;
+}
+
+.mix-blend-lighten {
+    mix-blend-mode: lighten;
+}
+
+.mix-blend-color-dodge {
+    mix-blend-mode: color-dodge;
+}
+
+.mix-blend-color-burn {
+    mix-blend-mode: color-burn;
+}
+
+.mix-blend-hard-light {
+    mix-blend-mode: hard-light;
+}
+
+.mix-blend-soft-light {
+    mix-blend-mode: soft-light;
+}
+
+.mix-blend-difference {
+    mix-blend-mode: difference;
+}
+
+.mix-blend-exclusion {
+    mix-blend-mode: exclusion;
+}
+
+.mix-blend-hue {
+    mix-blend-mode: hue;
+}
+
+.mix-blend-saturation {
+    mix-blend-mode: saturation;
+}
+
+.mix-blend-color {
+    mix-blend-mode: color;
+}
+
+.mix-blend-luminosity {
+    mix-blend-mode: luminosity;
+}
+
+/* Enhanced Isolation Utilities */
+.isolation-auto {
+    isolation: auto;
+}
+
+.isolation-isolate {
+    isolation: isolate;
+}
+
+/* Enhanced Filter Utilities */
+.filter-none {
+    filter: none;
+}
+
+.filter-grayscale {
+    filter: grayscale(100%);
+}
+
+.filter-sepia {
+    filter: sepia(100%);
+}
+
+.filter-invert {
+    filter: invert(100%);
+}
+
+.filter-blur {
+    filter: blur(8px);
+}
+
+.filter-brightness-0 {
+    filter: brightness(0);
+}
+
+.filter-brightness-50 {
+    filter: brightness(0.5);
+}
+
+.filter-brightness-75 {
+    filter: brightness(0.75);
+}
+
+.filter-brightness-100 {
+    filter: brightness(1);
+}
+
+.filter-brightness-125 {
+    filter: brightness(1.25);
+}
+
+.filter-brightness-150 {
+    filter: brightness(1.5);
+}
+
+.filter-brightness-200 {
+    filter: brightness(2);
+}
+
+.filter-contrast-0 {
+    filter: contrast(0);
+}
+
+.filter-contrast-50 {
+    filter: contrast(0.5);
+}
+
+.filter-contrast-75 {
+    filter: contrast(0.75);
+}
+
+.filter-contrast-100 {
+    filter: contrast(1);
+}
+
+.filter-contrast-125 {
+    filter: contrast(1.25);
+}
+
+.filter-contrast-150 {
+    filter: contrast(1.5);
+}
+
+.filter-contrast-200 {
+    filter: contrast(2);
+}
+
+.filter-hue-rotate-0 {
+    filter: hue-rotate(0deg);
+}
+
+.filter-hue-rotate-15 {
+    filter: hue-rotate(15deg);
+}
+
+.filter-hue-rotate-30 {
+    filter: hue-rotate(30deg);
+}
+
+.filter-hue-rotate-60 {
+    filter: hue-rotate(60deg);
+}
+
+.filter-hue-rotate-90 {
+    filter: hue-rotate(90deg);
+}
+
+.filter-hue-rotate-180 {
+    filter: hue-rotate(180deg);
+}
+
+.filter-saturate-0 {
+    filter: saturate(0);
+}
+
+.filter-saturate-50 {
+    filter: saturate(0.5);
+}
+
+.filter-saturate-100 {
+    filter: saturate(1);
+}
+
+.filter-saturate-150 {
+    filter: saturate(1.5);
+}
+
+.filter-saturate-200 {
+    filter: saturate(2);
+}
+
+.filter-sepia-0 {
+    filter: sepia(0);
+}
+
+.filter-sepia-50 {
+    filter: sepia(0.5);
+}
+
+.filter-sepia-100 {
+    filter: sepia(1);
+}
+
+/* Enhanced Backdrop Filter Utilities */
+.backdrop-blur-none {
+    backdrop-filter: none;
+}
+
+.backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+}
+
+.backdrop-blur {
+    backdrop-filter: blur(8px);
+}
+
+.backdrop-blur-md {
+    backdrop-filter: blur(12px);
+}
+
+.backdrop-blur-lg {
+    backdrop-filter: blur(16px);
+}
+
+.backdrop-blur-xl {
+    backdrop-filter: blur(24px);
+}
+
+.backdrop-blur-2xl {
+    backdrop-filter: blur(32px);
+}
+
+/* Enhanced Sepia Utilities */
+.sepia-0 {
+    --tw-sepia: 0;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.sepia {
+    --tw-sepia: 1;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Saturate Utilities */
+.saturate-0 {
+    --tw-saturate: 0;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.saturate-50 {
+    --tw-saturate: 0.5;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.saturate-100 {
+    --tw-saturate: 1;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.saturate-150 {
+    --tw-saturate: 1.5;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.saturate-200 {
+    --tw-saturate: 2;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Invert Utilities */
+.invert-0 {
+    --tw-invert: 0;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.invert {
+    --tw-invert: 1;
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Hue Rotate Utilities */
+.hue-rotate-0 {
+    --tw-hue-rotate: hue-rotate(0deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hue-rotate-15 {
+    --tw-hue-rotate: hue-rotate(15deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hue-rotate-30 {
+    --tw-hue-rotate: hue-rotate(30deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hue-rotate-60 {
+    --tw-hue-rotate: hue-rotate(60deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hue-rotate-90 {
+    --tw-hue-rotate: hue-rotate(90deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hue-rotate-180 {
+    --tw-hue-rotate: hue-rotate(180deg);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Contrast Utilities */
+.contrast-0 {
+    --tw-contrast: contrast(0);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-50 {
+    --tw-contrast: contrast(0.5);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-75 {
+    --tw-contrast: contrast(0.75);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-100 {
+    --tw-contrast: contrast(1);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-125 {
+    --tw-contrast: contrast(1.25);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-150 {
+    --tw-contrast: contrast(1.5);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.contrast-200 {
+    --tw-contrast: contrast(2);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Brightness Utilities */
+.brightness-0 {
+    --tw-brightness: brightness(0);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-50 {
+    --tw-brightness: brightness(0.5);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-75 {
+    --tw-brightness: brightness(0.75);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-100 {
+    --tw-brightness: brightness(1);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-125 {
+    --tw-brightness: brightness(1.25);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-150 {
+    --tw-brightness: brightness(1.5);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.brightness-200 {
+    --tw-brightness: brightness(2);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Blur Utilities */
+.blur-none {
+    --tw-blur: blur(0);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur-sm {
+    --tw-blur: blur(4px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur {
+    --tw-blur: blur(8px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur-md {
+    --tw-blur: blur(12px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur-lg {
+    --tw-blur: blur(16px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur-xl {
+    --tw-blur: blur(24px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur-2xl {
+    --tw-blur: blur(40px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Grayscale Utilities */
+.grayscale-0 {
+    --tw-grayscale: grayscale(0);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.grayscale {
+    --tw-grayscale: grayscale(100%);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Drop Shadow Utilities */
+.drop-shadow-none {
+    --tw-drop-shadow: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow-sm {
+    --tw-drop-shadow: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow {
+    --tw-drop-shadow: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.06));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow-md {
+    --tw-drop-shadow: drop-shadow(0 4px 6px -1px rgba(0, 0, 0, 0.1)) drop-shadow(0 2px 4px -1px rgba(0, 0, 0, 0.06));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow-lg {
+    --tw-drop-shadow: drop-shadow(0 10px 15px -3px rgba(0, 0, 0, 0.1)) drop-shadow(0 4px 6px -2px rgba(0, 0, 0, 0.05));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow-xl {
+    --tw-drop-shadow: drop-shadow(0 20px 25px -5px rgba(0, 0, 0, 0.1)) drop-shadow(0 10px 10px -5px rgba(0, 0, 0, 0.04));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.drop-shadow-2xl {
+    --tw-drop-shadow: drop-shadow(0 25px 50px -12px rgba(0, 0, 0, 0.25));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+/* Enhanced Transform Utilities */
+.transform-none {
+    transform: none;
+}
+
+.transform {
+    transform: var(--tw-translate-x, 0) var(--tw-translate-y, 0) var(--tw-rotate, 0) var(--tw-skew-x, 0) var(--tw-skew-y, 0) var(--tw-scale-x, 1) var(--tw-scale-y, 1);
+}
+
+/* Enhanced Translate Utilities */
+.translate-x-0 {
+    --tw-translate-x: 0;
+}
+
+.translate-x-1 {
+    --tw-translate-x: 0.25rem;
+}
+
+.translate-x-2 {
+    --tw-translate-x: 0.5rem;
+}
+
+.translate-x-3 {
+    --tw-translate-x: 0.75rem;
+}
+
+.translate-x-4 {
+    --tw-translate-x: 1rem;
+}
+
+.translate-x-5 {
+    --tw-translate-x: 1.25rem;
+}
+
+.translate-x-6 {
+    --tw-translate-x: 1.5rem;
+}
+
+.translate-x-8 {
+    --tw-translate-x: 2rem;
+}
+
+.translate-x-10 {
+    --tw-translate-x: 2.5rem;
+}
+
+.translate-x-12 {
+    --tw-translate-x: 3rem;
+}
+
+.translate-x-16 {
+    --tw-translate-x: 4rem;
+}
+
+.translate-x-20 {
+    --tw-translate-x: 5rem;
+}
+
+.translate-x-24 {
+    --tw-translate-x: 6rem;
+}
+
+.translate-x-32 {
+    --tw-translate-x: 8rem;
+}
+
+.translate-x-40 {
+    --tw-translate-x: 10rem;
+}
+
+.translate-x-48 {
+    --tw-translate-x: 12rem;
+}
+
+.translate-x-56 {
+    --tw-translate-x: 14rem;
+}
+
+.translate-x-64 {
+    --tw-translate-x: 16rem;
+}
+
+.translate-x-px {
+    --tw-translate-x: 1px;
+}
+
+.translate-x-12 {
+    --tw-translate-x: 50%;
+}
+
+.translate-x-full {
+    --tw-translate-x: 100%;
+}
+
+.-translate-x-1 {
+    --tw-translate-x: -0.25rem;
+}
+
+.-translate-x-2 {
+    --tw-translate-x: -0.5rem;
+}
+
+.-translate-x-3 {
+    --tw-translate-x: -0.75rem;
+}
+
+.-translate-x-4 {
+    --tw-translate-x: -1rem;
+}
+
+.-translate-x-5 {
+    --tw-translate-x: -1.25rem;
+}
+
+.-translate-x-6 {
+    --tw-translate-x: -1.5rem;
+}
+
+.-translate-x-8 {
+    --tw-translate-x: -2rem;
+}
+
+.-translate-x-10 {
+    --tw-translate-x: -2.5rem;
+}
+
+.-translate-x-12 {
+    --tw-translate-x: -3rem;
+}
+
+.-translate-x-16 {
+    --tw-translate-x: -4rem;
+}
+
+.-translate-x-20 {
+    --tw-translate-x: -5rem;
+}
+
+.-translate-x-24 {
+    --tw-translate-x: -6rem;
+}
+
+.-translate-x-32 {
+    --tw-translate-x: -8rem;
+}
+
+.-translate-x-40 {
+    --tw-translate-x: -10rem;
+}
+
+.-translate-x-48 {
+    --tw-translate-x: -12rem;
+}
+
+.-translate-x-56 {
+    --tw-translate-x: -14rem;
+}
+
+.-translate-x-64 {
+    --tw-translate-x: -16rem;
+}
+
+.-translate-x-px {
+    --tw-translate-x: -1px;
+}
+
+.-translate-x-12 {
+    --tw-translate-x: -50%;
+}
+
+.-translate-x-full {
+    --tw-translate-x: -100%;
+}
+
+.translate-y-0 {
+    --tw-translate-y: 0;
+}
+
+.translate-y-1 {
+    --tw-translate-y: 0.25rem;
+}
+
+.translate-y-2 {
+    --tw-translate-y: 0.5rem;
+}
+
+.translate-y-3 {
+    --tw-translate-y: 0.75rem;
+}
+
+.translate-y-4 {
+    --tw-translate-y: 1rem;
+}
+
+.translate-y-5 {
+    --tw-translate-y: 1.25rem;
+}
+
+.translate-y-6 {
+    --tw-translate-y: 1.5rem;
+}
+
+.translate-y-8 {
+    --tw-translate-y: 2rem;
+}
+
+.translate-y-10 {
+    --tw-translate-y: 2.5rem;
+}
+
+.translate-y-12 {
+    --tw-translate-y: 3rem;
+}
+
+.translate-y-16 {
+    --tw-translate-y: 4rem;
+}
+
+.translate-y-20 {
+    --tw-translate-y: 5rem;
+}
+
+.translate-y-24 {
+    --tw-translate-y: 6rem;
+}
+
+.translate-y-32 {
+    --tw-translate-y: 8rem;
+}
+
+.translate-y-40 {
+    --tw-translate-y: 10rem;
+}
+
+.translate-y-48 {
+    --tw-translate-y: 12rem;
+}
+
+.translate-y-56 {
+    --tw-translate-y: 14rem;
+}
+
+.translate-y-64 {
+    --tw-translate-y: 16rem;
+}
+
+.translate-y-px {
+    --tw-translate-y: 1px;
+}
+
+.translate-y-12 {
+    --tw-translate-y: 50%;
+}
+
+.translate-y-full {
+    --tw-translate-y: 100%;
+}
+
+.-translate-y-1 {
+    --tw-translate-y: -0.25rem;
+}
+
+.-translate-y-2 {
+    --tw-translate-y: -0.5rem;
+}
+
+.-translate-y-3 {
+    --tw-translate-y: -0.75rem;
+}
+
+.-translate-y-4 {
+    --tw-translate-y: -1rem;
+}
+
+.-translate-y-5 {
+    --tw-translate-y: -1.25rem;
+}
+
+.-translate-y-6 {
+    --tw-translate-y: -1.5rem;
+}
+
+.-translate-y-8 {
+    --tw-translate-y: -2rem;
+}
+
+.-translate-y-10 {
+    --tw-translate-y: -2.5rem;
+}
+
+.-translate-y-12 {
+    --tw-translate-y: -3rem;
+}
+
+.-translate-y-16 {
+    --tw-translate-y: -4rem;
+}
+
+.-translate-y-20 {
+    --tw-translate-y: -5rem;
+}
+
+.-translate-y-24 {
+    --tw-translate-y: -6rem;
+}
+
+.-translate-y-32 {
+    --tw-translate-y: -8rem;
+}
+
+.-translate-y-40 {
+    --tw-translate-y: -10rem;
+}
+
+.-translate-y-48 {
+    --tw-translate-y: -12rem;
+}
+
+.-translate-y-56 {
+    --tw-translate-y: -14rem;
+}
+
+.-translate-y-64 {
+    --tw-translate-y: -16rem;
+}
+
+.-translate-y-px {
+    --tw-translate-y: -1px;
+}
+
+.-translate-y-12 {
+    --tw-translate-y: -50%;
+}
+
+.-translate-y-full {
+    --tw-translate-y: -100%;
+}
+
+/* Enhanced Rotate Utilities */
+.rotate-0 {
+    --tw-rotate: rotate(0deg);
+}
+
+.rotate-1 {
+    --tw-rotate: rotate(1deg);
+}
+
+.rotate-2 {
+    --tw-rotate: rotate(2deg);
+}
+
+.rotate-3 {
+    --tw-rotate: rotate(3deg);
+}
+
+.rotate-6 {
+    --tw-rotate: rotate(6deg);
+}
+
+.rotate-12 {
+    --tw-rotate: rotate(12deg);
+}
+
+.rotate-45 {
+    --tw-rotate: rotate(45deg);
+}
+
+.rotate-90 {
+    --tw-rotate: rotate(90deg);
+}
+
+.rotate-180 {
+    --tw-rotate: rotate(180deg);
+}
+
+.rotate-270 {
+    --tw-rotate: rotate(270deg);
+}
+
+.rotate-360 {
+    --tw-rotate: rotate(360deg);
+}
+
+.-rotate-1 {
+    --tw-rotate: rotate(-1deg);
+}
+
+.-rotate-2 {
+    --tw-rotate: rotate(-2deg);
+}
+
+.-rotate-3 {
+    --tw-rotate: rotate(-3deg);
+}
+
+.-rotate-6 {
+    --tw-rotate: rotate(-6deg);
+}
+
+.-rotate-12 {
+    --tw-rotate: rotate(-12deg);
+}
+
+.-rotate-45 {
+    --tw-rotate: rotate(-45deg);
+}
+
+.-rotate-90 {
+    --tw-rotate: rotate(-90deg);
+}
+
+.-rotate-180 {
+    --tw-rotate: rotate(-180deg);
+}
+
+.-rotate-270 {
+    --tw-rotate: rotate(-270deg);
+}
+
+.-rotate-360 {
+    --tw-rotate: rotate(-360deg);
+}
+
+/* Enhanced Skew Utilities */
+.skew-x-0 {
+    --tw-skew-x: skewX(0deg);
+}
+
+.skew-x-1 {
+    --tw-skew-x: skewX(1deg);
+}
+
+.skew-x-2 {
+    --tw-skew-x: skewX(2deg);
+}
+
+.skew-x-3 {
+    --tw-skew-x: skewX(3deg);
+}
+
+.skew-x-6 {
+    --tw-skew-x: skewX(6deg);
+}
+
+.skew-x-12 {
+    --tw-skew-x: skewX(12deg);
+}
+
+.-skew-x-1 {
+    --tw-skew-x: skewX(-1deg);
+}
+
+.-skew-x-2 {
+    --tw-skew-x: skewX(-2deg);
+}
+
+.-skew-x-3 {
+    --tw-skew-x: skewX(-3deg);
+}
+
+.-skew-x-6 {
+    --tw-skew-x: skewX(-6deg);
+}
+
+.-skew-x-12 {
+    --tw-skew-x: skewX(-12deg);
+}
+
+.skew-y-0 {
+    --tw-skew-y: skewY(0deg);
+}
+
+.skew-y-1 {
+    --tw-skew-y: skewY(1deg);
+}
+
+.skew-y-2 {
+    --tw-skew-y: skewY(2deg);
+}
+
+.skew-y-3 {
+    --tw-skew-y: skewY(3deg);
+}
+
+.skew-y-6 {
+    --tw-skew-y: skewY(6deg);
+}
+
+.skew-y-12 {
+    --tw-skew-y: skewY(12deg);
+}
+
+.-skew-y-1 {
+    --tw-skew-y: skewY(-1deg);
+}
+
+.-skew-y-2 {
+    --tw-skew-y: skewY(-2deg);
+}
+
+.-skew-y-3 {
+    --tw-skew-y: skewY(-3deg);
+}
+
+.-skew-y-6 {
+    --tw-skew-y: skewY(-6deg);
+}
+
+.-skew-y-12 {
+    --tw-skew-y: skewY(-12deg);
+}
+
+/* Enhanced Scale Utilities */
+.scale-0 {
+    --tw-scale-x: 0;
+    --tw-scale-y: 0;
+}
+
+.scale-50 {
+    --tw-scale-x: 0.5;
+    --tw-scale-y: 0.5;
+}
+
+.scale-75 {
+    --tw-scale-x: 0.75;
+    --tw-scale-y: 0.75;
+}
+
+.scale-90 {
+    --tw-scale-x: 0.9;
+    --tw-scale-y: 0.9;
+}
+
+.scale-95 {
+    --tw-scale-x: 0.95;
+    --tw-scale-y: 0.95;
+}
+
+.scale-100 {
+    --tw-scale-x: 1;
+    --tw-scale-y: 1;
+}
+
+.scale-105 {
+    --tw-scale-x: 1.05;
+    --tw-scale-y: 1.05;
+}
+
+.scale-110 {
+    --tw-scale-x: 1.1;
+    --tw-scale-y: 1.1;
+}
+
+.scale-125 {
+    --tw-scale-x: 1.25;
+    --tw-scale-y: 1.25;
+}
+
+.scale-150 {
+    --tw-scale-x: 1.5;
+    --tw-scale-y: 1.5;
+}
+
+.scale-x-0 {
+    --tw-scale-x: 0;
+}
+
+.scale-x-50 {
+    --tw-scale-x: 0.5;
+}
+
+.scale-x-75 {
+    --tw-scale-x: 0.75;
+}
+
+.scale-x-90 {
+    --tw-scale-x: 0.9;
+}
+
+.scale-x-95 {
+    --tw-scale-x: 0.95;
+}
+
+.scale-x-100 {
+    --tw-scale-x: 1;
+}
+
+.scale-x-105 {
+    --tw-scale-x: 1.05;
+}
+
+.scale-x-110 {
+    --tw-scale-x: 1.1;
+}
+
+.scale-x-125 {
+    --tw-scale-x: 1.25;
+}
+
+.scale-x-150 {
+    --tw-scale-x: 1.5;
+}
+
+.scale-y-0 {
+    --tw-scale-y: 0;
+}
+
+.scale-y-50 {
+    --tw-scale-y: 0.5;
+}
+
+.scale-y-75 {
+    --tw-scale-y: 0.75;
+}
+
+.scale-y-90 {
+    --tw-scale-y: 0.9;
+}
+
+.scale-y-95 {
+    --tw-scale-y: 0.95;
+}
+
+.scale-y-100 {
+    --tw-scale-y: 1;
+}
+
+.scale-y-105 {
+    --tw-scale-y: 1.05;
+}
+
+.scale-y-110 {
+    --tw-scale-y: 1.1;
+}
+
+.scale-y-125 {
+    --tw-scale-y: 1.25;
+}
+
+.scale-y-150 {
+    --tw-scale-y: 1.5;
+}
+
+/* Enhanced Transition Utilities */
+.transition-none {
+    transition-property: none;
+}
+
+.transition-all {
+    transition-property: all;
+}
+
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+}
+
+.transition-opacity {
+    transition-property: opacity;
+}
+
+.transition-shadow {
+    transition-property: box-shadow;
+}
+
+.transition-transform {
+    transition-property: transform;
+}
+
+.transition {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-opacity {
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-shadow {
+    transition-property: box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-transform {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Enhanced Transition Duration Utilities */
+.transition-duration-75 {
+    transition-duration: 75ms;
+}
+
+.transition-duration-100 {
+    transition-duration: 100ms;
+}
+
+.transition-duration-150 {
+    transition-duration: 150ms;
+}
+
+.transition-duration-200 {
+    transition-duration: 200ms;
+}
+
+.transition-duration-300 {
+    transition-duration: 300ms;
+}
+
+.transition-duration-500 {
+    transition-duration: 500ms;
+}
+
+/* Enhanced Transition Timing Function Utilities */
+.transition-timing-function-linear {
+    transition-timing-function: linear;
+}
+
+.transition-timing-function-in-out {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-timing-function-in {
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.transition-timing-function-out {
+    transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Enhanced Transition Delay Utilities */
+.transition-delay-75 {
+    transition-delay: 75ms;
+}
+
+.transition-delay-100 {
+    transition-delay: 100ms;
+}
+
+.transition-delay-150 {
+    transition-delay: 150ms;
+}
+
+.transition-delay-200 {
+    transition-delay: 200ms;
+}
+
+.transition-delay-300 {
+    transition-delay: 300ms;
+}
+
+.transition-delay-500 {
+    transition-delay: 500ms;
+}
+
+.transition-delay-700 {
+    transition-delay: 700ms;
+}
+
+.transition-delay-1000 {
+    transition-delay: 1000ms;
+}
+
+/* Enhanced Transition Delay Utilities */
+.transition-delay-75 {
+    transition-delay: 75ms;
+}
+
+.transition-delay-100 {
+    transition-delay: 100ms;
+}
+
+.transition-delay-150 {
+    transition-delay: 150ms;
+}
+
+.transition-delay-200 {
+    transition-delay: 200ms;
+}
+
+.transition-delay-300 {
+    transition-delay: 300ms;
+}
+
+.transition-delay-500 {
+    transition-delay: 500ms;
+}
+
+.transition-delay-700 {
+    transition-delay: 700ms;
+}
+
+.transition-delay-1000 {
+    transition-delay: 1000ms;
+}
+
+/* Enhanced Transform Utilities */
+.transform-none {
+    transform: none;
+}
+
+.transform {
+    transform: var(--tw-translate-x, 0) var(--tw-translate-y, 0) var(--tw-rotate, 0) var(--tw-skew-x, 0) var(--tw-skew-y, 0) var(--tw-scale-x, 1) var(--tw-scale-y, 1);
+}
+
+/* Enhanced Translate Utilities */
+.translate-x-0 {
+    --tw-translate-x: 0;
+}
+
+.translate-x-1 {
+    --tw-translate-x: 0.25rem;
+}
+
+.translate-x-2 {
+    --tw-translate-x: 0.5rem;
+}
+
+.translate-x-3 {
+    --tw-translate-x: 0.75rem;
+}
+
+.translate-x-4 {
+    --tw-translate-x: 1rem;
+}
+
+.translate-x-5 {
+    --tw-translate-x: 1.25rem;
+}
+
+.translate-x-6 {
+    --tw-translate-x: 1.5rem;
+}
+
+.translate-x-8 {
+    --tw-translate-x: 2rem;
+}
+
+.translate-x-10 {
+    --tw-translate-x: 2.5rem;
+}
+
+.translate-x-12 {
+    --tw-translate-x: 3rem;
+}
+
+.translate-x-16 {
+    --tw-translate-x: 4rem;
+}
+
+.translate-x-20 {
+    --tw-translate-x: 5rem;
+}
+
+.translate-x-24 {
+    --tw-translate-x: 6rem;
+}
+
+.translate-x-32 {
+    --tw-translate-x: 8rem;
+}
+
+.translate-x-40 {
+    --tw-translate-x: 10rem;
+}
+
+.translate-x-48 {
+    --tw-translate-x: 12rem;
+}
+
+.translate-x-56 {
+    --tw-translate-x: 14rem;
+}
+
+.translate-x-64 {
+    --tw-translate-x: 16rem;
+}
+
+.translate-x-px {
+    --tw-translate-x: 1px;
+}
+
+.translate-x-12 {
+    --tw-translate-x: 50%;
+}
+
+.translate-x-full {
+    --tw-translate-x: 100%;
+}
+
+.-translate-x-1 {
+    --tw-translate-x: -0.25rem;
+}
+
+.-translate-x-2 {
+    --tw-translate-x: -0.5rem;
+}
+
+.-translate-x-3 {
+    --tw-translate-x: -0.75rem;
+}
+
+.-translate-x-4 {
+    --tw-translate-x: -1rem;
+}
+
+.-translate-x-5 {
+    --tw-translate-x: -1.25rem;
+}
+
+.-translate-x-6 {
+    --tw-translate-x: -1.5rem;
+}
+
+.-translate-x-8 {
+    --tw-translate-x: -2rem;
+}
+
+.-translate-x-10 {
+    --tw-translate-x: -2.5rem;
+}
+
+.-translate-x-12 {
+    --tw-translate-x: -3rem;
+}
+
+.-translate-x-16 {
+    --tw-translate-x: -4rem;
+}
+
+.-translate-x-20 {
+    --tw-translate-x: -5rem;
+}
+
+.-translate-x-24 {
+    --tw-translate-x: -6rem;
+}
+
+.-translate-x-32 {
+    --tw-translate-x: -8rem;
+}
+
+.-translate-x-40 {
+    --tw-translate-x: -10rem;
+}
+
+.-translate-x-48 {
+    --tw-translate-x: -12rem;
+}
+
+.-translate-x-56 {
+    --tw-translate-x: -14rem;
+}
+
+.-translate-x-64 {
+    --tw-translate-x: -16rem;
+}
+
+.-translate-x-px {
+    --tw-translate-x: -1px;
+}
+
+.-translate-x-12 {
+    --tw-translate-x: -50%;
+}
+
+.-translate-x-full {
+    --tw-translate-x: -100%;
+}
+
+.translate-y-0 {
+    --tw-translate-y: 0;
+}
+
+.translate-y-1 {
+    --tw-translate-y: 0.25rem;
+}
+
+.translate-y-2 {
+    --tw-translate-y: 0.5rem;
+}
+
+.translate-y-3 {
+    --tw-translate-y: 0.75rem;
+}
+
+.translate-y-4 {
+    --tw-translate-y: 1rem;
+}
+
+.translate-y-5 {
+    --tw-translate-y: 1.25rem;
+}
+
+.translate-y-6 {
+    --tw-translate-y: 1.5rem;
+}
+
+.translate-y-8 {
+    --tw-translate-y: 2rem;
+}
+
+.translate-y-10 {
+    --tw-translate-y: 2.5rem;
+}
+
+.translate-y-12 {
+    --tw-translate-y: 3rem;
+}
+
+.translate-y-16 {
+    --tw-translate-y: 4rem;
+}
+
+.translate-y-20 {
+    --tw-translate-y: 5rem;
+}
+
+.translate-y-24 {
+    --tw-translate-y: 6rem;
+}
+
+.translate-y-32 {
+    --tw-translate-y: 8rem;
+}
+
+.translate-y-40 {
+    --tw-translate-y: 10rem;
+}
+
+.translate-y-48 {
+    --tw-translate-y: 12rem;
+}
+
+.translate-y-56 {
+    --tw-translate-y: 14rem;
+}
+
+.translate-y-64 {
+    --tw-translate-y: 16rem;
+}
+
+.translate-y-px {
+    --tw-translate-y: 1px;
+}
+
+.translate-y-12 {
+    --tw-translate-y: 50%;
+}
+
+.translate-y-full {
+    --tw-translate-y: 100%;
+}
+
+.-translate-y-1 {
+    --tw-translate-y: -0.25rem;
+}
+
+.-translate-y-2 {
+    --tw-translate-y: -0.5rem;
+}
+
+.-translate-y-3 {
+    --tw-translate-y: -0.75rem;
+}
+
+.-translate-y-4 {
+    --tw-translate-y: -1rem;
+}
+
+.-translate-y-5 {
+    --tw-translate-y: -1.25rem;
+}
+
+.-translate-y-6 {
+    --tw-translate-y: -1.5rem;
+}
+
+.-translate-y-8 {
+    --tw-translate-y: -2rem;
+}
+
+.-translate-y-10 {
+    --tw-translate-y: -2.5rem;
+}
+
+.-translate-y-12 {
+    --tw-translate-y: -3rem;
+}
+
+.-translate-y-16 {
+    --tw-translate-y: -4rem;
+}
+
+.-translate-y-20 {
+    --tw-translate-y: -5rem;
+}
+
+.-translate-y-24 {
+    --tw-translate-y: -6rem;
+}
+
+.-translate-y-32 {
+    --tw-translate-y: -8rem;
+}
+
+.-translate-y-40 {
+    --tw-translate-y: -10rem;
+}
+
+.-translate-y-48 {
+    --tw-translate-y: -12rem;
+}
+
+.-translate-y-56 {
+    --tw-translate-y: -14rem;
+}
+
+.-translate-y-64 {
+    --tw-translate-y: -16rem;
+}
+
+.-translate-y-px {
+    --tw-translate-y: -1px;
+}
+
+.-translate-y-12 {
+    --tw-translate-y: -50%;
+}
+
+.-translate-y-full {
+    --tw-translate-y: -100%;
+}
+
+/* Enhanced Rotate Utilities */
+.rotate-0 {
+    --tw-rotate: rotate(0deg);
+}
+
+.rotate-1 {
+    --tw-rotate: rotate(1deg);
+}
+
+.rotate-2 {
+    --tw-rotate: rotate(2deg);
+}
+
+.rotate-3 {
+    --tw-rotate: rotate(3deg);
+}
+
+.rotate-6 {
+    --tw-rotate: rotate(6deg);
+}
+
+.rotate-12 {
+    --tw-rotate: rotate(12deg);
+}
+
+.rotate-45 {
+    --tw-rotate: rotate(45deg);
+}
+
+.rotate-90 {
+    --tw-rotate: rotate(90deg);
+}
+
+.rotate-180 {
+    --tw-rotate: rotate(180deg);
+}
+
+.rotate-270 {
+    --tw-rotate: rotate(270deg);
+}
+
+.rotate-360 {
+    --tw-rotate: rotate(360deg);
+}
+
+.-rotate-1 {
+    --tw-rotate: rotate(-1deg);
+}
+
+.-rotate-2 {
+    --tw-rotate: rotate(-2deg);
+}
+
+.-rotate-3 {
+    --tw-rotate: rotate(-3deg);
+}
+
+.-rotate-6 {
+    --tw-rotate: rotate(-6deg);
+}
+
+.-rotate-12 {
+    --tw-rotate: rotate(-12deg);
+}
+
+.-rotate-45 {
+    --tw-rotate: rotate(-45deg);
+}
+
+.-rotate-90 {
+    --tw-rotate: rotate(-90deg);
+}
+
+.-rotate-180 {
+    --tw-rotate: rotate(-180deg);
+}
+
+.-rotate-270 {
+    --tw-rotate: rotate(-270deg);
+}
+
+.-rotate-360 {
+    --tw-rotate: rotate(-360deg);
+}
+
+/* Enhanced Skew Utilities */
+.skew-x-0 {
+    --tw-skew-x: skewX(0deg);
+}
+
+.skew-x-1 {
+    --tw-skew-x: skewX(1deg);
+}
+
+.skew-x-2 {
+    --tw-skew-x: skewX(2deg);
+}
+
+.skew-x-3 {
+    --tw-skew-x: skewX(3deg);
+}
+
+.skew-x-6 {
+    --tw-skew-x: skewX(6deg);
+}
+
+.skew-x-12 {
+    --tw-skew-x: skewX(12deg);
+}
+
+.-skew-x-1 {
+    --tw-skew-x: skewX(-1deg);
+}
+
+.-skew-x-2 {
+    --tw-skew-x: skewX(-2deg);
+}
+
+.-skew-x-3 {
+    --tw-skew-x: skewX(-3deg);
+}
+
+.-skew-x-6 {
+    --tw-skew-x: skewX(-6deg);
+}
+
+.-skew-x-12 {
+    --tw-skew-x: skewX(-12deg);
+}
+
+.skew-y-0 {
+    --tw-skew-y: skewY(0deg);
+}
+
+.skew-y-1 {
+    --tw-skew-y: skewY(1deg);
+}
+
+.skew-y-2 {
+    --tw-skew-y: skewY(2deg);
+}
+
+.skew-y-3 {
+    --tw-skew-y: skewY(3deg);
+}
+
+.skew-y-6 {
+    --tw-skew-y: skewY(6deg);
+}
+
+.skew-y-12 {
+    --tw-skew-y: skewY(12deg);
+}
+
+.-skew-y-1 {
+    --tw-skew-y: skewY(-1deg);
+}
+
+.-skew-y-2 {
+    --tw-skew-y: skewY(-2deg);
+}
+
+.-skew-y-3 {
+    --tw-skew-y: skewY(-3deg);
+}
+
+.-skew-y-6 {
+    --tw-skew-y: skewY(-6deg);
+}
+
+.-skew-y-12 {
+    --tw-skew-y: skewY(-12deg);
+}
+
+/* Enhanced Scale Utilities */
+.scale-0 {
+    --tw-scale-x: 0;
+    --tw-scale-y: 0;
+}
+
+.scale-50 {
+    --tw-scale-x: 0.5;
+    --tw-scale-y: 0.5;
+}
+
+.scale-75 {
+    --tw-scale-x: 0.75;
+    --tw-scale-y: 0.75;
+}
+
+.scale-90 {
+    --tw-scale-x: 0.9;
+    --tw-scale-y: 0.9;
+}
+
+.scale-95 {
+    --tw-scale-x: 0.95;
+    --tw-scale-y: 0.95;
+}
+
+.scale-100 {
+    --tw-scale-x: 1;
+    --tw-scale-y: 1;
+}
+
+.scale-105 {
+    --tw-scale-x: 1.05;
+    --tw-scale-y: 1.05;
+}
+
+.scale-110 {
+    --tw-scale-x: 1.1;
+    --tw-scale-y: 1.1;
+}
+
+.scale-125 {
+    --tw-scale-x: 1.25;
+    --tw-scale-y: 1.25;
+}
+
+.scale-150 {
+    --tw-scale-x: 1.5;
+    --tw-scale-y: 1.5;
+}
+
+.scale-x-0 {
+    --tw-scale-x: 0;
+}
+
+.scale-x-50 {
+    --tw-scale-x: 0.5;
+}
+
+.scale-x-75 {
+    --tw-scale-x: 0.75;
+}
+
+.scale-x-90 {
+    --tw-scale-x: 0.9;
+}
+
+.scale-x-95 {
+    --tw-scale-x: 0.95;
+}
+
+.scale-x-100 {
+    --tw-scale-x: 1;
+}
+
+.scale-x-105 {
+    --tw-scale-x: 1.05;
+}
+
+.scale-x-110 {
+    --tw-scale-x: 1.1;
+}
+
+.scale-x-125 {
+    --tw-scale-x: 1.25;
+}
+
+.scale-x-150 {
+    --tw-scale-x: 1.5;
+}
+
+.scale-y-0 {
+    --tw-scale-y: 0;
+}
+
+.scale-y-50 {
+    --tw-scale-y: 0.5;
+}
+
+.scale-y-75 {
+    --tw-scale-y: 0.75;
+}
+
+.scale-y-90 {
+    --tw-scale-y: 0.9;
+}
+
+.scale-y-95 {
+    --tw-scale-y: 0.95;
+}
+
+.scale-y-100 {
+    --tw-scale-y: 1;
+}
+
+.scale-y-105 {
+    --tw-scale-y: 1.05;
+}
+
+.scale-y-110 {
+    --tw-scale-y: 1.1;
+}
+
+.scale-y-125 {
+    --tw-scale-y: 1.25;
+}
+
+.scale-y-150 {
+    --tw-scale-y: 1.5;
+}
+
+/* Enhanced Transition Utilities */
+.transition-none {
+    transition-property: none;
+}
+
+.transition-all {
+    transition-property: all;
+}
+
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+}
+
+.transition-opacity {
+    transition-property: opacity;
+}
+
+.transition-shadow {
+    transition-property: box-shadow;
+}
+
+.transition-transform {
+    transition-property: transform;
+}
+
+.transition {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-opacity {
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-shadow {
+    transition-property: box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-transform {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Enhanced Transition Duration Utilities */
+.transition-duration-75 {
+    transition-duration: 75ms;
+}
+
+.transition-duration-100 {
+    transition-duration: 100ms;
+}
+
+.transition-duration-150 {
+    transition-duration: 150ms;
+}
+
+.transition-duration-200 {
+    transition-duration: 200ms;
+}
+
+.transition-duration-300 {
+    transition-duration: 300ms;
+}
+
+.transition-duration-500 {
+    transition-duration: 500ms;
+}
+
+/* Enhanced Transition Timing Function Utilities */
+.transition-timing-function-linear {
+    transition-timing-function: linear;
+}
+
+.transition-timing-function-in-out {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-timing-function-in {
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.transition-timing-function-out {
+    transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Enhanced Transition Delay Utilities */
+.transition-delay-75 {
+    transition-delay: 75ms;
+}
+
+.transition-delay-100 {
+    transition-delay: 100ms;
+}
+
+.transition-delay-150 {
+    transition-delay: 150ms;
+}
+
+.transition-delay-200 {
+    transition-delay: 200ms;
+}
+
+.transition-delay-300 {
+    transition-delay: 300ms;
+}
+
+.transition-delay-500 {
+    transition-delay: 500ms;
+}
+
+.transition-delay-700 {
+    transition-delay: 700ms;
+}
+
+.transition-delay-1000 {
+    transition-delay: 1

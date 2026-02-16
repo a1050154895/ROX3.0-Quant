@@ -129,17 +129,39 @@ class AIClient:
         model = model or self.get_default_model(provider)
         
         # --- RAG: Search Local KB First ---
-        from app.services.kb_service import KBService
-        kb_service = KBService()
-        
-        # Search for relevant local docs (Strategies, Books, etc.)
-        rag_hits = kb_service.search_local(message, limit=3)
-        rag_context = ""
-        if rag_hits:
-            rag_context = "\n\n【本地知识库参考 (User's Knowledge Base)】:\n"
-            for hit in rag_hits:
-                rag_context += f"- [{hit.get('title')}]: {hit.get('summary')[:300]}...\n"
-            rag_context += "\n(请结合以上本地知识库内容回答用户，如果相关度高，请明确引用)"
+        try:
+            from app.rox_quant.rag_service import get_rag_service
+            rag_service = get_rag_service()
+            
+            # 获取增强的上下文
+            rag_context = rag_service.get_context_for_query(message)
+            
+            if rag_context:
+                rag_context = "\n\n【本地知识库参考 (User's Knowledge Base)】:\n" + rag_context
+                rag_context += "\n\n(请结合以上本地知识库内容回答用户，如果相关度高，请明确引用)"
+            else:
+                # 回退到原有的KBService
+                from app.services.kb_service import KBService
+                kb_service = KBService()
+                rag_hits = kb_service.search_local(message, limit=3)
+                rag_context = ""
+                if rag_hits:
+                    rag_context = "\n\n【本地知识库参考 (User's Knowledge Base)】:\n"
+                    for hit in rag_hits:
+                        rag_context += f"- [{hit.get('title')}]: {hit.get('summary')[:300]}...\n"
+                    rag_context += "\n(请结合以上本地知识库内容回答用户，如果相关度高，请明确引用)"
+        except Exception as e:
+            print(f"RAG Service error: {e}")
+            # 回退到原有的KBService
+            from app.services.kb_service import KBService
+            kb_service = KBService()
+            rag_hits = kb_service.search_local(message, limit=3)
+            rag_context = ""
+            if rag_hits:
+                rag_context = "\n\n【本地知识库参考 (User's Knowledge Base)】:\n"
+                for hit in rag_hits:
+                    rag_context += f"- [{hit.get('title')}]: {hit.get('summary')[:300]}...\n"
+                rag_context += "\n(请结合以上本地知识库内容回答用户，如果相关度高，请明确引用)"
 
         # Web Search if needed
         search_results = []
@@ -206,21 +228,39 @@ class AIClient:
         Analyze stock based on technical indicators AND local strategy knowledge.
         """
         # --- RAG: Find matching strategies ---
-        from app.services.kb_service import KBService
-        kb_service = KBService()
-        
-        # Search for strategies related to current stock condition or generic strategy keywords
-        # We search for "strategy" or specific indicator names present in 'indicators'
-        # For simplicity, we search for the stock name + "策略" to see if there are specific notes, or generic terms.
-        # Actually, let's search for "小市值" if cap is small, or just general strategy docs.
-        # Let's just fetch top general strategies for now to "prime" the AI with the user's style.
-        rag_hits = kb_service.search_local("策略", limit=2) 
-        
         rag_context = ""
-        if rag_hits:
-            rag_context = "【参考策略逻辑】:\n"
-            for hit in rag_hits:
-                rag_context += f"- 依据《{hit.get('title')}》: {hit.get('summary')[:200]}...\n"
+        
+        try:
+            from app.rox_quant.rag_service import get_rag_service
+            rag_service = get_rag_service()
+            
+            # 构建更智能的查询
+            strategy_query = f"{stock_name} {stock_code} 策略分析"
+            
+            # 获取增强的策略上下文
+            strategy_context = rag_service.get_context_for_query(strategy_query, max_context_length=1500)
+            
+            if strategy_context:
+                rag_context = "【参考策略逻辑】:\n" + strategy_context
+            else:
+                # 回退到原有的KBService
+                from app.services.kb_service import KBService
+                kb_service = KBService()
+                rag_hits = kb_service.search_local("策略", limit=2)
+                if rag_hits:
+                    rag_context = "【参考策略逻辑】:\n"
+                    for hit in rag_hits:
+                        rag_context += f"- 依据《{hit.get('title')}》: {hit.get('summary')[:200]}...\n"
+        except Exception as e:
+            print(f"RAG Service error in stock analysis: {e}")
+            # 回退到原有的KBService
+            from app.services.kb_service import KBService
+            kb_service = KBService()
+            rag_hits = kb_service.search_local("策略", limit=2)
+            if rag_hits:
+                rag_context = "【参考策略逻辑】:\n"
+                for hit in rag_hits:
+                    rag_context += f"- 依据《{hit.get('title')}》: {hit.get('summary')[:200]}...\n"
 
         system_prompt = f"""
         你是一个专业的量化交易助手 ROX。请根据提供的股票数据、技术指标以及参考策略，进行深度分析。

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROX 3.0 - 智能量化交易平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+        
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glow {
+            box-shadow: 0 0 40px rgba(56, 189, 248, 0.15);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .nav-link {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            font-size: 24px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(129, 140, 248, 0.1) 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold gradient-text">ROX 3.0</span>
+                </div>
+                
+                <!-- 主导航 -->
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="/" class="nav-link px-4 py-2 text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-home mr-2"></i>首页
+                    </a>
+                    <a href="/home" class="nav-link px-4 py-2 text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-desktop mr-2"></i>交易界面
+                    </a>
+                    <a href="/strategies" class="nav-link px-4 py-2 text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-chess mr-2"></i>策略中心
+                    </a>
+                    <a href="/knowledge" class="nav-link px-4 py-2 text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-book mr-2"></i>知识中心
+                    </a>
+                    <a href="/docs" class="nav-link px-4 py-2 text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-file-code mr-2"></i>API文档
+                    </a>
+                </div>
+                
+                <!-- 右侧按钮 -->
+                <div class="flex items-center gap-3">
+                    <div class="hidden sm:flex items-center gap-2 text-sm">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+                        <span class="text-slate-400">系统运行中</span>
+                    </div>
+                    <a href="/home" class="px-4 py-2 bg-gradient-to-r from-sky-500 to-indigo-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
+                        进入交易
+                    </a>
+                </div>
+                
+                <!-- 移动端菜单按钮 -->
+                <button id="mobile-menu-btn" class="md:hidden p-2 text-slate-400 hover:text-white">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden glass border-t border-slate-700">
+            <div class="px-4 py-3 space-y-2">
+                <a href="/" class="block px-4 py-3 rounded-lg hover:bg-slate-700/50 text-slate-300">
+                    <i class="fas fa-home mr-3"></i>首页
+                </a>
+                <a href="/home" class="block px-4 py-3 rounded-lg hover:bg-slate-700/50 text-slate-300">
+                    <i class="fas fa-desktop mr-3"></i>交易界面
+                </a>
+                <a href="/strategies" class="block px-4 py-3 rounded-lg hover:bg-slate-700/50 text-slate-300">
+                    <i class="fas fa-chess mr-3"></i>策略中心
+                </a>
+                <a href="/knowledge" class="block px-4 py-3 rounded-lg hover:bg-slate-700/50 text-slate-300">
+                    <i class="fas fa-book mr-3"></i>知识中心
+                </a>
+                <a href="/docs" class="block px-4 py-3 rounded-lg hover:bg-slate-700/50 text-slate-300">
+                    <i class="fas fa-file-code mr-3"></i>API文档
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero 区域 -->
+    <section class="pt-32 pb-20 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="float inline-block mb-6">
+                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-400 via-indigo-500 to-purple-500 flex items-center justify-center mx-auto glow">
+                    <i class="fas fa-robot text-4xl text-white"></i>
+                </div>
+            </div>
+            
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+                <span class="gradient-text">ROX 3.0</span>
+                <br>
+                <span class="text-slate-300">智能量化交易平台</span>
+            </h1>
+            
+            <p class="text-lg sm:text-xl text-slate-400 max-w-3xl mx-auto mb-10">
+                集成AI投研、策略回测、知识图谱于一体的专业量化交易系统
+                <br>让投资决策更智能、更高效
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="/home" class="px-8 py-4 bg-gradient-to-r from-sky-500 to-indigo-500 text-white rounded-xl font-semibold hover:opacity-90 transition-all card-hover">
+                    <i class="fas fa-play mr-2"></i>开始体验
+                </a>
+                <a href="/docs" class="px-8 py-4 glass text-slate-300 rounded-xl font-semibold hover:text-white transition-all card-hover">
+                    <i class="fas fa-book-open mr-2"></i>查看文档
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 统计数据 -->
+    <section class="py-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="stat-card rounded-2xl p-6 text-center card-hover">
+                    <div class="text-3xl sm:text-4xl font-bold gradient-text mb-2">169+</div>
+                    <div class="text-slate-400 text-sm">知识文档</div>
+                </div>
+                <div class="stat-card rounded-2xl p-6 text-center card-hover">
+                    <div class="text-3xl sm:text-4xl font-bold gradient-text mb-2">5+</div>
+                    <div class="text-slate-400 text-sm">量化策略</div>
+                </div>
+                <div class="stat-card rounded-2xl p-6 text-center card-hover">
+                    <div class="text-3xl sm:text-4xl font-bold gradient-text mb-2">AI</div>
+                    <div class="text-slate-400 text-sm">智能分析</div>
+                </div>
+                <div class="stat-card rounded-2xl p-6 text-center card-hover">
+                    <div class="text-3xl sm:text-4xl font-bold gradient-text mb-2">100%</div>
+                    <div class="text-slate-400 text-sm">开源免费</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 功能模块 -->
+    <section class="py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-4 gradient-text">核心功能</h2>
+            <p class="text-slate-400 text-center mb-12 max-w-2xl mx-auto">
+                全方位的量化交易解决方案，从数据分析到策略执行
+            </p>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 交易界面 -->
+                <a href="/home" class="glass rounded-2xl p-6 card-hover block group">
+                    <div class="feature-icon bg-sky-500/20 text-sky-400 mb-4">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 group-hover:text-sky-400 transition-colors">交易界面</h3>
+                    <p class="text-slate-400 text-sm">
+                        实时行情、K线图表、AI投研、策略回测，专业量化交易工作台
+                    </p>
+                    <div class="mt-4 text-sky-400 text-sm">
+                        <i class="fas fa-arrow-right mr-2"></i>立即进入
+                    </div>
+                </a>
+                
+                <!-- 策略中心 -->
+                <a href="/strategies" class="glass rounded-2xl p-6 card-hover block group">
+                    <div class="feature-icon bg-emerald-500/20 text-emerald-400 mb-4">
+                        <i class="fas fa-chess"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 group-hover:text-emerald-400 transition-colors">策略中心</h3>
+                    <p class="text-slate-400 text-sm">
+                        集成聚宽策略引擎，支持策略执行、回测、参数优化
+                    </p>
+                    <div class="mt-4 text-emerald-400 text-sm">
+                        <i class="fas fa-arrow-right mr-2"></i>查看策略
+                    </div>
+                </a>
+                
+                <!-- 知识中心 -->
+                <a href="/knowledge" class="glass rounded-2xl p-6 card-hover block group">
+                    <div class="feature-icon bg-blue-500/20 text-blue-400 mb-4">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 group-hover:text-blue-400 transition-colors">知识中心</h3>
+                    <p class="text-slate-400 text-sm">
+                        169+投资书籍知识库，向量搜索+知识图谱，构建投资知识体系
+                    </p>
+                    <div class="mt-4 text-blue-400 text-sm">
+                        <i class="fas fa-arrow-right mr-2"></i>探索知识
+                    </div>
+                </a>
+                
+                <!-- AI投研 -->
+                <a href="/home" class="glass rounded-2xl p-6 card-hover block group">
+                    <div class="feature-icon bg-purple-500/20 text-purple-400 mb-4">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 group-hover:text-purple-400 transition-colors">AI投研</h3>
+                    <p class="text-slate-400 text-sm">
+                        集成大语言模型，智能问答、股票分析、投资建议
+                    </p>
+                    <div class="mt-4 text-purple-400 text-sm">
+                        <i class="fas fa-arrow-right mr-2"></i>开始对话
+                    </div>
+                </a>
+                
+                <!-- 市场数据 -->
+                <a href="/home" class="glass rounded-2xl p-6 card-hover block group">
+                    <div class="feature-icon bg-amber-500/20 text-amber-400 mb-4">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 group-hover:text-amber-400 transition-colors">市场数据</h3>
+                    <p class="text-slate-400 text-sm">
+                        实时行情、K线图表、资金流向、龙虎榜，全方位市场监控
+                    </p>
+                    <div class="mt-4 text-amber-400 text-sm">
+                        <i class="fas fa-arrow-right mr-2"></i>查看行情
+                    </div>
+                </a>
+                
+                <!-- API接口 -->
+                <a href="/docs" class="glass rounded-2xl p-6 card-hover block group">
+                    <div class="feature-icon bg-slate-500/20 text-slate-300 mb-4">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 group-hover:text-white transition-colors">API接口</h3>
+                    <p class="text-slate-400 text-sm">
+                        RESTful API设计，完整的接口文档，轻松集成到您的系统
+                    </p>
+                    <div class="mt-4 text-slate-300 text-sm">
+                        <i class="fas fa-arrow-right mr-2"></i>查看文档
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 快速入口 -->
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="glass rounded-3xl p-8 glow">
+                <h3 class="text-2xl font-bold text-center mb-8 gradient-text">快速入口</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <a href="/home" class="flex flex-col items-center p-4 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 transition-colors">
+                        <i class="fas fa-desktop text-3xl text-sky-400 mb-2"></i>
+                        <span class="text-sm text-slate-300">交易界面</span>
+                    </a>
+                    <a href="/strategies" class="flex flex-col items-center p-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors">
+                        <i class="fas fa-chess text-3xl text-emerald-400 mb-2"></i>
+                        <span class="text-sm text-slate-300">策略中心</span>
+                    </a>
+                    <a href="/knowledge" class="flex flex-col items-center p-4 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 transition-colors">
+                        <i class="fas fa-book text-3xl text-blue-400 mb-2"></i>
+                        <span class="text-sm text-slate-300">知识中心</span>
+                    </a>
+                    <a href="/docs" class="flex flex-col items-center p-4 rounded-xl bg-slate-500/10 hover:bg-slate-500/20 transition-colors">
+                        <i class="fas fa-file-code text-3xl text-slate-300 mb-2"></i>
+                        <span class="text-sm text-slate-300">API文档</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="py-8 px-4 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex justify-center items-center gap-6 mb-4">
+                <a href="/home" class="text-slate-400 hover:text-white transition-colors">交易界面</a>
+                <a href="/strategies" class="text-slate-400 hover:text-white transition-colors">策略中心</a>
+                <a href="/knowledge" class="text-slate-400 hover:text-white transition-colors">知识中心</a>
+                <a href="/docs" class="text-slate-400 hover:text-white transition-colors">API文档</a>
+            </div>
+            <p class="text-slate-500 text-sm">
+                © 2024 ROX Quant Platform. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

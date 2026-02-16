@@ -147,7 +147,7 @@ class RateLimiter:
         """
         self.min_interval = 1.0 / calls_per_second
         self.last_call = 0.0
-        self._lock = asyncio.Lock()
+        self._lock = None
     
     def acquire(self):
         """同步获取令牌（阻塞直到可以执行）"""
@@ -159,6 +159,8 @@ class RateLimiter:
     
     async def async_acquire(self):
         """异步获取令牌"""
+        if self._lock is None:
+            self._lock = asyncio.Lock()
         async with self._lock:
             now = asyncio.get_event_loop().time()
             wait_time = self.last_call + self.min_interval - now

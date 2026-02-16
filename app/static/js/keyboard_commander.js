@@ -37,7 +37,12 @@ class KeyboardCommander {
         const active = document.activeElement;
         const inInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
         if (inInput && active !== this.inputEl) return;
-        if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+        // 快捷键处理
+        if (this.handleShortcuts(e)) {
+            e.preventDefault();
+            return;
+        }
 
         if (e.key === 'Escape' && this.isVisible) {
             this.hide();
@@ -57,6 +62,115 @@ class KeyboardCommander {
         if (['F1', 'F2', 'F10'].includes(e.key)) {
             e.preventDefault();
             if (typeof window.handleFKey === 'function') window.handleFKey(e.key);
+        }
+    }
+
+    handleShortcuts(e) {
+        // Ctrl/Command + 快捷键
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key.toLowerCase()) {
+                case '1':
+                    this.switchLayout('compact');
+                    return true;
+                case '2':
+                    this.switchLayout('normal');
+                    return true;
+                case 'd':
+                    this.toggleDarkMode();
+                    return true;
+                case 'k':
+                    this.show();
+                    return true;
+                case 'r':
+                    this.refreshData();
+                    return true;
+                case 's':
+                    this.saveLayout();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        // 单键快捷键
+        switch (e.key) {
+            case 'F5':
+                this.refreshData();
+                return true;
+            case 'F6':
+                this.toggleWatchlist();
+                return true;
+            case 'F7':
+                this.toggleIndicators();
+                return true;
+            case 'F8':
+                this.toggleStrategyBuilder();
+                return true;
+            case 'F9':
+                this.toggleTradePanel();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    switchLayout(layout) {
+        if (typeof window.switchLayout === 'function') {
+            window.switchLayout(layout);
+        } else {
+            document.body.dataset.layout = layout;
+            localStorage.setItem('rox-layout', layout);
+            location.reload();
+        }
+    }
+
+    toggleDarkMode() {
+        const html = document.documentElement;
+        html.classList.toggle('dark');
+        localStorage.setItem('rox-dark-mode', html.classList.contains('dark'));
+    }
+
+    refreshData() {
+        if (typeof window.refreshData === 'function') {
+            window.refreshData();
+        } else {
+            location.reload();
+        }
+    }
+
+    saveLayout() {
+        if (typeof window.saveLayout === 'function') {
+            window.saveLayout();
+        } else {
+            alert('布局已保存');
+        }
+    }
+
+    toggleWatchlist() {
+        const watchlist = document.getElementById('watchlist');
+        if (watchlist) {
+            watchlist.classList.toggle('hidden');
+        }
+    }
+
+    toggleIndicators() {
+        const indicators = document.getElementById('indicators-panel');
+        if (indicators) {
+            indicators.classList.toggle('hidden');
+        }
+    }
+
+    toggleStrategyBuilder() {
+        const builder = document.getElementById('strategy-builder');
+        if (builder) {
+            builder.classList.toggle('hidden');
+        }
+    }
+
+    toggleTradePanel() {
+        const tradePanel = document.getElementById('trade-panel');
+        if (tradePanel) {
+            tradePanel.classList.toggle('hidden');
         }
     }
 

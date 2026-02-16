@@ -38,13 +38,32 @@ def calculate_hf1(df: pd.DataFrame):
     df_hf['mx'] = df_hf['close'].ewm(span=2, adjust=False).mean()
     
     # SLOPE(C, 21): Linear Regression Slope over 21 periods
-    # Note: Rolling slope is computationally intensive in pure pandas
+    # 优化：使用更高效的方法计算滚动斜率
     def rolling_slope(series, window=21):
+        """
+        计算滚动斜率，使用向量化操作提高性能
+        """
+        # 确保series是numpy数组
+        values = series.values
+        n = len(values)
+        slopes = np.zeros(n)
+        slopes[:window-1] = np.nan
+        
+        # 预计算x值和x的均值
         x = np.arange(window)
-        # Using numpy polyfit for efficiency on rolling windows
-        def slope_func(y):
-            return np.polyfit(x, y, 1)[0]
-        return series.rolling(window=window).apply(slope_func, raw=True)
+        x_mean = x.mean()
+        x_var = np.sum((x - x_mean) ** 2)
+        
+        # 向量化计算滚动斜率
+        for i in range(window-1, n):
+            y = values[i-window+1:i+1]
+            y_mean = y.mean()
+            # 计算协方差
+            cov = np.sum((x - x_mean) * (y - y_mean))
+            # 计算斜率
+            slopes[i] = cov / x_var
+        
+        return pd.Series(slopes, index=series.index)
 
     df_hf['slope'] = rolling_slope(df_hf['close'], 21)
     

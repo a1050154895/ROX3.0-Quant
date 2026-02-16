@@ -2,6 +2,8 @@ fastapi==0.115.5
 uvicorn==0.31.0
 pydantic==2.12.5
 akshare==1.18.7
+baostock==0.8.9
+efinance==0.5.5.2
 pandas==2.3.3
 numpy
 pywebview==6.1
@@ -25,3 +27,4 @@ scipy
 ccxt
 websocket-client
 yfinance
+jieba

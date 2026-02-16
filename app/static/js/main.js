@@ -4,10 +4,20 @@ import { initProfessionalSystem, switchProfessionalTab, fetchProfessionalSignal,
 import { AIAgentController } from './modules/ai_agent.js';
 import { loadWatchlist, removeStockFromWatchlist, toggleWatchlist, isStockInWatchlist, setWatchlistChangeCallback } from './watchlist.js';
 import './feature_handlers.js'; // Portfolio, Risk, AutoTrade, Replay, Conditions, TDX
+import { performanceOptimizer } from './modules/performance-optimizer.js';
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
     console.log("ROX 3.0 Core Initialized");
+
+    // 初始化性能优化器
+    try {
+        if (typeof performanceOptimizer !== 'undefined') {
+            performanceOptimizer.init();
+            performanceOptimizer.detectPerformanceIssues();
+            console.log("Performance Optimizer Initialized");
+        }
+    } catch (e) { console.error("Performance Optimizer Init Failed", e); }
 
     try {
         if (typeof AIChatWidget === 'function') {
@@ -986,6 +996,179 @@ async function loadHeaderIndices() {
         }
     } catch (e) {
         console.warn('Failed to load header indices:', e);
+    }
+}
+
+// --- 本金推荐功能 ---
+function openCapitalModal() {
+    // 检查是否已存在模态框
+    let modal = document.getElementById('capital-modal');
+    if (!modal) {
+        // 创建本金推荐模态框
+        modal = document.createElement('div');
+        modal.id = 'capital-modal';
+        modal.className = 'fixed inset-0 bg-slate-900/90 z-[100] flex items-center justify-center p-4';
+        modal.innerHTML = `
+            <div class="bg-slate-800 w-full max-w-md rounded-2xl border border-slate-700 flex flex-col shadow-2xl overflow-hidden">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent flex items-center gap-2">
+                            <i class="fas fa-coins text-sky-500"></i> 本金推荐
+                        </h2>
+                        <button type="button" onclick="document.getElementById('capital-modal').classList.add('hidden')" class="text-slate-500 hover:text-white p-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-slate-400 mb-2 text-sm">请输入您的投资本金 (元)</label>
+                            <div class="relative">
+                                <i class="fas fa-yuan-sign absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                                <input id="capital-input" type="number" placeholder="例如: 1000, 10000" min="100" step="100"
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg py-3 px-10 text-sm focus:border-sky-500 focus:outline-none text-white">
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">根据您的本金，系统将推荐适合的股票和投资策略</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" class="capital-quick-btn py-2 px-3 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm text-slate-300 transition-all" data-amount="1000">
+                                1000元
+                            </button>
+                            <button type="button" class="capital-quick-btn py-2 px-3 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm text-slate-300 transition-all" data-amount="10000">
+                                10000元
+                            </button>
+                            <button type="button" class="capital-quick-btn py-2 px-3 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm text-slate-300 transition-all" data-amount="100000">
+                                10万元
+                            </button>
+                        </div>
+                        
+                        <div id="capital-loading" class="hidden py-4 flex items-center justify-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500"></div>
+                            <span class="ml-2 text-slate-400 text-sm">正在分析推荐...</span>
+                        </div>
+                        
+                        <div id="capital-result" class="hidden space-y-4">
+                            <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                                <h3 class="text-sm font-bold text-sky-400 mb-2">推荐策略</h3>
+                                <p id="capital-strategy" class="text-xs text-slate-300"></p>
+                            </div>
+                            
+                            <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                                <h3 class="text-sm font-bold text-sky-400 mb-2">推荐股票</h3>
+                                <div id="capital-stocks" class="space-y-2"></div>
+                            </div>
+                            
+                            <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                                <h3 class="text-sm font-bold text-sky-400 mb-2">风险提示</h3>
+                                <p class="text-xs text-slate-300">投资有风险，入市需谨慎。本推荐仅供参考，不构成投资建议。</p>
+                            </div>
+                        </div>
+                        
+                        <div id="capital-error" class="hidden py-3 px-4 bg-red-900/20 border border-red-800 rounded-lg text-sm text-red-400"></div>
+                    </div>
+                    
+                    <div class="mt-6 flex gap-3">
+                        <button id="capital-submit" type="button" class="flex-1 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold py-3 rounded-lg transition-all">
+                            获取推荐
+                        </button>
+                        <button type="button" onclick="document.getElementById('capital-modal').classList.add('hidden')" class="px-4 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all flex items-center justify-center">
+                            取消
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // 绑定快速选择按钮
+        modal.querySelectorAll('.capital-quick-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const amount = btn.dataset.amount;
+                document.getElementById('capital-input').value = amount;
+            });
+        });
+        
+        // 绑定提交按钮
+        document.getElementById('capital-submit').addEventListener('click', submitCapitalRecommendation);
+    } else {
+        modal.classList.remove('hidden');
+        // 重置表单
+        document.getElementById('capital-input').value = '';
+        document.getElementById('capital-result').classList.add('hidden');
+        document.getElementById('capital-loading').classList.add('hidden');
+        document.getElementById('capital-error').classList.add('hidden');
+    }
+}
+window.openCapitalModal = openCapitalModal;
+
+async function submitCapitalRecommendation() {
+    const input = document.getElementById('capital-input');
+    const loading = document.getElementById('capital-loading');
+    const result = document.getElementById('capital-result');
+    const error = document.getElementById('capital-error');
+    const submitBtn = document.getElementById('capital-submit');
+    
+    if (!input || !loading || !result || !error || !submitBtn) return;
+    
+    const capital = parseFloat(input.value);
+    if (isNaN(capital) || capital < 100) {
+        error.textContent = '请输入有效的投资本金（至少100元）';
+        error.classList.remove('hidden');
+        return;
+    }
+    
+    // 显示加载状态
+    loading.classList.remove('hidden');
+    result.classList.add('hidden');
+    error.classList.add('hidden');
+    submitBtn.disabled = true;
+    
+    try {
+        const resp = await fetch('/api/strategy/capital-recommendation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ capital })
+        });
+        
+        const data = await resp.json();
+        
+        if (!resp.ok || data.error) {
+            error.textContent = data.error || '获取推荐失败，请稍后重试';
+            error.classList.remove('hidden');
+            return;
+        }
+        
+        // 显示推荐结果
+        document.getElementById('capital-strategy').textContent = data.strategy || '暂无推荐策略';
+        
+        const stocksContainer = document.getElementById('capital-stocks');
+        if (stocksContainer) {
+            if (data.stocks && data.stocks.length > 0) {
+                stocksContainer.innerHTML = data.stocks.map(stock => `
+                    <div class="flex justify-between items-center p-2 bg-slate-800/50 rounded border border-slate-700">
+                        <div>
+                            <div class="text-sm font-bold text-white">${stock.name}</div>
+                            <div class="text-xs text-slate-500">${stock.code}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-mono ${stock.change >= 0 ? 'text-up' : 'text-down'}">${stock.price.toFixed(2)}</div>
+                            <div class="text-xs ${stock.change >= 0 ? 'text-up' : 'text-down'}">${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)}%</div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                stocksContainer.innerHTML = '<div class="text-xs text-slate-500 py-2">暂无推荐股票</div>';
+            }
+        }
+        
+        result.classList.remove('hidden');
+    } catch (e) {
+        error.textContent = '网络错误，请稍后重试';
+        error.classList.remove('hidden');
+    } finally {
+        loading.classList.add('hidden');
+        submitBtn.disabled = false;
     }
 }
 
@@ -1995,3 +2178,202 @@ document.getElementById('heatmap-modal')?.addEventListener('click', function (e)
         closeHeatmapModal();
     }
 });
+
+// Mobile sidebar toggle function
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    
+    if (sidebar && mainContent && backdrop) {
+        sidebar.classList.toggle('mobile-sidebar-open');
+        mainContent.classList.toggle('mobile-content-shifted');
+        backdrop.classList.toggle('hidden');
+    }
+}
+
+// Close sidebar when clicking on backdrop
+document.getElementById('sidebar-backdrop')?.addEventListener('click', function() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    
+    if (sidebar && mainContent && backdrop) {
+        sidebar.classList.remove('mobile-sidebar-open');
+        mainContent.classList.remove('mobile-content-shifted');
+        backdrop.classList.add('hidden');
+    }
+});
+
+// Close sidebar when clicking on a stock or menu item
+const stockRows = document.querySelectorAll('.stock-row');
+stockRows.forEach(row => {
+    row.addEventListener('click', function() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        
+        if (sidebar && mainContent && backdrop && window.innerWidth < 768) {
+            sidebar.classList.remove('mobile-sidebar-open');
+            mainContent.classList.remove('mobile-content-shifted');
+            backdrop.classList.add('hidden');
+        }
+    });
+});
+
+// Expose toggleSidebar to global scope
+window.toggleSidebar = toggleSidebar;
+
+// System settings functions
+function saveSystemSettings() {
+    try {
+        const settings = {
+            ai: {
+                provider: document.getElementById('settings-ai-provider')?.value,
+                url: document.getElementById('settings-ai-url')?.value,
+                key: document.getElementById('settings-ai-key')?.value,
+                model: document.getElementById('settings-ai-model')?.value
+            },
+            theme: document.getElementById('settings-theme')?.value,
+            compact: document.getElementById('settings-compact')?.checked,
+            klineStyle: document.getElementById('settings-kline-style')?.value,
+            defaultPeriod: document.getElementById('settings-default-period')?.value,
+            signalAlerts: document.getElementById('settings-signal-alerts')?.checked,
+            signalThreshold: parseInt(document.getElementById('settings-signal-threshold')?.value) || 50,
+            refreshInterval: parseInt(document.getElementById('settings-refresh-interval')?.value) || 60
+        };
+
+        localStorage.setItem('rox-system-settings', JSON.stringify(settings));
+        
+        // Apply settings immediately
+        applySystemSettings(settings);
+        
+        showToast('设置已保存');
+    } catch (e) {
+        console.error('Failed to save settings:', e);
+        showToast('保存设置失败', 'error');
+    }
+}
+
+function resetSystemSettings() {
+    try {
+        // Remove saved settings
+        localStorage.removeItem('rox-system-settings');
+        
+        // Reset form fields to default values
+        document.getElementById('settings-ai-provider')?.value = 'default';
+        document.getElementById('settings-ai-url')?.value = '';
+        document.getElementById('settings-ai-key')?.value = '';
+        document.getElementById('settings-ai-model')?.value = 'gpt-4o';
+        document.getElementById('settings-theme')?.value = 'dark';
+        document.getElementById('settings-compact')?.checked = false;
+        document.getElementById('settings-kline-style')?.value = 'candlestick';
+        document.getElementById('settings-default-period')?.value = 'daily';
+        document.getElementById('settings-signal-alerts')?.checked = false;
+        document.getElementById('settings-signal-threshold')?.value = '50';
+        document.getElementById('settings-refresh-interval')?.value = '60';
+        
+        // Apply default settings
+        applySystemSettings({
+            theme: 'dark',
+            compact: false,
+            klineStyle: 'candlestick',
+            defaultPeriod: 'daily',
+            signalAlerts: false,
+            signalThreshold: 50,
+            refreshInterval: 60
+        });
+        
+        showToast('已恢复默认设置');
+    } catch (e) {
+        console.error('Failed to reset settings:', e);
+        showToast('恢复默认设置失败', 'error');
+    }
+}
+
+function loadSystemSettings() {
+    try {
+        const savedSettings = localStorage.getItem('rox-system-settings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            
+            // Load AI settings
+            document.getElementById('settings-ai-provider')?.value = settings.ai?.provider || 'default';
+            document.getElementById('settings-ai-url')?.value = settings.ai?.url || '';
+            document.getElementById('settings-ai-key')?.value = settings.ai?.key || '';
+            document.getElementById('settings-ai-model')?.value = settings.ai?.model || 'gpt-4o';
+            
+            // Load other settings
+            document.getElementById('settings-theme')?.value = settings.theme || 'dark';
+            document.getElementById('settings-compact')?.checked = settings.compact || false;
+            document.getElementById('settings-kline-style')?.value = settings.klineStyle || 'candlestick';
+            document.getElementById('settings-default-period')?.value = settings.defaultPeriod || 'daily';
+            document.getElementById('settings-signal-alerts')?.checked = settings.signalAlerts || false;
+            document.getElementById('settings-signal-threshold')?.value = settings.signalThreshold || '50';
+            document.getElementById('settings-refresh-interval')?.value = settings.refreshInterval || '60';
+            
+            // Apply settings
+            applySystemSettings(settings);
+        }
+    } catch (e) {
+        console.error('Failed to load settings:', e);
+    }
+}
+
+function applySystemSettings(settings) {
+    try {
+        // Apply theme
+        if (settings.theme === 'light') {
+            document.body.classList.add('theme-light');
+        } else if (settings.theme === 'dark') {
+            document.body.classList.remove('theme-light');
+        } else if (settings.theme === 'system') {
+            // Check system preference
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            document.body.classList.toggle('theme-light', prefersLight);
+        }
+        
+        // Apply compact mode
+        if (settings.compact) {
+            document.body.classList.add('compact');
+        } else {
+            document.body.classList.remove('compact');
+        }
+        
+        // Apply refresh interval
+        if (settings.refreshInterval) {
+            localStorage.setItem('rox-refresh-interval', String(settings.refreshInterval));
+        }
+        
+        // Apply signal settings
+        window.roxSignalSettings = {
+            alerts: settings.signalAlerts || false,
+            threshold: settings.signalThreshold || 50
+        };
+        
+        // Apply K-line style and default period (would require chart reinitialization)
+        // This would be handled when the chart is next initialized
+    } catch (e) {
+        console.error('Failed to apply settings:', e);
+    }
+}
+
+// Load settings on page load
+function initSystemSettings() {
+    loadSystemSettings();
+    
+    // Add event listeners for real-time theme changes
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+        const settings = JSON.parse(localStorage.getItem('rox-system-settings') || '{}');
+        if (settings.theme === 'system') {
+            document.body.classList.toggle('theme-light', e.matches);
+        }
+    });
+}
+
+// Call initSystemSettings when DOM is loaded
+document.addEventListener('DOMContentLoaded', initSystemSettings);
+
+// Expose settings functions to global scope
+window.saveSystemSettings = saveSystemSettings;
+window.resetSystemSettings = resetSystemSettings;

@@ -1,10 +1,11 @@
 import os
+import time
 from dataclasses import dataclass
 from typing import List, Optional
 import random
 import datetime
 from app.rox_quant.data_manager import DataManager
-from app.rox_quant.alltick_client import AllTickClient
+from app.rox_quant.data_source_manager import get_data_source_manager
 from app.rox_quant.datasources.crypto import CryptoProvider
 from app.rox_quant.datasources.global_stock import GlobalStockProvider
 
@@ -37,19 +38,14 @@ class DataProvider:
         self.crypto_provider = CryptoProvider()
         self.global_provider = GlobalStockProvider()
         
-        # Initialize AllTick Client
-        self.alltick = None
+        # Initialize Data Source Manager
+        self.data_source_manager = get_data_source_manager()
         try:
-            # Token from environment variable
-            token = os.getenv("ALLTICK_TOKEN")
-            if token:
-                self.alltick = AllTickClient(token)
-                # Start connection automatically
-                self.alltick.connect()
-            else:
-                print("Warning: ALLTICK_TOKEN not found in environment variables. Real-time tick data will be disabled.")
+            # Check if data source is available
+            if not self.data_source_manager.is_healthy():
+                print("Warning: No healthy data sources found. Real-time tick data may be limited.")
         except Exception as e:
-            print(f"Failed to init AllTick: {e}")
+            print(f"Failed to init data source manager: {e}")
 
         try:
             from curl_cffi import requests as _req  # type: ignore
@@ -245,35 +241,42 @@ class DataProvider:
         Prioritizes AllTick WebSocket data (Mid Price of Best Bid/Ask),
         Falls back to AkShare spot price.
         """
-        # 1. Try AllTick
-        if self.alltick and self.alltick.is_connected:
+        # 1. Try Data Source Manager
+        if self.data_source_manager and self.data_source_manager.is_healthy():
             at_symbol = self._normalize_symbol_for_alltick(symbol)
             
-            # Ensure subscribed (lazy subscription)
-            if at_symbol not in self.alltick.subscribed_symbols:
-                self.alltick.subscribe([at_symbol])
-            
-            tick = self.alltick.latest_ticks.get(at_symbol)
+            # Use the data source manager to get tick data
+            tick = self.data_source_manager.get_tick_data(at_symbol)
             if tick:
                 # Try to get last price first, then mid price
                 if 'last_price' in tick:
                      try:
-                        return float(tick['last_price'])
+                        last_price = float(tick['last_price'])
+                        if last_price > 0:
+                            return last_price
                      except (ValueError, TypeError):
                         pass
 
+                # Try to get mid price from best bid/ask
                 bids = tick.get('bids', [])
                 asks = tick.get('asks', [])
                 if bids and asks:
                     try:
                         bid = float(bids[0]['price'])
                         ask = float(asks[0]['price'])
-                        return (bid + ask) / 2.0
+                        if bid > 0 and ask > 0:
+                            return (bid + ask) / 2.0
                     except (ValueError, IndexError):
                         pass
 
+            # If no valid tick data, log warning
+            logger.warning(f"No valid tick data for {symbol} from data source manager")
+
         # 2. Fallback to AkShare Spot
-        return self.get_spot_price(symbol)
+        spot_price = self.get_spot_price(symbol)
+        if spot_price:
+            logger.debug(f"Using spot price fallback for {symbol}: {spot_price}")
+        return spot_price
 
     def get_realtime_quote(self, symbol: str) -> dict:
         """
@@ -288,26 +291,33 @@ class DataProvider:
         res = {
             "price": 0.0, "open": 0.0, "high": 0.0, "low": 0.0, 
             "volume": 0.0, "pre_close": 0.0, "change": 0.0, "change_pct": 0.0,
-            "time": ""
+            "time": "",
+            "bids": [],
+            "asks": [],
+            "data_source": "unknown"
         }
         
-        # 1. Try AllTick
-        if self.alltick and self.alltick.is_connected:
+        # 1. Try Data Source Manager
+        if self.data_source_manager and self.data_source_manager.is_healthy():
             at_symbol = self._normalize_symbol_for_alltick(symbol)
-            if at_symbol not in self.alltick.subscribed_symbols:
-                self.alltick.subscribe([at_symbol])
             
-            tick = self.alltick.latest_ticks.get(at_symbol)
+            # Use the data source manager to get tick data
+            tick = self.data_source_manager.get_tick_data(at_symbol)
             if tick:
                 # AllTick Tick Structure (Standard)
                 # "last_price", "open", "high", "low", "volume", "tick_time"
                 try:
+                    # Basic price data
                     res["price"] = float(tick.get("last_price", 0))
                     res["open"] = float(tick.get("open", 0))
                     res["high"] = float(tick.get("high", 0))
                     res["low"] = float(tick.get("low", 0))
                     res["volume"] = float(tick.get("volume", 0))
                     res["time"] = tick.get("tick_time", "")
+                    
+                    # Order book data
+                    res["bids"] = tick.get("bids", [])
+                    res["asks"] = tick.get("asks", [])
                     
                     # Pre_close might be in 'pre_close' or 'reference_price' or we calculate
                     if "pre_close" in tick:
@@ -320,25 +330,107 @@ class DataProvider:
                         res["change"] = res["price"] - res["pre_close"]
                         res["change_pct"] = (res["change"] / res["pre_close"]) * 100
                     
+                    res["data_source"] = "data_source_manager"
+                    
                     if res["price"] > 0:
                         return res
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.error(f"Error parsing data source manager data: {e}")
 
-        # 2. Fallback to AkShare Spot (or cached spot)
-        # We can reuse get_spot_price but we want more fields.
-        # Let's try to fetch spot row again.
+        # 2. Fallback to AkShare Spot
         try:
             import akshare as ak
-            # This is slow if called per stock. Better for batch. 
-            # But for single stock fallback:
-            # Maybe use cached spot list if available?
-            # For now, let's just return what we have if AllTick failed.
-            pass
-        except Exception:
-            pass
+            df = ak.stock_zh_a_spot()
+            if df is not None and not df.empty:
+                code_cols = [c for c in df.columns if ("代码" in c) or ("code" in c.lower())]
+                price_cols = [c for c in df.columns if ("最新价" in c) or ("最新" in c) or ("price" in c.lower())]
+                open_cols = [c for c in df.columns if ("开盘" in c) or ("open" in c.lower())]
+                high_cols = [c for c in df.columns if ("最高" in c) or ("high" in c.lower())]
+                low_cols = [c for c in df.columns if ("最低" in c) or ("low" in c.lower())]
+                volume_cols = [c for c in df.columns if ("成交量" in c) or ("volume" in c.lower())]
+                prev_close_cols = [c for c in df.columns if ("昨收" in c) or ("prev" in c.lower())]
+                
+                if code_cols and price_cols:
+                    ccol = code_cols[0]
+                    pcol = price_cols[0]
+                    row = df[df[ccol].astype(str) == str(symbol)]
+                    if not row.empty:
+                        res["price"] = float(row.iloc[0][pcol])
+                        if open_cols:
+                            res["open"] = float(row.iloc[0][open_cols[0]])
+                        if high_cols:
+                            res["high"] = float(row.iloc[0][high_cols[0]])
+                        if low_cols:
+                            res["low"] = float(row.iloc[0][low_cols[0]])
+                        if volume_cols:
+                            res["volume"] = float(row.iloc[0][volume_cols[0]])
+                        if prev_close_cols:
+                            res["pre_close"] = float(row.iloc[0][prev_close_cols[0]])
+                        
+                        # Calculate change
+                        if res["price"] > 0 and res["pre_close"] > 0:
+                            res["change"] = res["price"] - res["pre_close"]
+                            res["change_pct"] = (res["change"] / res["pre_close"]) * 100
+                        
+                        res["data_source"] = "akshare"
+                        res["time"] = time.strftime("%Y-%m-%d %H:%M:%S")
+        except Exception as e:
+            logger.error(f"Error fetching AkShare data: {e}")
             
         return res
+
+    def get_depth_data(self, symbol: str, depth: int = 5) -> Optional[dict]:
+        """
+        Get Level-2 depth data for a symbol.
+        
+        Args:
+            symbol: Stock symbol
+            depth: Depth level (e.g., 5 for 5-level order book)
+            
+        Returns:
+            Dict with bids, asks, and timestamp
+        """
+        if not self.data_source_manager or not self.data_source_manager.is_healthy():
+            logger.warning("Data source manager not available or unhealthy, cannot get depth data")
+            return None
+        
+        try:
+            at_symbol = self._normalize_symbol_for_alltick(symbol)
+            
+            # Use the data source manager to get tick data (which includes order book)
+            tick = self.data_source_manager.get_tick_data(at_symbol)
+            if tick:
+                bids = tick.get("bids", [])[:depth]
+                asks = tick.get("asks", [])[:depth]
+                return {
+                    "code": symbol,
+                    "bids": bids,
+                    "asks": asks,
+                    "tick_time": tick.get("tick_time"),
+                    "last_price": tick.get("last_price"),
+                    "depth": depth
+                }
+            else:
+                logger.warning(f"No order book data for {symbol}")
+                return None
+        except Exception as e:
+            logger.error(f"Error getting depth data: {e}")
+            return None
+
+    def get_data_source_health_status(self) -> dict:
+        """
+        Get data source health status.
+        """
+        if not self.data_source_manager:
+            return {"status": "not_initialized"}
+        
+        try:
+            status = self.data_source_manager.get_health_status()
+            status["status"] = "healthy" if status.get("is_healthy", False) else "unhealthy"
+            return status
+        except Exception as e:
+            logger.error(f"Error getting data source health status: {e}")
+            return {"status": "error", "error": str(e)}
 
     def get_spot_price(self, symbol: str) -> Optional[float]:
         try:

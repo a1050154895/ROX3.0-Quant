@@ -277,6 +277,21 @@
                     title="返回看板">
                     <i class="fas fa-home"></i> 首页
                 </a>
+                <!-- 快捷入口 - 始终显示 -->
+                <div class="flex items-center gap-1 ml-2">
+                    <a href="/strategies" target="_blank"
+                        class="px-2 py-1 bg-emerald-900/50 hover:bg-emerald-800/50 text-emerald-400 hover:text-emerald-300 rounded text-xs font-medium transition-all flex items-center gap-1 whitespace-nowrap border border-emerald-800/50">
+                        <i class="fas fa-chess"></i> 策略
+                    </a>
+                    <a href="/knowledge" target="_blank"
+                        class="px-2 py-1 bg-blue-900/50 hover:bg-blue-800/50 text-blue-400 hover:text-blue-300 rounded text-xs font-medium transition-all flex items-center gap-1 whitespace-nowrap border border-blue-800/50">
+                        <i class="fas fa-book"></i> 知识
+                    </a>
+                    <a href="/docs" target="_blank"
+                        class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 rounded text-xs font-medium transition-all flex items-center gap-1 whitespace-nowrap border border-slate-700">
+                        <i class="fas fa-file-code"></i> API
+                    </a>
+                </div>
             </div>
 
             <!-- Desktop Nav -->
@@ -351,6 +366,27 @@
                 <button onclick="openContradictions()"
                     class="px-2 py-1 rounded hover:bg-white/5 hover:text-yellow-400 transition-all" title="矛盾扫描">
                     <i class="fas fa-search"></i>
+                </button>
+                <div class="h-4 w-[1px] bg-slate-700 mx-0.5"></div>
+                <!-- 外部页面链接 -->
+                <a href="/strategies" target="_blank"
+                    class="px-2 py-1 rounded hover:bg-white/5 hover:text-emerald-400 transition-all flex items-center gap-1 whitespace-nowrap"
+                    title="策略中心">
+                    <i class="fas fa-chess"></i> 策略中心
+                </a>
+                <a href="/knowledge" target="_blank"
+                    class="px-2 py-1 rounded hover:bg-white/5 hover:text-blue-400 transition-all flex items-center gap-1 whitespace-nowrap"
+                    title="知识中心">
+                    <i class="fas fa-book"></i> 知识中心
+                </a>
+                <a href="/docs" target="_blank"
+                    class="px-2 py-1 rounded hover:bg-white/5 hover:text-slate-200 transition-all flex items-center gap-1 whitespace-nowrap"
+                    title="API文档">
+                    <i class="fas fa-file-code"></i> API
+                </a>
+                <button onclick="openCapitalModal()" class="px-2 py-1 rounded hover:bg-white/5 hover:text-slate-200 transition-all flex items-center gap-1 whitespace-nowrap"
+                    title="本金推荐">
+                    <i class="fas fa-coins"></i> 本金推荐
                 </button>
                 <button id="settings-btn" class="px-2 py-1 rounded hover:bg-white/5 hover:text-slate-200 transition-all"
                     title="设置">
@@ -748,6 +784,18 @@
             class="text-lg font-bold text-slate-300 hover:text-sky-400 flex items-center gap-3">
             <i class="fas fa-layer-group"></i> 分析
         </button>
+        <a href="/strategies" target="_blank" onclick="toggleMobileMenu()"
+            class="text-lg font-bold text-slate-300 hover:text-emerald-400 flex items-center gap-3">
+            <i class="fas fa-chess"></i> 策略中心
+        </a>
+        <a href="/knowledge" target="_blank" onclick="toggleMobileMenu()"
+            class="text-lg font-bold text-slate-300 hover:text-blue-400 flex items-center gap-3">
+            <i class="fas fa-book"></i> 知识中心
+        </a>
+        <a href="/docs" target="_blank" onclick="toggleMobileMenu()"
+            class="text-lg font-bold text-slate-300 hover:text-slate-200 flex items-center gap-3">
+            <i class="fas fa-file-code"></i> API文档
+        </a>
         <button type="button" onclick="toggleMobileMenu()"
             class="absolute top-4 right-4 text-slate-400 p-2 w-10 h-10 flex items-center justify-center border border-slate-700 rounded-full hover:bg-slate-800">
             <i class="fas fa-times text-xl"></i>
@@ -868,6 +916,84 @@
                     </div>
                 </div>
 
+                <!-- 界面设置 -->
+                <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                    <h4 class="text-xs font-bold text-sky-400 mb-3 flex items-center gap-2">
+                        <i class="fas fa-paint-brush"></i> 界面设置
+                    </h4>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-slate-400 mb-1 text-xs">主题模式</label>
+                            <select id="settings-theme" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-slate-200 text-xs focus:border-sky-500 outline-none">
+                                <option value="dark">深色模式</option>
+                                <option value="light">浅色模式</option>
+                                <option value="system">跟随系统</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 mb-1 text-xs">界面紧凑模式</label>
+                            <div class="flex items-center gap-2">
+                                <input id="settings-compact" type="checkbox" class="rounded border-slate-700 bg-slate-950 text-sky-500 focus:ring-sky-500">
+                                <span class="text-xs text-slate-300">启用紧凑布局</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表设置 -->
+                <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                    <h4 class="text-xs font-bold text-sky-400 mb-3 flex items-center gap-2">
+                        <i class="fas fa-chart-line"></i> 图表设置
+                    </h4>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-slate-400 mb-1 text-xs">K线样式</label>
+                            <select id="settings-kline-style" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-slate-200 text-xs focus:border-sky-500 outline-none">
+                                <option value="candlestick">蜡烛图</option>
+                                <option value="bar">美国线</option>
+                                <option value="line">收盘价线</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 mb-1 text-xs">默认周期</label>
+                            <select id="settings-default-period" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-slate-200 text-xs focus:border-sky-500 outline-none">
+                                <option value="daily">日线</option>
+                                <option value="weekly">周线</option>
+                                <option value="monthly">月线</option>
+                                <option value="60min">60分钟</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 信号设置 -->
+                <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                    <h4 class="text-xs font-bold text-sky-400 mb-3 flex items-center gap-2">
+                        <i class="fas fa-bolt"></i> 信号设置
+                    </h4>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-slate-400 mb-1 text-xs">信号提醒</label>
+                            <div class="flex items-center gap-2">
+                                <input id="settings-signal-alerts" type="checkbox" class="rounded border-slate-700 bg-slate-950 text-sky-500 focus:ring-sky-500">
+                                <span class="text-xs text-slate-300">启用信号提醒</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 mb-1 text-xs">信号强度阈值</label>
+                            <input id="settings-signal-threshold" type="number" min="10" max="90" value="50"
+                                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all font-mono text-xs">
+                            <p class="text-[10px] text-slate-500 mt-0.5">高于此值的信号才会触发提醒</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 常规设置 -->
                 <div>
                     <label
@@ -881,6 +1007,10 @@
 
                 <!-- 保存按钮 -->
                 <div class="pt-2 border-t border-slate-800 flex justify-end gap-3">
+                    <button onclick="resetSystemSettings()"
+                        class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold rounded transition-all transform active:scale-95">
+                        <i class="fas fa-redo mr-1"></i> 恢复默认
+                    </button>
                     <button onclick="saveSystemSettings()"
                         class="px-4 py-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white text-xs font-bold rounded shadow-lg shadow-sky-900/20 transition-all transform active:scale-95">
                         <i class="fas fa-save mr-1"></i> 保存配置

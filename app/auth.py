@@ -7,7 +7,7 @@ import bcrypt
 from pydantic import BaseModel, validator
 import sqlite3
 from app.db import get_db, get_user_by_username, create_user
-from app.core.config import settings
+from app.core.security_config import settings
 
 # Configuration
 SECRET_KEY = settings.SECRET_KEY
@@ -46,8 +46,10 @@ class UserCreate(BaseModel):
 
     @validator('password')
     def validate_password(cls, v):
-        if len(v) < 6:
-            raise ValueError('密码至少需要6个字符')
+        from app.core.security_config import SecurityConfig
+        valid, message = SecurityConfig.validate_password(v)
+        if not valid:
+            raise ValueError(message)
         return v
 
 class UserInDB(User):

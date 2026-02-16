@@ -1204,7 +1204,7 @@
 
   function onSwitchMode(mode) {
     if (mode === 'market') loadMarketDashboard();
-    if (mode === 'macro') loadMacro();
+    // if (mode === 'macro') loadMacro(); // Phase 6 handles this (Charts view)
     if (mode === 'weekly') loadWeekly();
     if (mode === 'screener') loadScreener();
     if (mode === 'diagnosis') initDiagnosisSidebar();
@@ -1451,4 +1451,93 @@
     loadSystemStatus: loadSystemStatus,
     onSwitchMode: onSwitchMode
   };
+  // ---------- 交易模块 ----------
+  function loadTrading() {
+    var accountSelect = document.getElementById('trade-account');
+    if (accountSelect) {
+      // Re-bind change event if not bound
+      if (!accountSelect._bound) {
+        accountSelect._bound = true;
+        accountSelect.onchange = function () { loadTradingData(); };
+      }
+    }
+    loadTradingData();
+  }
+
+  function loadTradingData() {
+    var accEl = document.getElementById('trading-accounts');
+    var listEl = document.getElementById('trading-trades-list');
+    var mode = 'sim';
+    var accountSelect = document.getElementById('trade-account');
+    if (accountSelect) mode = accountSelect.value;
+
+    if (accEl) accEl.innerHTML = '<p class="text-slate-400 text-sm">加载中...</p>';
+
+    // 1. Account Summary
+    apiGet('/api/portfolio/summary?mode=' + mode)
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (data) {
+        if (!accEl) return;
+        if (data.message && mode === 'real') {
+          accEl.innerHTML = '<div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded text-amber-300 text-sm">' +
+            '<i class="fas fa-exclamation-triangle mr-2"></i>' + data.message +
+            '</div>';
+          return;
+        }
+        var bal = FormatUtils.formatBigNumber(data.balance || 0);
+        var asset = FormatUtils.formatBigNumber(data.total_asset || data.balance || 0);
+        var pnl = (data.total_pnl || 0);
+        var pnlCls = FormatUtils.getColorClass(pnl);
+        accEl.innerHTML = '<div class="grid grid-cols-2 gap-4 text-center">' +
+          '<div class="bg-slate-900 rounded p-3"><div class="text-xs text-slate-500">总资产</div><div class="text-lg font-mono text-slate-200">' + asset + '</div></div>' +
+          '<div class="bg-slate-900 rounded p-3"><div class="text-xs text-slate-500">可用资金</div><div class="text-lg font-mono text-slate-200">' + bal + '</div></div>' +
+          '<div class="col-span-2 bg-slate-900 rounded p-3"><div class="text-xs text-slate-500">参考盈亏</div><div class="text-lg font-mono ' + pnlCls + '">' + (pnl >= 0 ? '+' : '') + FormatUtils.formatBigNumber(pnl) + '</div></div>' +
+          '</div>';
+      })
+      .catch(function () { if (accEl) accEl.innerHTML = '<p class="text-slate-500 text-sm">加载失败</p>'; });
+
+    // 2. Positions (Optional display)
+    // apiGet('/api/portfolio/positions?mode=' + mode)...
+  }
+
+  // Trading Form Handling
+  var tradeForm = document.getElementById('trading-form');
+  if (tradeForm) {
+    tradeForm.onsubmit = function (e) {
+      e.preventDefault();
+      var btn = document.getElementById('trading-submit-btn');
+      if (btn) btn.disabled = true;
+
+      var mode = 'sim';
+      var accountSelect = document.getElementById('trade-account');
+      if (accountSelect) mode = accountSelect.value;
+
+      var sym = document.getElementById('trade-symbol').value;
+      var side = document.getElementById('trade-side').value;
+      var price = parseFloat(document.getElementById('trade-price').value);
+      var qty = parseInt(document.getElementById('trade-qty').value);
+      var name = document.getElementById('trade-name').value;
+
+      apiPost('/api/portfolio/order', {
+        symbol: sym,
+        side: side,
+        price: price,
+        quantity: qty,
+        name: name,
+        mode: mode
+      }).then(function (r) {
+        if (r.ok) return r.json();
+        return r.json().then(function (d) { throw new Error(d.detail || '下单失败'); });
+      }).then(function (d) {
+        if (typeof showToast === 'function') showToast("✅ 下单成功: " + (d.message || '已提交'));
+        if (btn) btn.disabled = false;
+        loadTradingData(); // Refresh assets
+      }).catch(function (e) {
+        if (typeof showToast === 'function') showToast("❌ 下单失败: " + e.message);
+        if (btn) btn.disabled = false;
+      });
+    };
+  }
+
+  window.onSwitchMode = onSwitchMode;
 })();

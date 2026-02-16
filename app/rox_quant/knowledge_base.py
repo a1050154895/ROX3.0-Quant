@@ -1,12 +1,14 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Any
+from typing import List, Optional, Dict, Any, Tuple, Set
 import os
 import json
 import re
 import traceback
+import logging
 
 HAS_NLP = False
 cosine_similarity = None
+logger = logging.getLogger(__name__)
 
 @dataclass
 class KnowledgeDocument:
@@ -14,12 +16,23 @@ class KnowledgeDocument:
     title: str
     content: str
     vector: Optional[List[float]] = field(default=None)
+    category: Optional[str] = field(default=None)
+    author: Optional[str] = field(default=None)
+    keywords: List[str] = field(default_factory=list)
+    concepts: List[str] = field(default_factory=list)
 
 class KnowledgeBase:
     def __init__(self):
         self.documents: List[KnowledgeDocument] = []
         self.model = None
         self._nlp_checked = False
+        self._category_mapping = {
+            "economics": ["资本论", "就业、利息和货币通论", "经济学", "宏观", "微观"],
+            "investment": ["穷查理宝典", "原则", "投资学", "笑傲股市", "教你炒股票"],
+            "policy": ["结构性改革", "置身事内", "规划纲要", "政策"],
+            "history": ["南明史", "乡土中国", "历史", "文化"],
+            "philosophy": ["传习录", "乌合之众", "自卑与超越", "哲学"]
+        }
 
     def _ensure_nlp(self) -> bool:
         global HAS_NLP
@@ -33,13 +46,15 @@ class KnowledgeBase:
             cosine_similarity = _cos
             HAS_NLP = True
             self.model = SentenceTransformer("all-MiniLM-L6-v2")
+            logger.info("✓ SentenceTransformer loaded successfully")
             return True
         except ImportError:
             HAS_NLP = False
             self.model = None
+            logger.warning("⚠️  SentenceTransformer not installed")
             return False
         except Exception as e:
-            print(f"Failed to load SentenceTransformer: {e}")
+            logger.error(f"Failed to load SentenceTransformer: {e}")
             HAS_NLP = False
             self.model = None
             return False
@@ -76,20 +91,38 @@ class KnowledgeBase:
         if not self._ensure_nlp():
             return None
         try:
-            # 截断过长的文本以适应模型限制 (通常 256 或 512 tokens)
-            # 简单按字符截断，例如前 1000 字符
+            # 截断过长的文本以适应模型限制
             embedding = self.model.encode(text[:1000])
             return embedding.tolist()
         except Exception as e:
-            print(f"Embedding error: {e}")
+            logger.error(f"Embedding error: {e}")
             return None
+
+    def _detect_category(self, title: str) -> Optional[str]:
+        """自动检测书籍类别"""
+        for category, keywords in self._category_mapping.items():
+            for keyword in keywords:
+                if keyword in title:
+                    return category
+        return None
+
+    def _extract_keywords(self, text: str) -> List[str]:
+        """提取关键词"""
+        try:
+            import jieba
+            from jieba.analyse import extract_tags
+            return extract_tags(text, topK=10)
+        except Exception:
+            return []
 
     def build_embedded_from_dir(self, src_dir: str) -> int:
         arr = []
         if not os.path.isdir(src_dir):
             return 0
         
-        print(f"Building KB from {src_dir}...")
+        logger.info(f"Building KB from {src_dir}...")
+        processed_count = 0
+        
         for root, _, files in os.walk(src_dir):
             for f in files:
                 if f.startswith("~$") or f.startswith("."):
@@ -113,14 +146,26 @@ class KnowledgeBase:
                         content = self._parse_pdf(fp)
                     else:
                         content = ""
-                except Exception:
+                except Exception as e:
+                    logger.error(f"Error processing {title}: {e}")
                     content = ""
                 
                 if content:
                     # 生成向量
                     vec = self._compute_embedding(title + "\n" + content)
-                    arr.append({"path": fp, "title": title, "content": content, "vector": vec})
-                    print(f"Processed: {title}")
+                    category = self._detect_category(title)
+                    keywords = self._extract_keywords(content)
+                    
+                    arr.append({
+                        "path": fp, 
+                        "title": title, 
+                        "content": content, 
+                        "vector": vec,
+                        "category": category,
+                        "keywords": keywords
+                    })
+                    logger.info(f"Processed: {title} (Category: {category})")
+                    processed_count += 1
 
         base = os.path.dirname(__file__)
         assets_dir = os.path.join(base, "assets")
@@ -131,11 +176,11 @@ class KnowledgeBase:
         try:
             with open(out, "w", encoding="utf-8") as f:
                 json.dump(arr, f, ensure_ascii=False)
-            print(f"Saved {len(arr)} docs to {out}")
+            logger.info(f"Saved {len(arr)} docs to {out}")
         except Exception as e:
-            print(f"Failed to save KB: {e}")
+            logger.error(f"Failed to save KB: {e}")
             return 0
-        return len(arr)
+        return processed_count
 
     def load_embedded(self) -> int:
         self.documents.clear()
@@ -154,6 +199,7 @@ class KnowledgeBase:
              if os.path.isfile(local_path):
                  path = local_path
              else:
+                 logger.warning("No embedded KB found")
                  return 0
 
         try:
@@ -165,9 +211,22 @@ class KnowledgeBase:
                     c = str(item.get("content") or "").strip()
                     p = str(item.get("path") or "")
                     v = item.get("vector") # List[float] or None
+                    cat = item.get("category")
+                    keywords = item.get("keywords", [])
+                    
                     if t and c:
-                        self.documents.append(KnowledgeDocument(path=p, title=t, content=self._normalize_text(c), vector=v))
-        except Exception:
+                        doc = KnowledgeDocument(
+                            path=p, 
+                            title=t, 
+                            content=self._normalize_text(c), 
+                            vector=v,
+                            category=cat,
+                            keywords=keywords
+                        )
+                        self.documents.append(doc)
+            logger.info(f"✓ Loaded {len(self.documents)} documents")
+        except Exception as e:
+            logger.error(f"Failed to load KB: {e}")
             self.documents = []
         return len(self.documents)
 
@@ -175,6 +234,8 @@ class KnowledgeBase:
         self.documents.clear()
         if not os.path.isdir(path):
             return 0
+        
+        processed_count = 0
         for root, _, files in os.walk(path):
             for f in files:
                 if f.startswith("~$") or f.startswith("."):
@@ -198,21 +259,42 @@ class KnowledgeBase:
                         content = self._parse_pdf(fp)
                     else:
                         content = ""
-                except Exception:
+                except Exception as e:
+                    logger.error(f"Error processing {title}: {e}")
                     content = ""
+                
                 if content:
                     vec = self._compute_embedding(title + "\n" + content)
-                    self.documents.append(KnowledgeDocument(path=fp, title=title, content=content, vector=vec))
-        return len(self.documents)
+                    category = self._detect_category(title)
+                    keywords = self._extract_keywords(content)
+                    
+                    doc = KnowledgeDocument(
+                        path=fp, 
+                        title=title, 
+                        content=content, 
+                        vector=vec,
+                        category=category,
+                        keywords=keywords
+                    )
+                    self.documents.append(doc)
+                    processed_count += 1
+        
+        logger.info(f"Loaded {processed_count} documents from {path}")
+        return processed_count
 
     def size(self) -> int:
         return len(self.documents)
 
-    def search(self, query: str, limit: int = 5) -> List[KnowledgeDocument]:
+    def search(self, query: str, limit: int = 5, category: Optional[str] = None) -> List[KnowledgeDocument]:
         # 混合搜索：如果有向量则结合语义，否则仅关键词
         q = query.strip().lower()
         if not q:
             return []
+        
+        # 过滤文档
+        filtered_docs = self.documents
+        if category:
+            filtered_docs = [doc for doc in self.documents if doc.category == category]
         
         # 1. 语义搜索 (Semantic Search)
         semantic_scores = {} # id -> score
@@ -220,7 +302,7 @@ class KnowledgeBase:
             try:
                 q_vec = self.model.encode(q)
                 # 收集所有有向量的文档
-                valid_docs = [(i, d.vector) for i, d in enumerate(self.documents) if d.vector]
+                valid_docs = [(i, d.vector) for i, d in enumerate(filtered_docs) if d.vector]
                 if valid_docs:
                     ids = [x[0] for x in valid_docs]
                     vecs = [x[1] for x in valid_docs]
@@ -231,11 +313,11 @@ class KnowledgeBase:
                     for idx, score in zip(ids, sims):
                         semantic_scores[idx] = float(score)
             except Exception as e:
-                print(f"Semantic search error: {e}")
+                logger.error(f"Semantic search error: {e}")
 
         # 2. 关键词搜索 (Keyword Search)
         keyword_scores = {}
-        for i, doc in enumerate(self.documents):
+        for i, doc in enumerate(filtered_docs):
             s = 0
             if q in doc.title.lower():
                 s += 3.0
@@ -243,11 +325,15 @@ class KnowledgeBase:
                 s += 1.0
             # 简单的词频统计
             s += doc.content.lower().count(q) * 0.1
+            # 关键词匹配加分
+            for keyword in doc.keywords:
+                if q in keyword.lower():
+                    s += 0.5
             if s > 0:
                 keyword_scores[i] = s
 
         # 3. 融合分数 (Fusion)
-        # 归一化关键词分数 (简单的 max-min 归一化)
+        # 归一化关键词分数
         if keyword_scores:
             max_kw = max(keyword_scores.values())
             if max_kw > 0:
@@ -255,12 +341,11 @@ class KnowledgeBase:
                     keyword_scores[k] /= max_kw # map to 0-1
 
         final_scores = []
-        for i, doc in enumerate(self.documents):
+        for i, doc in enumerate(filtered_docs):
             sem_s = semantic_scores.get(i, 0.0)
             kw_s = keyword_scores.get(i, 0.0)
             
             # 加权融合: 语义 0.7 + 关键词 0.3 (可调整)
-            # 如果没有语义库，全靠关键词
             if HAS_NLP and self.model:
                 total = sem_s * 0.7 + kw_s * 0.3
             else:
@@ -327,3 +412,88 @@ class KnowledgeBase:
                 keywords[k] += text.count(k.lower())
         return keywords
 
+    def get_documents_by_category(self, category: str) -> List[KnowledgeDocument]:
+        """按类别获取文档"""
+        return [doc for doc in self.documents if doc.category == category]
+
+    def get_categories(self) -> Set[str]:
+        """获取所有类别"""
+        categories = set()
+        for doc in self.documents:
+            if doc.category:
+                categories.add(doc.category)
+        return categories
+
+    def get_top_keywords(self, limit: int = 20) -> Dict[str, int]:
+        """获取所有文档的top关键词"""
+        keyword_count = {}
+        for doc in self.documents:
+            for keyword in doc.keywords:
+                keyword_count[keyword] = keyword_count.get(keyword, 0) + 1
+        
+        # 排序并返回前N个
+        sorted_keywords = sorted(keyword_count.items(), key=lambda x: x[1], reverse=True)
+        return dict(sorted_keywords[:limit])
+
+    def build_knowledge_graph(self) -> Dict[str, Any]:
+        """构建简单的知识图谱"""
+        graph = {
+            "nodes": [],
+            "edges": []
+        }
+        
+        # 添加文档节点
+        for i, doc in enumerate(self.documents):
+            graph["nodes"].append({
+                "id": f"doc_{i}",
+                "label": doc.title,
+                "type": "document",
+                "category": doc.category
+            })
+        
+        # 添加关键词节点并建立连接
+        keyword_id_map = {}
+        keyword_counter = 0
+        
+        for i, doc in enumerate(self.documents):
+            for keyword in doc.keywords:
+                if keyword not in keyword_id_map:
+                    keyword_id_map[keyword] = f"kw_{keyword_counter}"
+                    graph["nodes"].append({
+                        "id": keyword_id_map[keyword],
+                        "label": keyword,
+                        "type": "keyword"
+                    })
+                    keyword_counter += 1
+                
+                graph["edges"].append({
+                    "source": f"doc_{i}",
+                    "target": keyword_id_map[keyword],
+                    "type": "contains"
+                })
+        
+        return graph
+
+    def get_related_documents(self, doc_index: int, limit: int = 5) -> List[Tuple[float, KnowledgeDocument]]:
+        """获取相关文档"""
+        if doc_index >= len(self.documents):
+            return []
+        
+        target_doc = self.documents[doc_index]
+        if not target_doc.vector:
+            return []
+        
+        related = []
+        for i, doc in enumerate(self.documents):
+            if i == doc_index or not doc.vector:
+                continue
+            
+            try:
+                similarity = cosine_similarity([target_doc.vector], [doc.vector])[0][0]
+                if similarity > 0.5:
+                    related.append((similarity, doc))
+            except Exception:
+                pass
+        
+        related.sort(key=lambda x: x[0], reverse=True)
+        return related[:limit]
