@@ -176,12 +176,18 @@
       })
       .then(function (d) {
         if (!isMarketViewActive()) return;
-        var dates = d.dates || [];
-        var ohlc = d.ohlc || [];
-        if (!dates.length || !ohlc.length) {
+        var items = d.items || [];
+        if (!items.length) {
           el.innerHTML = '<div class="h-full flex items-center justify-center text-slate-500 text-sm">K 线数据为空，请稍后重试</div>';
           return;
         }
+        // 转换数据格式为前端所需
+        var dates = [];
+        var ohlc = [];
+        items.forEach(function(item) {
+          dates.push(item.time);
+          ohlc.push([item.open, item.high, item.low, item.close]);
+        });
         var ch = echarts.init(el);
         ch.setOption({
           backgroundColor: 'transparent',

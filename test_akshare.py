@@ -1,24 +1,19 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+测试akshare库是否能正常获取市场数据
+"""
+
 import akshare as ak
-import pandas as pd
-import time
-import os
 
-# 强制禁用代理
-os.environ['NO_PROXY'] = '*'
-os.environ['no_proxy'] = '*'
-
-
-print("Testing AkShare stock_info_a_code_name...")
+print('Testing akshare...')
 try:
-    start = time.time()
-    df = ak.stock_info_a_code_name()
-    print(f"Time taken: {time.time() - start:.2f}s")
-    if df is None or df.empty:
-        print("Result is empty or None")
-    else:
-        print(f"Columns: {df.columns.tolist()}")
-        print(f"Rows: {len(df)}")
-        print(df.head())
+    # 测试获取A股实时行情
+    df = ak.stock_zh_a_spot_em()
+    print(f'Success! Got {len(df)} stocks')
+    print('Sample data:')
+    print(df.head())
 except Exception as e:
-    print(f"Error: {e}")
-
+    print(f'Error: {e}')
+    import traceback
+    traceback.print_exc()

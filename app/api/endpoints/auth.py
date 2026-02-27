@@ -103,7 +103,7 @@ async def register(user: UserCreate, conn: sqlite3.Connection = Depends(get_db))
         raise HTTPException(status_code=400, detail="Username already registered")
     
     hashed_password = get_password_hash(user.password)
-    new_user = create_user(conn, user.username, hashed_password)
+    new_user = create_user(conn, user.username, hashed_password, email=user.email, phone=user.phone)
     if not new_user:
         raise HTTPException(status_code=500, detail="Registration failed")
     return new_user

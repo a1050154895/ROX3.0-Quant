@@ -201,6 +201,54 @@ class APIClient {
     }
 
     /**
+     * 显示错误提示
+     * @param {string} message - 错误消息
+     * @param {string} type - 错误类型
+     */
+    showError(message, type = 'error') {
+        // 触发错误事件，让其他组件可以处理
+        window.dispatchEvent(new CustomEvent('apiError', {
+            detail: { message, type }
+        }));
+        
+        // 显示错误提示
+        if (typeof showToast === 'function') {
+            showToast(message, type);
+        } else if (typeof toastr !== 'undefined') {
+            toastr[type](message);
+        } else {
+            console.error(`[APIClient] ${message}`);
+        }
+    }
+
+    /**
+     * 处理API错误响应
+     * @param {Response} response - 响应对象
+     * @returns {Promise} 处理后的错误
+     */
+    async handleErrorResponse(response) {
+        try {
+            const errorData = await response.json();
+            const errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+            const errorCode = errorData.code;
+            
+            // 显示友好的错误提示
+            this.showError(errorMessage, 'error');
+            
+            // 特殊处理认证错误
+            if (response.status === 401) {
+                this.handleAuthError();
+            }
+            
+            throw new Error(errorMessage);
+        } catch (error) {
+            const errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+            this.showError(errorMessage, 'error');
+            throw new Error(errorMessage);
+        }
+    }
+
+    /**
      * GET请求
      * @param {string} url - 请求URL
      * @param {Object} options - 请求选项
@@ -236,6 +284,10 @@ class APIClient {
                     ...fetchOptions
                 });
                 
+                if (!response.ok) {
+                    await this.handleErrorResponse(response);
+                }
+                
                 const data = await response.json();
                 
                 // 缓存响应
@@ -249,6 +301,14 @@ class APIClient {
                 return data;
             } catch (error) {
                 console.error(`[APIClient] GET ${url} failed:`, error);
+                // 显示网络错误提示
+                if (error.name === 'AbortError') {
+                    this.showError('请求超时，请稍后重试', 'warning');
+                } else if (error.message === 'Failed to fetch') {
+                    this.showError('网络连接失败，请检查网络设置', 'error');
+                } else {
+                    this.showError(error.message, 'error');
+                }
                 throw error;
             } finally {
                 this.setLoading(url, false);
@@ -281,9 +341,21 @@ class APIClient {
                 ...options
             });
             
+            if (!response.ok) {
+                await this.handleErrorResponse(response);
+            }
+            
             return await response.json();
         } catch (error) {
             console.error(`[APIClient] POST ${url} failed:`, error);
+            // 显示网络错误提示
+            if (error.name === 'AbortError') {
+                this.showError('请求超时，请稍后重试', 'warning');
+            } else if (error.message === 'Failed to fetch') {
+                this.showError('网络连接失败，请检查网络设置', 'error');
+            } else {
+                this.showError(error.message, 'error');
+            }
             throw error;
         } finally {
             this.setLoading(url, false);
@@ -311,9 +383,21 @@ class APIClient {
                 ...options
             });
             
+            if (!response.ok) {
+                await this.handleErrorResponse(response);
+            }
+            
             return await response.json();
         } catch (error) {
             console.error(`[APIClient] PUT ${url} failed:`, error);
+            // 显示网络错误提示
+            if (error.name === 'AbortError') {
+                this.showError('请求超时，请稍后重试', 'warning');
+            } else if (error.message === 'Failed to fetch') {
+                this.showError('网络连接失败，请检查网络设置', 'error');
+            } else {
+                this.showError(error.message, 'error');
+            }
             throw error;
         } finally {
             this.setLoading(url, false);
@@ -339,9 +423,21 @@ class APIClient {
                 ...options
             });
             
+            if (!response.ok) {
+                await this.handleErrorResponse(response);
+            }
+            
             return await response.json();
         } catch (error) {
             console.error(`[APIClient] DELETE ${url} failed:`, error);
+            // 显示网络错误提示
+            if (error.name === 'AbortError') {
+                this.showError('请求超时，请稍后重试', 'warning');
+            } else if (error.message === 'Failed to fetch') {
+                this.showError('网络连接失败，请检查网络设置', 'error');
+            } else {
+                this.showError(error.message, 'error');
+            }
             throw error;
         } finally {
             this.setLoading(url, false);

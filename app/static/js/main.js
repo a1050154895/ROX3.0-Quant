@@ -707,14 +707,14 @@ async function loadSectorList() {
     const container = document.getElementById('sector-list-container');
     if (!container) return;
     try {
-        const r = await fetch('/api/market/rankings');
+        const r = await fetch('/api/market/sector-fund-flow');
         const d = await r.json().catch(() => ({}));
-        const sectors = d.sectors || [];
+        const sectors = d.items || [];
         container.innerHTML = '';
         sectors.forEach(s => {
             const div = document.createElement('div');
             div.className = 'grid grid-cols-[1fr_80px_60px] px-2 py-1 border-b border-[#1a1a1a] hover:bg-[#222] cursor-default';
-            const pct = s.pct != null ? s.pct : 0;
+            const pct = s.change_pct != null ? s.change_pct : 0;
             const colorClass = pct > 0 ? 'text-up' : (pct < 0 ? 'text-down' : 'text-gray-400');
             div.innerHTML = `<div class="text-yellow-500 font-bold">${s.name || '—'}</div><div class="text-right text-gray-500">—</div><div class="text-right ${colorClass} font-mono">${pct > 0 ? '+' : ''}${pct}%</div>`;
             container.appendChild(div);
@@ -732,7 +732,7 @@ function renderSpotRow(s, listEl) {
     const div = document.createElement('div');
     div.className = 'grid grid-cols-[1fr_80px_60px] px-2 py-1 border-b border-[#1a1a1a] hover:bg-[#222] cursor-pointer stock-row group relative';
     div.onclick = () => selectStock(s.code, s.name);
-    const colorClass = (s.pct || 0) > 0 ? 'text-up' : ((s.pct || 0) < 0 ? 'text-down' : 'text-gray-400');
+    const colorClass = (s.change_pct || 0) > 0 ? 'text-up' : ((s.change_pct || 0) < 0 ? 'text-down' : 'text-gray-400');
     div.innerHTML = `
         <div class="relative">
             <div class="flex items-center space-x-2">
@@ -744,7 +744,7 @@ function renderSpotRow(s, listEl) {
             </div>
         </div>
         <div class="text-right ${colorClass} self-center font-mono">${(s.price || 0).toFixed(2)}</div>
-        <div class="text-right ${colorClass} self-center font-mono">${(s.pct || 0) > 0 ? '+' : ''}${s.pct || 0}%</div>
+        <div class="text-right ${colorClass} self-center font-mono">${(s.change_pct || 0) > 0 ? '+' : ''}${s.change_pct || 0}%</div>
     `;
     listEl.appendChild(div);
 }
@@ -778,7 +778,7 @@ async function loadSpotList(append = false) {
     try {
         const r = await fetch(`/api/market/spot?limit=${SPOT_PAGE_SIZE}&offset=${offset}`);
         const d = await r.json().catch(() => ({}));
-        const stocks = d.stocks || [];
+        const stocks = d.items || [];
         const total = d.total != null ? d.total : 0;
         if (!append) {
             spotListOffset = stocks.length;
@@ -980,11 +980,11 @@ async function loadHeaderIndices() {
             if (priceEl) {
                 priceEl.textContent = idx.price?.toFixed(2) || '----';
                 priceEl.classList.remove('skeleton-text', 'text-slate-400');
-                priceEl.classList.add(idx.pct >= 0 ? 'text-up' : 'text-down');
+                priceEl.classList.add(idx.change_pct >= 0 ? 'text-up' : 'text-down');
             }
 
             if (pctEl) {
-                const pctVal = idx.pct || 0;
+                const pctVal = idx.change_pct || 0;
                 pctEl.textContent = `${pctVal >= 0 ? '+' : ''}${pctVal.toFixed(2)}%`;
                 pctEl.classList.remove('text-slate-500', 'bg-slate-800');
                 if (pctVal >= 0) {
@@ -2377,3 +2377,12 @@ document.addEventListener('DOMContentLoaded', initSystemSettings);
 // Expose settings functions to global scope
 window.saveSystemSettings = saveSystemSettings;
 window.resetSystemSettings = resetSystemSettings;
+// 初始化新闻摘要
+if (document.getElementById('news-container')) {
+    window.newsDigest = new NewsDigest();
+}
+
+// 初始化 AI 助手
+if (document.getElementById('ai-assistant-container')) {
+    window.aiAssistant = new AIAssistant();
+}

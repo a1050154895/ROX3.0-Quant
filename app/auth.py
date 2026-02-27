@@ -29,6 +29,8 @@ class TokenData(BaseModel):
 class User(BaseModel):
     id: int
     username: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
     role: str = "user"
     bio: Optional[str] = None
     avatar: Optional[str] = None
@@ -37,11 +39,29 @@ class User(BaseModel):
 class UserCreate(BaseModel):
     username: str
     password: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
 
     @validator('username')
     def validate_username(cls, v):
         if len(v) < 3:
             raise ValueError('用户名至少需要3个字符')
+        return v
+
+    @validator('email')
+    def validate_email(cls, v):
+        if v:
+            import re
+            if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', v):
+                raise ValueError('邮箱格式不正确')
+        return v
+
+    @validator('phone')
+    def validate_phone(cls, v):
+        if v:
+            import re
+            if not re.match(r'^1[3-9]\d{9}$', v):
+                raise ValueError('手机号格式不正确')
         return v
 
     @validator('password')

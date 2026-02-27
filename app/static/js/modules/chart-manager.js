@@ -800,6 +800,329 @@ class ChartManager {
     }
 
     /**
+     * 创建宏观数据图表
+     * @param {string} domId - DOM元素ID
+     * @param {Object} data - 宏观数据
+     * @returns {Object|null} ECharts实例
+     */
+    createMacroChart(domId, data) {
+        const chart = this.initChart(domId);
+        if (!chart) return null;
+
+        const moneySupply = data.money_supply || [];
+        const pmiData = data.pmi || [];
+        const cpi = data.cpi || { value: 0, date: '' };
+        const ppi = data.ppi || { value: 0 };
+        const gdp = data.gdp || { value: 0, quarter: '' };
+
+        // 准备M1-M2剪刀差数据
+        const dates = moneySupply.map(item => item.date);
+        const m1Data = moneySupply.map(item => item.m1_yoy);
+        const m2Data = moneySupply.map(item => item.m2_yoy);
+        const scissorsData = moneySupply.map(item => item.scissors);
+
+        // 准备PMI数据
+        const pmiDates = pmiData.map(item => item.date);
+        const manufacturingData = pmiData.map(item => item.manufacturing);
+        const nonManufacturingData = pmiData.map(item => item.non_manufacturing);
+
+        const option = {
+            backgroundColor: 'transparent',
+            animation: false,
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                borderColor: '#334155',
+                textStyle: { color: '#e2e8f0' }
+            },
+            legend: {
+                data: ['M1同比', 'M2同比', '剪刀差', '制造业PMI', '非制造业PMI'],
+                textStyle: { color: '#94a3b8' },
+                top: 10
+            },
+            grid: [
+                { left: '3%', right: '3%', height: '40%', top: 50 },
+                { left: '3%', right: '3%', height: '30%', top: '60%' }
+            ],
+            xAxis: [
+                {
+                    type: 'category',
+                    data: dates,
+                    axisLabel: {
+                        color: '#94a3b8',
+                        fontSize: 10,
+                        rotate: 45
+                    },
+                    axisLine: { lineStyle: { color: '#334155' } }
+                },
+                {
+                    type: 'category',
+                    data: pmiDates,
+                    gridIndex: 1,
+                    axisLabel: {
+                        color: '#94a3b8',
+                        fontSize: 10,
+                        rotate: 45
+                    },
+                    axisLine: { lineStyle: { color: '#334155' } }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: '同比增长(%)',
+                    nameTextStyle: { color: '#94a3b8' },
+                    splitLine: { lineStyle: { color: '#334155' } },
+                    axisLabel: { color: '#94a3b8' }
+                },
+                {
+                    type: 'value',
+                    name: 'PMI指数',
+                    nameTextStyle: { color: '#94a3b8' },
+                    gridIndex: 1,
+                    splitLine: { lineStyle: { color: '#334155' } },
+                    axisLabel: { color: '#94a3b8' },
+                    min: 40,
+                    max: 60
+                }
+            ],
+            series: [
+                // M1-M2剪刀差相关
+                {
+                    name: 'M1同比',
+                    type: 'line',
+                    data: m1Data,
+                    smooth: true,
+                    lineStyle: { width: 2, color: '#38bdf8' },
+                    itemStyle: { color: '#38bdf8' },
+                    showSymbol: false
+                },
+                {
+                    name: 'M2同比',
+                    type: 'line',
+                    data: m2Data,
+                    smooth: true,
+                    lineStyle: { width: 2, color: '#8b5cf6' },
+                    itemStyle: { color: '#8b5cf6' },
+                    showSymbol: false
+                },
+                {
+                    name: '剪刀差',
+                    type: 'line',
+                    data: scissorsData,
+                    smooth: true,
+                    lineStyle: { width: 2, color: '#f43f5e' },
+                    itemStyle: { color: '#f43f5e' },
+                    showSymbol: false,
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#f43f5e40' },
+                            { offset: 1, color: '#f43f5e10' }
+                        ])
+                    }
+                },
+                // PMI相关
+                {
+                    name: '制造业PMI',
+                    type: 'line',
+                    xAxisIndex: 1,
+                    yAxisIndex: 1,
+                    data: manufacturingData,
+                    smooth: true,
+                    lineStyle: { width: 2, color: '#22c55e' },
+                    itemStyle: { color: '#22c55e' },
+                    showSymbol: false
+                },
+                {
+                    name: '非制造业PMI',
+                    type: 'line',
+                    xAxisIndex: 1,
+                    yAxisIndex: 1,
+                    data: nonManufacturingData,
+                    smooth: true,
+                    lineStyle: { width: 2, color: '#f59e0b' },
+                    itemStyle: { color: '#f59e0b' },
+                    showSymbol: false
+                }
+            ]
+        };
+
+        chart.setOption(option);
+        return chart;
+    }
+
+    /**
+     * 创建CPI/PPI对比图表
+     * @param {string} domId - DOM元素ID
+     * @param {Object} data - CPI/PPI数据
+     * @returns {Object|null} ECharts实例
+     */
+    createCpiPpiChart(domId, data) {
+        const chart = this.initChart(domId);
+        if (!chart) return null;
+
+        const cpi = data.cpi || { value: 0, date: '' };
+        const ppi = data.ppi || { value: 0 };
+
+        const option = {
+            backgroundColor: 'transparent',
+            animation: false,
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                borderColor: '#334155',
+                textStyle: { color: '#e2e8f0' }
+            },
+            grid: {
+                top: 30,
+                bottom: 30,
+                left: 50,
+                right: 20,
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['CPI', 'PPI'],
+                axisLabel: {
+                    color: '#94a3b8',
+                    fontSize: 12
+                },
+                axisLine: { lineStyle: { color: '#334155' } }
+            },
+            yAxis: {
+                type: 'value',
+                name: '同比增长(%)',
+                nameTextStyle: { color: '#94a3b8' },
+                splitLine: { lineStyle: { color: '#334155' } },
+                axisLabel: { color: '#94a3b8' }
+            },
+            series: [{
+                name: '通胀指标',
+                type: 'bar',
+                data: [
+                    {
+                        value: cpi.value,
+                        itemStyle: {
+                            color: cpi.value >= 0 ? '#f59e0b' : '#38bdf8'
+                        }
+                    },
+                    {
+                        value: ppi.value,
+                        itemStyle: {
+                            color: ppi.value >= 0 ? '#f59e0b' : '#38bdf8'
+                        }
+                    }
+                ],
+                label: {
+                    show: true,
+                    position: 'top',
+                    color: '#e2e8f0',
+                    formatter: '{c}%'
+                },
+                barWidth: '40%'
+            }]
+        };
+
+        chart.setOption(option);
+        return chart;
+    }
+
+    /**
+     * 创建GDP图表
+     * @param {string} domId - DOM元素ID
+     * @param {Object} data - GDP数据
+     * @returns {Object|null} ECharts实例
+     */
+    createGdpChart(domId, data) {
+        const chart = this.initChart(domId);
+        if (!chart) return null;
+
+        const gdp = data.gdp || { value: 0, quarter: '' };
+
+        const option = {
+            backgroundColor: 'transparent',
+            animation: false,
+            tooltip: {
+                trigger: 'item',
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                borderColor: '#334155',
+                textStyle: { color: '#e2e8f0' }
+            },
+            series: [{
+                name: 'GDP增长',
+                type: 'gauge',
+                startAngle: 180,
+                endAngle: 0,
+                min: 0,
+                max: 10,
+                splitNumber: 10,
+                axisLine: {
+                    lineStyle: {
+                        width: 20,
+                        color: [
+                            [0.3, '#38bdf8'],
+                            [0.7, '#f59e0b'],
+                            [1, '#ef4444']
+                        ]
+                    }
+                },
+                pointer: {
+                    icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+                    length: '12%',
+                    width: 20,
+                    offsetCenter: [0, '-60%'],
+                    itemStyle: {
+                        color: 'auto'
+                    }
+                },
+                axisTick: {
+                    length: 12,
+                    lineStyle: {
+                        color: 'auto',
+                        width: 2
+                    }
+                },
+                splitLine: {
+                    length: 20,
+                    lineStyle: {
+                        color: 'auto',
+                        width: 5
+                    }
+                },
+                axisLabel: {
+                    color: '#94a3b8',
+                    fontSize: 12,
+                    distance: -60,
+                    formatter: function (value) {
+                        return value + '%';
+                    }
+                },
+                title: {
+                    offsetCenter: [0, '-10%'],
+                    fontSize: 14,
+                    color: '#e2e8f0'
+                },
+                detail: {
+                    fontSize: 30,
+                    offsetCenter: [0, '-35%'],
+                    valueAnimation: true,
+                    formatter: function (value) {
+                        return value.toFixed(1) + '%';
+                    },
+                    color: 'auto'
+                },
+                data: [{
+                    value: gdp.value,
+                    name: 'GDP同比增长'
+                }]
+            }]
+        };
+
+        chart.setOption(option);
+        return chart;
+    }
+
+    /**
      * 获取图表统计信息
      * @returns {Object} 统计信息
      */

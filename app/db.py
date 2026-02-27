@@ -226,6 +226,8 @@ def ensure_schema(conn: sqlite3.Connection):
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE,
+            phone TEXT UNIQUE,
             password_hash TEXT NOT NULL,
             role TEXT DEFAULT 'user',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -558,11 +560,11 @@ def init_db():
         ensure_schema(conn)
 
 # --- Auth Functions ---
-def create_user(conn: sqlite3.Connection, username: str, password_hash: str, role: str = 'user'):
+def create_user(conn: sqlite3.Connection, username: str, password_hash: str, role: str = 'user', email: str = None, phone: str = None):
     try:
         cur = conn.execute(
-            "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
-            (username, password_hash, role)
+            "INSERT INTO users (username, email, phone, password_hash, role) VALUES (?, ?, ?, ?, ?)",
+            (username, email, phone, password_hash, role)
         )
         user_id = cur.lastrowid
         conn.execute("INSERT OR IGNORE INTO accounts (user_id, type) VALUES (?, 'sim')", (user_id,))

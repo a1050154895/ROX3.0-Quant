@@ -3,10 +3,16 @@ import akshare as ak
 import pandas as pd
 import logging
 from app.db import get_all_stocks_spot, get_market_rankings, get_latest_news
+from app.utils.retry import run_with_retry
 
 logger = logging.getLogger("rox-market-data")
 
+@run_with_retry
 async def fetch_indices():
+    """
+    获取市场指数数据
+    使用akshare API获取指数数据，如果失败则返回模拟数据
+    """
     indices = []
     # Use code for spot lookup. 
     # Note: CSI300 is 000300 in SH spot usually, or 399300 in SZ.
@@ -80,7 +86,12 @@ async def fetch_indices():
     
     return indices
 
+@run_with_retry
 async def get_market_stats_data():
+    """
+    获取市场统计数据
+    包括涨跌家数、成交额、北向资金、主力资金等
+    """
     df_spot = await get_all_stocks_spot()
     up_count = 0; down_count = 0; flat_count = 0; total_volume_str = "--"
     
@@ -175,9 +186,11 @@ async def get_market_stats_data():
         "retail_dist": [] # Defer to real sentiment API
     }
 
+@run_with_retry
 async def get_real_market_sentiment():
     """
-    Fetch REAL Main/Retail flow distribution by aggregating sector flows.
+    获取真实的市场情绪数据
+    通过聚合行业资金流数据，计算主力和散户的资金流向分布
     """
     loop = asyncio.get_event_loop()
     try:

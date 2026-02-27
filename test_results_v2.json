@@ -1,0 +1,874 @@
+{
+  "pass": [
+    {
+      "category": "健康检查",
+      "name": "GET /health",
+      "url": "/health",
+      "status": 200,
+      "data_size": 66,
+      "preview": "{'status': 'ok', 'environment': 'development', 'version': '3.0.0'}"
+    },
+    {
+      "category": "健康检查",
+      "name": "GET /docs",
+      "url": "/docs",
+      "status": 200,
+      "data_size": 948
+    },
+    {
+      "category": "健康检查",
+      "name": "GET /api/system/status",
+      "url": "/api/system/status",
+      "status": 200,
+      "data_size": 284,
+      "preview": "{'server_time': '2026-02-26 15:19:51', 'cache_age': -1, 'akshare_status': 'Error: Network Blocked (EastMoney)', 'spot_data_rows': 0, 'scrape_progress'"
+    },
+    {
+      "category": "健康检查",
+      "name": "GET /api/system/health",
+      "url": "/api/system/health",
+      "status": 200,
+      "data_size": 57,
+      "preview": "{'status': 'ok', 'service': 'rox-quant', 'docs': '/docs'}"
+    },
+    {
+      "category": "健康检查",
+      "name": "GET /api/system/ready",
+      "url": "/api/system/ready",
+      "status": 200,
+      "data_size": 28,
+      "preview": "{'status': 'ok', 'db': 'ok'}"
+    },
+    {
+      "category": "前端页面",
+      "name": "Landing / 落地页",
+      "url": "/",
+      "status": 200,
+      "data_size": 16926
+    },
+    {
+      "category": "前端页面",
+      "name": "ROX 2.0 UI /home",
+      "url": "/home",
+      "status": 200,
+      "data_size": 84037
+    },
+    {
+      "category": "前端页面",
+      "name": "经典版 1.0 /classic",
+      "url": "/classic",
+      "status": 200,
+      "data_size": 41329
+    },
+    {
+      "category": "前端页面",
+      "name": "专业版 3.0 /pro",
+      "url": "/pro",
+      "status": 200,
+      "data_size": 106540
+    },
+    {
+      "category": "前端页面",
+      "name": "策略工坊 /builder",
+      "url": "/builder",
+      "status": 200,
+      "data_size": 17867
+    },
+    {
+      "category": "前端页面",
+      "name": "市场热力图 /map",
+      "url": "/map",
+      "status": 200,
+      "data_size": 9572
+    },
+    {
+      "category": "前端页面",
+      "name": "知识中心 /knowledge",
+      "url": "/knowledge",
+      "status": 200,
+      "data_size": 14052
+    },
+    {
+      "category": "前端页面",
+      "name": "策略中心 /strategies",
+      "url": "/strategies",
+      "status": 200,
+      "data_size": 33766
+    },
+    {
+      "category": "市场数据",
+      "name": "指数行情",
+      "url": "/api/market/indices",
+      "status": 200,
+      "data_size": 515,
+      "preview": "{'indices': [{'code': '000001', 'name': '上证指数', 'open': 4151.068, 'prev_close': 4147.2305, 'price': 4146.6311, 'high': 4152.1926, 'low': 4127.1531, 'v"
+    },
+    {
+      "category": "市场数据",
+      "name": "K线(上证)",
+      "url": "/api/market/kline",
+      "status": 200,
+      "data_size": 1109200,
+      "preview": "{'items': [{'time': '1990-12-19', 'open': 96.05, 'close': 99.98, 'high': 99.98, 'low': 95.79, 'volume': 126000, 'amount': 0}, {'time': '1990-12-20', '"
+    },
+    {
+      "category": "市场数据",
+      "name": "K线(茅台)",
+      "url": "/api/market/kline",
+      "status": 200,
+      "data_size": 3859,
+      "preview": "{'items': [{'time': '2026-01-28', 'open': 116.3, 'close': 116.5, 'high': 116.8, 'low': 116.1, 'volume': 1290000, 'amount': 119400000.0}, {'time': '202"
+    },
+    {
+      "category": "市场数据",
+      "name": "分时(上证)",
+      "url": "/api/market/fenshi",
+      "status": 200,
+      "data_size": 33,
+      "preview": "{'items': [], 'code': 'sh000001'}"
+    },
+    {
+      "category": "市场数据",
+      "name": "龙虎榜",
+      "url": "/api/market/dragon-tiger",
+      "status": 200,
+      "data_size": 27,
+      "preview": "{'items': [], 'date': None}"
+    },
+    {
+      "category": "市场数据",
+      "name": "板块轮动",
+      "url": "/api/market/rotation",
+      "status": 200,
+      "data_size": 118,
+      "preview": "{'items': [], 'error': \"('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))\"}"
+    },
+    {
+      "category": "市场数据",
+      "name": "市场概览",
+      "url": "/api/market/overview",
+      "status": 200,
+      "data_size": 583,
+      "preview": "{'indices': [{'code': '000001', 'name': '上证指数', 'open': 4151.068, 'prev_close': 4147.2305, 'price': 4146.6311, 'high': 4152.1926, 'low': 4127.1531, 'v"
+    },
+    {
+      "category": "市场数据",
+      "name": "行情排名",
+      "url": "/api/market/rankings",
+      "status": 200,
+      "data_size": 741,
+      "preview": "{'items': [{'code': '600000', 'name': '浦发银行', 'price': 10.5, 'change_pct': 10.0, 'volume': 10000000, 'amount': 105000000, 'turnover': 5.2}, {'code': '"
+    },
+    {
+      "category": "市场数据",
+      "name": "板块资金流",
+      "url": "/api/market/sector-fund-flow",
+      "status": 200,
+      "data_size": 428,
+      "preview": "{'items': [{'code': 'bank', 'name': '银行', 'main_inflow': 1000000000, 'change_pct': 1.5}, {'code': 'tech', 'name': '科技', 'main_inflow': 800000000, 'cha"
+    },
+    {
+      "category": "市场数据",
+      "name": "板块资金流v2",
+      "url": "/api/market/sector-flow",
+      "status": 200,
+      "data_size": 428,
+      "preview": "{'items': [{'code': 'bank', 'name': '银行', 'main_inflow': 1000000000, 'change_pct': 1.5}, {'code': 'tech', 'name': '科技', 'main_inflow': 800000000, 'cha"
+    },
+    {
+      "category": "市场数据",
+      "name": "市场情绪",
+      "url": "/api/market/sentiment",
+      "status": 200,
+      "data_size": 17,
+      "preview": "{'sentiment': {}}"
+    },
+    {
+      "category": "市场数据",
+      "name": "市场统计",
+      "url": "/api/market/stats",
+      "status": 200,
+      "data_size": 224,
+      "preview": "{'stats': {'total_stocks': 5000, 'up_count': 2000, 'down_count': 2500, 'flat_count': 500, 'limit_up': 50, 'limit_down': 20, 'total_volume': 5000000000"
+    },
+    {
+      "category": "市场数据",
+      "name": "概念板块",
+      "url": "/api/market/concepts",
+      "status": 200,
+      "data_size": 118,
+      "preview": "{'items': [], 'error': \"('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))\"}"
+    },
+    {
+      "category": "市场数据",
+      "name": "市场热力图数据",
+      "url": "/api/market/heatmap/data",
+      "status": 200,
+      "data_size": 118,
+      "preview": "{'items': [], 'error': \"('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))\"}"
+    },
+    {
+      "category": "市场数据",
+      "name": "现货行情",
+      "url": "/api/market/spot",
+      "status": 200,
+      "data_size": 1039,
+      "preview": "{'items': [{'code': '000001', 'name': '平安银行', 'price': 12.34, 'change_pct': 1.23, 'change': 0.15, 'volume': 12345678, 'amount': 152345678.9, 'high': 1"
+    },
+    {
+      "category": "市场数据",
+      "name": "股票搜索建议",
+      "url": "/api/market/stock-suggest",
+      "status": 200,
+      "data_size": 13,
+      "preview": "{'items': []}"
+    },
+    {
+      "category": "个股",
+      "name": "诊断(茅台600519)",
+      "url": "/api/stock/diagnose",
+      "status": 200,
+      "data_size": 872,
+      "preview": "{'code': '600519', 'name': '600519', 'overall_score': 50, 'summary': '该股综合得分为50分。表现一般，存在一些不确定性，建议谨慎观察。', 'scores': {'technical': 70, 'fundamental': 50"
+    },
+    {
+      "category": "个股",
+      "name": "诊断(平安601318)",
+      "url": "/api/stock/diagnose",
+      "status": 200,
+      "data_size": 836,
+      "preview": "{'code': '601318', 'name': '601318', 'overall_score': 34, 'summary': '该股综合得分为34分。表现较弱，存在明显短板，建议规避。', 'scores': {'technical': 30, 'fundamental': 50, 'f"
+    },
+    {
+      "category": "个股",
+      "name": "股票联想",
+      "url": "/api/stock/suggest",
+      "status": 200,
+      "data_size": 13,
+      "preview": "{'items': []}"
+    },
+    {
+      "category": "分析",
+      "name": "AI分析面板(600519)",
+      "url": "/api/analysis/dashboard/600519",
+      "status": 200,
+      "data_size": 34,
+      "preview": "{'error': 'No history data found'}"
+    },
+    {
+      "category": "分析",
+      "name": "暗池资金(600519)",
+      "url": "/api/analysis/dark-pool-fund/600519",
+      "status": 200,
+      "data_size": 7863,
+      "preview": "[{'日期': '2025-08-22', '收盘': 1439.99, '暗盘资金': -0.0}, {'日期': '2025-08-25', '收盘': 1466.37, '暗盘资金': -4680236.175461311}, {'日期': '2025-08-26', '收盘': 1457.6"
+    },
+    {
+      "category": "分析",
+      "name": "游资分析(600519)",
+      "url": "/api/analysis/hot-money/600519",
+      "status": 200,
+      "data_size": 4961370,
+      "preview": "[{'date': '2001-08-27T00:00:00', '股票代码': '600519', 'open': -284.65, 'close': -284.45, 'high': -284.0, 'low': -284.98, 'volume': 406318, '成交额': 1410347"
+    },
+    {
+      "category": "宏观",
+      "name": "宏观指标",
+      "url": "/api/macro/indicators",
+      "status": 200,
+      "data_size": 127,
+      "preview": "{'money_supply': [], 'pmi': [], 'cpi': {'value': 0.0, 'date': ''}, 'ppi': {'value': 0.0}, 'gdp': {'value': 0.0, 'quarter': ''}}"
+    },
+    {
+      "category": "AI",
+      "name": "AI提供商列表",
+      "url": "/api/ai/providers",
+      "status": 200,
+      "data_size": 297,
+      "preview": "{'current': 'default', 'list': [{'id': 'default', 'name': '默认', 'default_model': 'deepseek-chat', 'available': True}, {'id': 'secondary', 'name': '备用线"
+    },
+    {
+      "category": "策略",
+      "name": "策略列表",
+      "url": "/api/strategies/list",
+      "status": 200,
+      "data_size": 1585,
+      "preview": "[{'name': '100使用K-means 聚类对基金分类', 'file': '/Users/mac/Downloads/rox3.0/app/rox_quant/jq_strategies/100使用K-means 聚类对基金分类.py', 'description': '!/usr/bin"
+    },
+    {
+      "category": "策略",
+      "name": "策略分类",
+      "url": "/api/strategies/categories",
+      "status": 200,
+      "data_size": 94,
+      "preview": "{'total': 6, 'categories': {'小市值策略': 1, 'ETF策略': 1, '打板策略': 0, '机器学习': 1, '价值投资': 0, '其他': 3}}"
+    },
+    {
+      "category": "策略",
+      "name": "策略统计",
+      "url": "/api/strategies/stats",
+      "status": 200,
+      "data_size": 170,
+      "preview": "{'total_strategies': 6, 'total_size': 90786, 'average_size': 15131.0, 'python_files': 6, 'categories': {'小市值策略': 1, 'ETF策略': 1, '打板策略': 0, '机器学习': 1, "
+    },
+    {
+      "category": "策略",
+      "name": "策略健康检查",
+      "url": "/api/strategies/health",
+      "status": 200,
+      "data_size": 74,
+      "preview": "{'status': 'healthy', 'strategies_count': 6, 'execution_history_count': 0}"
+    },
+    {
+      "category": "策略",
+      "name": "策略历史",
+      "url": "/api/strategies/history",
+      "status": 200,
+      "data_size": 2,
+      "preview": "[]"
+    },
+    {
+      "category": "策略",
+      "name": "回测策略列表",
+      "url": "/api/strategy/backtest/strategies",
+      "status": 200,
+      "data_size": 746,
+      "preview": "{'strategies': [{'id': 'jq_10y_52x', 'name': '10年52倍 (ARBR)', 'description': '基于 ARBR 情绪因子的周频调仓策略'}, {'id': 'jq_small_cap', 'name': '小市值轮动', 'descript"
+    },
+    {
+      "category": "策略市场",
+      "name": "策略列表",
+      "url": "/api/marketplace/list",
+      "status": 200,
+      "data_size": 1354,
+      "preview": "[{'id': 1, 'name': 'Grid Master Pro', 'author': 'Official ROX', 'description': 'Classic mean-reversion grid strategy. Suitable for oscillating markets"
+    },
+    {
+      "category": "策略市场",
+      "name": "策略详情(item_1)",
+      "url": "/api/marketplace/item/1",
+      "status": 200,
+      "data_size": 497,
+      "preview": "{'id': 1, 'name': 'Grid Master Pro', 'author': 'Official ROX', 'description': 'Classic mean-reversion grid strategy. Suitable for oscillating markets."
+    },
+    {
+      "category": "回测",
+      "name": "回测健康",
+      "url": "/api/backtest/health",
+      "status": 200,
+      "data_size": 66,
+      "preview": "{'status': 'healthy', 'service': 'backtest_api', 'version': '3.5'}"
+    },
+    {
+      "category": "投资组合",
+      "name": "组合总览(sim)",
+      "url": "/api/portfolio/summary",
+      "status": 200,
+      "data_size": 105,
+      "preview": "{'balance': 1000000.0, 'total_assets': 1000000.0, 'day_pnl': 0.0, 'total_pnl': 0.0, 'total_pnl_pct': 0.0}"
+    },
+    {
+      "category": "投资组合",
+      "name": "组合总览(real)",
+      "url": "/api/portfolio/summary",
+      "status": 200,
+      "data_size": 95,
+      "preview": "{'balance': 0.0, 'asset': 0.0, 'message': 'Real Trading not configured. Please contact admin.'}"
+    },
+    {
+      "category": "投资组合",
+      "name": "持仓列表",
+      "url": "/api/portfolio/positions",
+      "status": 200,
+      "data_size": 2,
+      "preview": "[]"
+    },
+    {
+      "category": "知识库",
+      "name": "知识分类",
+      "url": "/api/knowledge/categories",
+      "status": 200,
+      "data_size": 1278,
+      "preview": "{'policy': ['结构性改革（ 这本书从基础性、结构性、机制性、制度性等多个维度，深入剖析我国供给侧关键矛盾并对症下药。） - 黄奇帆', '置身事内：中国政府与经济发展【复旦经院“毕业课”，解读经济生活背后的政府角色。罗永浩、刘格菘、张军、周黎安、王烁联袂推荐！】 - 兰小欢', '十五五"
+    },
+    {
+      "category": "知识库",
+      "name": "知识统计",
+      "url": "/api/knowledge/stats",
+      "status": 200,
+      "data_size": 371,
+      "preview": "{'total_documents': 169, 'categories': ['policy', 'economics', 'history', 'investment', 'philosophy'], 'top_keywords': {}, 'vector_db_stats': {'total_"
+    },
+    {
+      "category": "系统",
+      "name": "系统监控状态",
+      "url": "/api/system/system/monitor/status",
+      "status": 200,
+      "data_size": 183,
+      "preview": "{'status': 'ok', 'data': {'last_check': None, 'db_connected': False, 'api_connected': False, 'websocket_connected': False, 'system_load': 0.0, 'memory"
+    },
+    {
+      "category": "系统",
+      "name": "系统监控摘要",
+      "url": "/api/system/system/monitor/summary",
+      "status": 200,
+      "data_size": 209,
+      "preview": "{'status': 'ok', 'data': {'status': {'last_check': None, 'db_connected': False, 'api_connected': False, 'websocket_connected': False, 'system_load': 0"
+    },
+    {
+      "category": "系统",
+      "name": "系统监控告警",
+      "url": "/api/system/system/monitor/alerts",
+      "status": 200,
+      "data_size": 28,
+      "preview": "{'status': 'ok', 'data': []}"
+    },
+    {
+      "category": "设置",
+      "name": "AI设置(GET)",
+      "url": "/api/settings/ai",
+      "status": 200,
+      "data_size": 284,
+      "preview": "{'api_key': 'sk-h...gycd', 'base_url': 'https://api.deepseek.com/v1', 'provider': 'default', 'model': 'deepseek-chat', 'has_key': True, 'secondary_api"
+    },
+    {
+      "category": "哲学",
+      "name": "矛盾分析",
+      "url": "/api/philosophy/contradictions",
+      "status": 200,
+      "data_size": 687,
+      "preview": "{'main': {'id': 'foreign_vs_domestic', 'name': '外资 vs 内资分歧', 'strength': 100.0, 'direction': 1.0, 'summary': '外资与内资出现明显分歧，市场对“定价权”理解不一致。', 'suggestion"
+    },
+    {
+      "category": "哲学",
+      "name": "价值散点",
+      "url": "/api/philosophy/value-scatter",
+      "status": 200,
+      "data_size": 13,
+      "preview": "{'items': []}"
+    },
+    {
+      "category": "哲学预测",
+      "name": "理论指南",
+      "url": "/api/philosophy-prediction/theory-guide",
+      "status": 200,
+      "data_size": 878,
+      "preview": "{'title': '哲学思想量化系统理论指导', 'theories': [{'name': '马克思主义政治经济学', 'source': '《资本论》', 'core_concepts': ['剩余价值率 = 剩余价值/可变资本', '资本有机构成 = 不变资本/可变资本', '利润率下降趋势"
+    },
+    {
+      "category": "哲学预测",
+      "name": "马克思分析(600519)",
+      "url": "/api/philosophy-prediction/marxist/600519",
+      "status": 200,
+      "data_size": 229,
+      "preview": "{'code': '600519', 'surplus_value_rate': 2.0, 'organic_composition': 7.0, 'profit_rate_trend': '利润率健康，资本积累活跃', 'exploitation_degree': 200.0, 'capital_"
+    },
+    {
+      "category": "专业Plus",
+      "name": "信号(600519)",
+      "url": "/api/professional-plus/signals/600519",
+      "status": 200,
+      "data_size": 860,
+      "preview": "{'code': '600519', 'timestamp': '2026-02-26T15:21:33.061248', 'core_signals': {'亢龙有悔V2': {'signal': '持有', 'confidence': 0.5, 'score': 0}, '游资暗盘V2': {'"
+    },
+    {
+      "category": "东方智慧",
+      "name": "易经(600519)",
+      "url": "/api/eastern-wisdom/iching/600519",
+      "status": 200,
+      "data_size": 200,
+      "preview": "{'code': '600519', 'yin_yang_state': '阴阳平衡', 'hexagram': '未济', 'changing_line': 0, 'cycle_position': 50, 'tai_pai_signal': False, 'transformation_hint"
+    },
+    {
+      "category": "东方智慧",
+      "name": "道家(600519)",
+      "url": "/api/eastern-wisdom/daoist/600519",
+      "status": 200,
+      "data_size": 187,
+      "preview": "{'code': '600519', 'tao_alignment': 50, 'wu_wei_score': 50, 'natural_rhythm': '韵律不明', 'flow_direction': '静止', 'counter_action_signal': False, 'advice'"
+    },
+    {
+      "category": "东方智慧",
+      "name": "儒家(600519)",
+      "url": "/api/eastern-wisdom/confucian/600519",
+      "status": 200,
+      "data_size": 188,
+      "preview": "{'code': '600519', 'zhongyong_score': 50, 'excess_warning': False, 'deficiency_warning': False, 'golden_mean_position': 50, 'timing_score': 50, 'advic"
+    },
+    {
+      "category": "东方智慧",
+      "name": "阳明心学(600519)",
+      "url": "/api/eastern-wisdom/yangming/600519",
+      "status": 200,
+      "data_size": 220,
+      "preview": "{'code': '600519', 'unity_of_knowledge_action': 50, 'conscience_alignment': 50, 'mind_discipline_score': 50, 'action_consistency': 90, 'inner_wisdom':"
+    },
+    {
+      "category": "东方智慧",
+      "name": "孙子兵法(600519)",
+      "url": "/api/eastern-wisdom/sunzi/600519",
+      "status": 200,
+      "data_size": 228,
+      "preview": "{'code': '600519', 'know_enemy_score': 50, 'know_self_score': 50, 'victory_probability': 0.5, 'avoid_strong_attack_weak': '虚实难辨', 'terrain_advantage':"
+    },
+    {
+      "category": "东方智慧",
+      "name": "理论指南",
+      "url": "/api/eastern-wisdom/theory-guide",
+      "status": 200,
+      "data_size": 1168,
+      "preview": "{'title': '东方智慧量化系统理论指导', 'theories': [{'name': '道家哲学', 'source': '《道德经》', 'core_concepts': ['道法自然', '无为而治', '反者道之动', '上善若水'], 'application': '顺势而为，逆向"
+    },
+    {
+      "category": "卢麒元",
+      "name": "方法论",
+      "url": "/api/lu-prediction/methodology",
+      "status": 200,
+      "data_size": 859,
+      "preview": "{'name': '卢麒元方法论增强预测系统', 'core_methods': [{'name': '矛盾分析法', 'description': '识别市场主要矛盾，把握主要矛盾的主要方面', 'factors': ['量价背离', '资金分歧', '行业分化', '政策预期'], 'weigh"
+    },
+    {
+      "category": "卢麒元",
+      "name": "预测(600519)",
+      "url": "/api/lu-prediction/predict/600519",
+      "status": 200,
+      "data_size": 406,
+      "preview": "{'code': '600519', 'signal': '偏多', 'confidence': 0.59, 'direction': 2.13, 'strength': 3, 'target_price': None, 'stop_loss': None, 'position_ratio': 0."
+    },
+    {
+      "category": "卢麒元",
+      "name": "市场阶段",
+      "url": "/api/lu-prediction/market-phase",
+      "status": 200,
+      "data_size": 236,
+      "preview": "{'phase': '安全期', 'crisis_probability': 0, 'capital_turnover': 0.6, 'asset_allocation': {'现金': 0.1, '黄金': 0.1, '债券': 0.2, '股票': 0.6}, 'primary_contradi"
+    },
+    {
+      "category": "卢麒元",
+      "name": "准确率统计",
+      "url": "/api/lu-prediction/accuracy-stats",
+      "status": 200,
+      "data_size": 44,
+      "preview": "{'total': 0, 'accuracy': 0, 'avg_return': 0}"
+    },
+    {
+      "category": "机器学习",
+      "name": "ML状态",
+      "url": "/api/ml/status",
+      "status": 200,
+      "data_size": 149,
+      "preview": "{'sklearn_available': True, 'torch_available': True, 'model_loaded': False, 'is_training': False, 'training_progress': '', 'last_train_result': None}"
+    },
+    {
+      "category": "机器学习",
+      "name": "信号表现",
+      "url": "/api/ml/signal-performance",
+      "status": 200,
+      "data_size": 39,
+      "preview": "{'performances': [], 'signal_count': 0}"
+    },
+    {
+      "category": "预警",
+      "name": "预警列表",
+      "url": "/api/alerts/list",
+      "status": 200,
+      "data_size": 12,
+      "preview": "{'data': []}"
+    },
+    {
+      "category": "导出",
+      "name": "导出市场数据",
+      "url": "/api/export/market-data/600519",
+      "status": 200,
+      "data_size": 105,
+      "preview": "{'error': \"('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))\"}"
+    },
+    {
+      "category": "资讯",
+      "name": "市场快讯",
+      "url": "/api/info/news",
+      "status": 200,
+      "data_size": 1590,
+      "preview": "[{'title': '德国总理默茨一行在杭州参访 推进务实合作', 'time': '14:58:43', 'url': '', 'tag': 'Global'}, {'title': '', 'time': '15:00:03', 'url': '', 'tag': 'Global'}, {'t"
+    },
+    {
+      "category": "资讯",
+      "name": "公告(600519)",
+      "url": "/api/info/notices/600519",
+      "status": 200,
+      "data_size": 2,
+      "preview": "[]"
+    },
+    {
+      "category": "智能体",
+      "name": "智能体信息",
+      "url": "/api/agents/info",
+      "status": 200,
+      "data_size": 501,
+      "preview": "{'success': True, 'agents': {'technical': {'name': 'TechnicalAnalyst', 'role': '技术分析师，专注于 K 线形态、技术指标和趋势判断', 'timeout': 25.0}, 'market': {'name': 'Mark"
+    }
+  ],
+  "fail": [
+    {
+      "category": "个股",
+      "name": "个股信息",
+      "url": "/api/stock/info",
+      "status": 500,
+      "reason": "HTTP 500: {'error': \"获取股票信息失败: ('Connection aborted.', RemoteDisconnected('Remote end closed connection withou"
+    },
+    {
+      "category": "导出",
+      "name": "导出龙虎榜",
+      "url": "/api/export/dragon-tiger",
+      "status": 200,
+      "reason": "非JSON响应"
+    },
+    {
+      "category": "导出",
+      "name": "导出自选股",
+      "url": "/api/export/watchlist",
+      "status": 500,
+      "reason": "HTTP 500: {'error': '服务器内部错误', 'code': 'INTERNAL_ERROR'}"
+    }
+  ],
+  "warn": [
+    {
+      "category": "市场数据",
+      "name": "技术指标",
+      "url": "/api/market/indicators",
+      "status": 422,
+      "reason": "HTTP 422: {'error': '请求参数校验失败', 'code': 'VALIDATION_ERROR', 'details': {'messages': ['code: Field required'], "
+    },
+    {
+      "category": "市场数据",
+      "name": "实时报价",
+      "url": "/api/market/quotes",
+      "status": 422,
+      "reason": "HTTP 422: {'error': '请求参数校验失败', 'code': 'VALIDATION_ERROR', 'details': {'messages': ['codes: Field required'],"
+    },
+    {
+      "category": "个股",
+      "name": "压力支撑",
+      "url": "/api/stock/resistance-support",
+      "status": 503,
+      "reason": "HTTP 503: {'error': '阻力/支撑数据暂不可用，请稍后重试', 'code': 'HTTP_503'}"
+    },
+    {
+      "category": "分析",
+      "name": "亢龙有悔(600519)",
+      "url": "/api/analysis/kang-long-you-hui/600519",
+      "status": 503,
+      "reason": "HTTP 503: {'error': '行情数据源暂时不可用，请稍后重试', 'code': 'HTTP_503'}"
+    },
+    {
+      "category": "分析",
+      "name": "三色共振(600519)",
+      "url": "/api/analysis/three-color-resonance/600519",
+      "status": 503,
+      "reason": "HTTP 503: {'error': '行情数据源暂时不可用，请稍后重试', 'code': 'HTTP_503'}"
+    },
+    {
+      "category": "分析",
+      "name": "精准交易(600519)",
+      "url": "/api/analysis/precise-trading/600519",
+      "status": 503,
+      "reason": "HTTP 503: {'error': '行情数据源暂时不可用，请稍后重试', 'code': 'HTTP_503'}"
+    },
+    {
+      "category": "AI",
+      "name": "AI聊天(POST)",
+      "url": "/api/ai/chat",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "AI",
+      "name": "AI分析(POST)",
+      "url": "/api/ai/analyze",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "AI",
+      "name": "AI模板列表",
+      "url": "/api/ai/templates",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "AI",
+      "name": "AI决策-板块表现",
+      "url": "/api/ai/decision/sector-performance",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "AI",
+      "name": "AI决策-市场洞察",
+      "url": "/api/ai/decision/market-insights",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "策略",
+      "name": "经典CTA回测",
+      "url": "/api/strategy/backtest/classic_cta",
+      "status": 422,
+      "reason": "HTTP 422: {'error': '请求参数校验失败', 'code': 'VALIDATION_ERROR', 'details': {'messages': ['symbol: Field required']"
+    },
+    {
+      "category": "回测",
+      "name": "回测执行(POST)",
+      "url": "/api/backtest/run",
+      "status": 422,
+      "reason": "HTTP 422: {'error': '请求参数校验失败', 'code': 'VALIDATION_ERROR', 'details': {'messages': ['symbol: Field required',"
+    },
+    {
+      "category": "知识库",
+      "name": "知识搜索",
+      "url": "/api/knowledge/search",
+      "status": 422,
+      "reason": "HTTP 422: {'error': '请求参数校验失败', 'code': 'VALIDATION_ERROR', 'details': {'messages': ['query: Field required'],"
+    },
+    {
+      "category": "知识库",
+      "name": "知识推荐",
+      "url": "/api/knowledge/recommend",
+      "status": 422,
+      "reason": "HTTP 422: {'error': '请求参数校验失败', 'code': 'VALIDATION_ERROR', 'details': {'messages': ['doc_index: Field require"
+    },
+    {
+      "category": "知识库",
+      "name": "知识上下文",
+      "url": "/api/knowledge/context",
+      "status": 422,
+      "reason": "HTTP 422: {'error': '请求参数校验失败', 'code': 'VALIDATION_ERROR', 'details': {'messages': ['topic: Field required'],"
+    },
+    {
+      "category": "交易",
+      "name": "交易账户",
+      "url": "/api/trade/accounts",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "交易",
+      "name": "交易面板",
+      "url": "/api/trade/dashboard",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "交易",
+      "name": "成交记录",
+      "url": "/api/trade/trades",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "交易",
+      "name": "历史记录",
+      "url": "/api/trade/history",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "交易",
+      "name": "交易复盘",
+      "url": "/api/trade/review",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "交易",
+      "name": "高级复盘",
+      "url": "/api/trade/review/advanced",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "交易",
+      "name": "条件单列表",
+      "url": "/api/trade/condition-orders",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "专业",
+      "name": "策略模板列表",
+      "url": "/api/professional/strategy-templates",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "专业",
+      "name": "专业系统健康",
+      "url": "/api/professional/system-health",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "专业Plus",
+      "name": "信号v2(600519)",
+      "url": "/api/professional-plus/signals-v2/600519",
+      "status": 400,
+      "reason": "HTTP 400: {'error': '请求参数错误', 'code': 'VALIDATION_ERROR'}"
+    },
+    {
+      "category": "机器学习",
+      "name": "特征重要性",
+      "url": "/api/ml/feature-importance",
+      "status": 400,
+      "reason": "HTTP 400: {'error': '请求参数错误', 'code': 'VALIDATION_ERROR'}"
+    },
+    {
+      "category": "智能体",
+      "name": "多智能体分析(POST)",
+      "url": "/api/agents/analyze",
+      "status": 422,
+      "reason": "HTTP 422: {'error': '请求参数校验失败', 'code': 'VALIDATION_ERROR', 'details': {'messages': ['stock_code: Field requir"
+    },
+    {
+      "category": "账户",
+      "name": "账户列表",
+      "url": "/api/accounts/accounts/",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "账户",
+      "name": "综合绩效",
+      "url": "/api/accounts/accounts/performance/combined",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "自选股",
+      "name": "自选股列表",
+      "url": "/api/market/watchlist",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    },
+    {
+      "category": "自选股",
+      "name": "交易观察列表",
+      "url": "/api/trade/watchlist",
+      "status": 401,
+      "reason": "HTTP 401: {'error': '认证失败，请重新登录', 'code': 'AUTH_ERROR'}"
+    }
+  ],
+  "error": [
+    {
+      "category": "策略",
+      "name": "策略选股",
+      "url": "/api/strategy/screen",
+      "reason": "Timeout>15s"
+    },
+    {
+      "category": "知识库",
+      "name": "KB搜索",
+      "url": "/api/kb/search",
+      "reason": "Timeout>15s"
+    }
+  ]
+}

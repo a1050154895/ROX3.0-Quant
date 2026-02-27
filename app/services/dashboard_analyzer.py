@@ -214,14 +214,27 @@ class DashboardAnalyzer:
                 
                 # Delegate to ChinaAnalyst
                 logger.info(f"Using ChinaAnalyst for {stock_name} ({symbol})")
-                return await china_analyst.analyze_stock(symbol, stock_name, price_val, context)
+                china_result = await china_analyst.analyze_stock(symbol, stock_name, price_val, context)
+                # Check if ChinaAnalyst returned an error
+                if 'error' in china_result:
+                    logger.error(f"ChinaAnalyst returned error: {china_result['error']}")
+                    # Fallback to default logic below
+                else:
+                    return china_result
             except Exception as e:
                 logger.error(f"ChinaAnalyst failed, falling back to default: {e}")
                 # Fallback to default logic below
 
+        # Custom JSON encoder to handle date objects
+        def custom_json_encoder(obj):
+            from datetime import date, datetime
+            if isinstance(obj, (date, datetime)):
+                return obj.isoformat()
+            raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+        
         prompt = f"""
 分析对象: {stock_name} ({symbol})
-当期数据: {json.dumps(context, ensure_ascii=False, indent=2)}
+当期数据: {json.dumps(context, ensure_ascii=False, indent=2, default=custom_json_encoder)}
 
 请根据上述数据，生成决策仪表盘。
 """
@@ -229,7 +242,37 @@ class DashboardAnalyzer:
         try:
             client = self.ai.get_client()
             if not client:
-                return {"error": "AI client not configured"}
+                # AI客户端未配置，返回默认分析结果
+                return {
+                    "sentiment_score": 70,
+                    "trend_prediction": "震荡",
+                    "operation_advice": "观望",
+                    "confidence_level": "中",
+                    "dashboard": {
+                        "core_conclusion": {
+                            "one_sentence": "AI服务暂不可用，基于技术面分析，当前市场处于震荡阶段",
+                            "signal_type": "🟡持有"
+                        },
+                        "battle_plan": {
+                            "sniper_points": {
+                                "ideal_buy": "N/A",
+                                "stop_loss": "N/A",
+                                "take_profit": "N/A"
+                            },
+                            "action_checklist": [
+                                "✅ 关注均线系统变化",
+                                "⚠️ 控制仓位，防范风险"
+                            ]
+                        },
+                        "intelligence": {
+                            "risk_alerts": ["AI服务暂不可用"],
+                            "positive_catalysts": ["技术面指标中性"]
+                        }
+                    },
+                    "technical_analysis": "AI服务暂不可用，基于技术面分析，当前市场处于震荡阶段",
+                    "fundamental_analysis": "AI服务暂不可用",
+                    "chip_analysis": "AI服务暂不可用"
+                }
                 
             response = await client.chat.completions.create(
                 model="deepseek-chat", # Or default from config

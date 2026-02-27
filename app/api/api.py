@@ -125,3 +125,7 @@ api_router.include_router(api_group)
 # ============ WebSocket路由 (顶级) ============
 api_router.include_router(ws.router, tags=["websocket"])
 api_router.include_router(ws_enhanced.router, tags=["websocket-enhanced"])
+from app.api.endpoints import news, ai_assistant
+
+api_router.include_router(news.router, prefix="/news", tags=["news"])
+api_router.include_router(ai_assistant.router, prefix="/ai_assistant", tags=["ai_assistant"])
