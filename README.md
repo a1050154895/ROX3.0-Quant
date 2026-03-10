@@ -153,6 +153,7 @@ ROX 3.0 设计了两套完全不同的交互界面，以适应不同阶段的用
 *   **本地知识库 (RAG)**：优先检索本地策略文档，确保回答专业。
 *   **风险预警**：自动识别高风险标的。
 *   **多模型支持**：DeepSeek、通义千问等多个 AI 模型。
+*   **TradingAgents-CN 外部分析集成**：支持将分析请求转发到外部 TradingAgents 服务，并在上游异常时自动降级为本地多智能体分析（可配置开关）。
 
 ### 4. 量化策略 (Strategies)
 *   **策略工坊**：可视化拖拽生成交易逻辑。
@@ -178,17 +179,46 @@ ROX 3.0 设计了两套完全不同的交互界面，以适应不同阶段的用
 ## 🔧 系统配置 (Configuration)
 
 ### 1. 数据源配置
-*   **Tushare**：在 `.env` 文件中配置 Tushare token。
-*   **其他数据源**：系统会自动使用内置的数据源，无需额外配置。
+*   **Tushare / AkShare / EastMoney 等**：按各自接入文档配置。
+*   **默认模式**：若未配置部分三方服务，系统会尽量使用内置与可用数据源。
 
-### 2. AI 模型配置
-*   **主 API**：配置主要的 AI 模型 API。
-*   **备用 API**：配置备用的 AI 模型 API，主 API 故障时自动切换。
+### 2. AI 模型配置（`.env`）
+```env
+AI_API_KEY=your_ai_api_key_here
+AI_BASE_URL=https://api.openai.com/v1
+AI_DEFAULT_MODEL=gpt-4o
+```
 
-### 3. 系统设置
-*   **主题**：支持深色/浅色模式切换。
-*   **语言**：支持中英文切换。
-*   **通知**：配置系统通知设置。
+### 3. TradingAgents-CN 集成配置（可选）
+```env
+TRADING_AGENTS_ENABLED=false
+TRADING_AGENTS_BASE_URL=http://127.0.0.1:9000
+TRADING_AGENTS_ENDPOINT=/analyze
+TRADING_AGENTS_API_KEY=
+TRADING_AGENTS_TIMEOUT=30
+TRADING_AGENTS_RETRY_COUNT=2
+TRADING_AGENTS_RETRY_BACKOFF=0.5
+TRADING_AGENTS_FALLBACK_LOCAL=true
+```
+
+#### TradingAgents API 说明
+*   路径：`POST /api/agents/tradingagents/analyze`
+*   请求体示例：
+```json
+{
+  "stock_code": "600519",
+  "stock_name": "贵州茅台",
+  "market": "cn",
+  "horizon": "swing"
+}
+```
+*   行为：优先调用 TradingAgents-CN；若调用失败且 `TRADING_AGENTS_FALLBACK_LOCAL=true`，自动回退到本地多智能体分析。
+
+### 4. 启动日志设置
+```env
+VERBOSE_ROUTE_LOGGING=false
+```
+*   默认关闭，避免启动时打印全部路由造成日志噪音。
 
 ---
 
