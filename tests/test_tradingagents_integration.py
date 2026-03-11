@@ -82,3 +82,43 @@ def test_tradingagents_endpoint_fallback(monkeypatch):
     payload = response.json()
     assert payload["provider"] == "local-fallback"
     assert payload["result"]["symbol"] == "600519"
+
+
+def test_tradingagents_health_endpoint(monkeypatch):
+    app = FastAPI()
+    app.include_router(agents.router, prefix="/api")
+    client = TestClient(app)
+
+    class HealthyAsyncClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def get(self, *args, **kwargs):
+            class _Resp:
+                status_code = 200
+                headers = {"content-type": "application/json"}
+
+                def raise_for_status(self):
+                    return None
+
+                def json(self):
+                    return {"status": "ok"}
+
+            return _Resp()
+
+    monkeypatch.setattr("app.services.tradingagents_client.httpx.AsyncClient", HealthyAsyncClient)
+    monkeypatch.setattr("app.core.config.settings.TRADING_AGENTS_ENABLED", True)
+    monkeypatch.setattr("app.core.config.settings.TRADING_AGENTS_BASE_URL", "http://example.test")
+
+    response = client.get("/api/agents/tradingagents/health")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["enabled"] is True
+    assert payload["reachable"] is True

@@ -71,6 +71,8 @@ class Settings:
     TRADING_AGENTS_RETRY_COUNT: int = int(os.getenv("TRADING_AGENTS_RETRY_COUNT", "2"))
     TRADING_AGENTS_RETRY_BACKOFF: float = float(os.getenv("TRADING_AGENTS_RETRY_BACKOFF", "0.5"))
     TRADING_AGENTS_FALLBACK_LOCAL: bool = os.getenv("TRADING_AGENTS_FALLBACK_LOCAL", "True").lower() == "true"
+    TRADING_AGENTS_HEALTH_ENDPOINT: str = os.getenv("TRADING_AGENTS_HEALTH_ENDPOINT", "/health").strip() or "/health"
+    TRADING_AGENTS_HEALTH_STRICT: bool = os.getenv("TRADING_AGENTS_HEALTH_STRICT", "False").lower() == "true"
     VERBOSE_ROUTE_LOGGING: bool = os.getenv("VERBOSE_ROUTE_LOGGING", "False").lower() == "true"
 
     def __init__(self):

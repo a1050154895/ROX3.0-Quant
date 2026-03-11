@@ -7,6 +7,8 @@ services:
       - DATABASE_URL=postgresql://rox_quant:password@postgres:5432/rox_quant
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=production
+      - TRADING_AGENTS_ENABLED=${TRADING_AGENTS_ENABLED:-false}
+      - TRADING_AGENTS_BASE_URL=${TRADING_AGENTS_BASE_URL:-http://tradingagents-cn:8000}
     depends_on:
       - postgres
       - redis
@@ -42,6 +44,18 @@ services:
     networks:
       - rox_quant_network
     command: redis-server --appendonly yes
+
+  tradingagents-cn:
+    image: ghcr.io/hsliuping/tradingagents-cn:latest
+    profiles: ["tradingagents"]
+    environment:
+      - OPENAI_API_KEY=${TRADINGAGENTS_OPENAI_API_KEY:-}
+      - DASH_SCOPE_API_KEY=${TRADINGAGENTS_DASHSCOPE_API_KEY:-}
+    ports:
+      - "9000:8000"
+    restart: unless-stopped
+    networks:
+      - rox_quant_network
 
   nginx:
     image: nginx:alpine

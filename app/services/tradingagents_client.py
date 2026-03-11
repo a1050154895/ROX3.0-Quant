@@ -23,6 +23,8 @@ class TradingAgentsClient:
         self.endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
         self.retry_count = max(settings.TRADING_AGENTS_RETRY_COUNT, 0)
         self.retry_backoff = max(settings.TRADING_AGENTS_RETRY_BACKOFF, 0.0)
+        health_endpoint = settings.TRADING_AGENTS_HEALTH_ENDPOINT.strip()
+        self.health_endpoint = health_endpoint if health_endpoint.startswith("/") else f"/{health_endpoint}"
 
     def _headers(self) -> Dict[str, str]:
         headers = {"Content-Type": "application/json"}
@@ -59,6 +61,40 @@ class TradingAgentsClient:
                     raise RuntimeError("TradingAgents-CN 返回非 JSON 响应") from e
 
         raise RuntimeError(f"TradingAgents-CN 请求异常: {last_error}") from last_error
+
+    async def health_check(self) -> Dict[str, Any]:
+        """检查 TradingAgents-CN 上游健康状态。"""
+        if not self.enabled:
+            return {"enabled": False, "reachable": False, "detail": "TradingAgents-CN 集成未启用"}
+        if not self.base_url:
+            return {"enabled": True, "reachable": False, "detail": "缺少 TRADING_AGENTS_BASE_URL 配置"}
+
+        url = f"{self.base_url}{self.health_endpoint}"
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.get(url, headers=self._headers())
+                response.raise_for_status()
+                content_type = response.headers.get("content-type", "")
+                payload: Any
+                if "application/json" in content_type:
+                    payload = response.json()
+                else:
+                    payload = {"raw": response.text[:500]}
+
+                return {
+                    "enabled": True,
+                    "reachable": True,
+                    "health_endpoint": self.health_endpoint,
+                    "status_code": response.status_code,
+                    "upstream": payload,
+                }
+        except Exception as e:
+            return {
+                "enabled": True,
+                "reachable": False,
+                "health_endpoint": self.health_endpoint,
+                "detail": str(e),
+            }
 
     async def analyze_stock(
         self,

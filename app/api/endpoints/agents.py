@@ -201,3 +201,18 @@ async def analyze_with_tradingagents(request: TradingAgentsRequest):
             {"success": False, "error": str(e)},
             status_code=500,
         )
+
+
+@router.get("/tradingagents/health")
+async def tradingagents_health_check():
+    """检查 TradingAgents-CN 可达性与健康状态。"""
+    from app.core.config import settings
+    from app.services.tradingagents_client import TradingAgentsClient
+
+    client = TradingAgentsClient()
+    status = await client.health_check()
+
+    if settings.TRADING_AGENTS_HEALTH_STRICT and not status.get("reachable", False):
+        raise HTTPException(status_code=503, detail=status)
+
+    return JSONResponse(status)

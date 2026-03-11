@@ -199,6 +199,8 @@ TRADING_AGENTS_TIMEOUT=30
 TRADING_AGENTS_RETRY_COUNT=2
 TRADING_AGENTS_RETRY_BACKOFF=0.5
 TRADING_AGENTS_FALLBACK_LOCAL=true
+TRADING_AGENTS_HEALTH_ENDPOINT=/health
+TRADING_AGENTS_HEALTH_STRICT=false
 ```
 
 #### TradingAgents API 说明
@@ -213,12 +215,25 @@ TRADING_AGENTS_FALLBACK_LOCAL=true
 }
 ```
 *   行为：优先调用 TradingAgents-CN；若调用失败且 `TRADING_AGENTS_FALLBACK_LOCAL=true`，自动回退到本地多智能体分析。
+*   健康检查：`GET /api/agents/tradingagents/health`（可通过 `TRADING_AGENTS_HEALTH_STRICT=true` 在不可达时返回 503）。
 
 ### 4. 启动日志设置
 ```env
 VERBOSE_ROUTE_LOGGING=false
 ```
 *   默认关闭，避免启动时打印全部路由造成日志噪音。
+
+
+### 5. Docker 组合部署（ROX + TradingAgents-CN）
+```bash
+# 启动 ROX 基础栈
+docker compose up -d
+
+# 按 profile 启动 TradingAgents-CN（可选）
+docker compose --profile tradingagents up -d tradingagents-cn
+```
+
+> 当 `TRADING_AGENTS_ENABLED=true` 且 `TRADING_AGENTS_BASE_URL` 指向容器地址（默认 `http://tradingagents-cn:8000`）时，ROX 即可把单股分析请求转发到 TradingAgents-CN。
 
 ---
 
