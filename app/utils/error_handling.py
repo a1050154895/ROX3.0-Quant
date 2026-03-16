@@ -11,7 +11,7 @@ import traceback
 import sys
 import time
 import threading
-import psutil
+from app.utils import psutil_compat as psutil
 from datetime import datetime
 from typing import Callable, Optional, Dict, Any, List
 from functools import wraps

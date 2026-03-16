@@ -784,6 +784,8 @@
         if (!viewResult) return;
         viewResult.classList.remove('hidden');
         viewResult.innerHTML = '<div class="glass p-4 rounded-xl"><p class="text-slate-200 font-mono text-sm">' + (data.name || '') + ' ' + (data.code || '') + '</p><p class="text-slate-400 text-sm mt-2">' + t + '</p><p class="text-xxs text-slate-500 mt-2" id="diag-rs-placeholder">阻力/支撑加载中…</p><p class="text-xxs text-slate-500 mt-2" id="diag-summary-placeholder">诊断结论加载中…</p></div>';
+        var luResultEl = document.getElementById('diagnosis-lu-result');
+        if (luResultEl) luResultEl.textContent = '卢式分析加载中…';
         if (code) {
           apiGet('/api/stock/resistance-support?code=' + encodeURIComponent(code))
             .then(function (r) { return r.ok ? r.json() : null; })
@@ -894,6 +896,33 @@
               }
             })
             .catch(function () { var ph = document.getElementById('diag-summary-placeholder'); if (ph) ph.textContent = '诊断加载失败，仅显示行情。'; });
+          apiGet('/api/lu/analyze-symbol?symbol=' + encodeURIComponent(code))
+            .then(function (r) {
+              if (!r.ok) return null;
+              return r.json();
+            })
+            .then(function (lu) {
+              var el = document.getElementById('diagnosis-lu-result');
+              if (!el) return;
+              if (!lu) {
+                el.textContent = '卢式分析暂不可用。';
+                return;
+              }
+              var macd = Array.isArray(lu.macd_status) ? lu.macd_status.join(' / ') : '--';
+              var html = '<div class="glass p-3 rounded-lg border border-slate-700/60 space-y-2 text-xs">';
+              html += '<div><span class="text-slate-500">基本信息：</span><span class="text-slate-200">' + (lu.name || '--') + ' (' + (lu.symbol || '--') + ')</span> / 行业 ' + (lu.industry || '--') + ' / 方向 ' + (lu.theme || '--') + '</div>';
+              html += '<div><span class="text-slate-500">方向判断层：</span><span class="text-sky-300">' + (lu.direction_bias || '--') + '</span>，矩阵位置 <span class="text-amber-300">' + (lu.matrix_position || '--') + '</span><div class="text-[11px] text-slate-500 mt-0.5">' + (lu.direction_note || '该方向判断仅作为辅助判断，不是自动结论。') + '</div></div>';
+              html += '<div><span class="text-slate-500">结构判断层：</span><span class="text-slate-200">' + (lu.structure_stage || '--') + '</span></div>';
+              html += '<div><span class="text-slate-500">节奏判断层(MACD)：</span><span class="text-slate-200">' + macd + '</span></div>';
+              html += '<div><span class="text-slate-500">334纪律建议层：</span><span class="text-emerald-300">' + (lu.discipline_advice || '--') + '</span><div class="text-[11px] text-slate-500 mt-0.5">' + (lu.risk_note || '仓位由用户手工决定，系统仅做纪律提示。') + '</div></div>';
+              html += '<div><span class="text-slate-500">总结层：</span><span class="text-slate-300">' + (lu.summary || '--') + '</span></div>';
+              html += '</div>';
+              el.innerHTML = html;
+            })
+            .catch(function () {
+              var el = document.getElementById('diagnosis-lu-result');
+              if (el) el.textContent = '卢式分析加载失败。';
+            });
         }
       })
       .catch(function (e) {
