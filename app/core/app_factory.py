@@ -173,16 +173,17 @@ class AppFactory:
         logger = logging.getLogger("rox-backend")
         logger.info(f"=== ROX Quant 应用启动 (环境: {settings.ENVIRONMENT}) ===")
         
-        # 打印所有注册的路由
-        logger.info("=" * 80)
-        logger.info(" " * 25 + "REGISTERED ROUTES")
-        logger.info("=" * 80)
-        for route in app.routes:
-            if hasattr(route, "methods"):
-                logger.info(f"Path: {route.path}, Name: {route.name}, Methods: {route.methods}")
-            else:
-                logger.info(f"Path: {route.path}, Name: {route.name}")
-        logger.info("=" * 80)
+        # 可选：打印所有注册路由（默认关闭，避免启动日志噪音）
+        if settings.VERBOSE_ROUTE_LOGGING:
+            logger.info("=" * 80)
+            logger.info(" " * 25 + "REGISTERED ROUTES")
+            logger.info("=" * 80)
+            for route in app.routes:
+                if hasattr(route, "methods"):
+                    logger.info(f"Path: {route.path}, Name: {route.name}, Methods: {route.methods}")
+                else:
+                    logger.info(f"Path: {route.path}, Name: {route.name}")
+            logger.info("=" * 80)
         
         # 初始化数据库
         try:

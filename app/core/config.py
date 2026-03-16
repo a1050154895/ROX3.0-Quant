@@ -62,6 +62,19 @@ class Settings:
     AI_BASE_URL: str = os.getenv("AI_BASE_URL", "https://tb.api.mkeai.com").strip()
     AI_DEFAULT_MODEL: str = os.getenv("AI_DEFAULT_MODEL", "deepseek-chat")
 
+    # ============ TradingAgents-CN 集成配置 ============
+    TRADING_AGENTS_ENABLED: bool = os.getenv("TRADING_AGENTS_ENABLED", "False").lower() == "true"
+    TRADING_AGENTS_BASE_URL: str = os.getenv("TRADING_AGENTS_BASE_URL", "").strip()
+    TRADING_AGENTS_API_KEY: str = os.getenv("TRADING_AGENTS_API_KEY", "").strip()
+    TRADING_AGENTS_TIMEOUT: int = int(os.getenv("TRADING_AGENTS_TIMEOUT", "30"))
+    TRADING_AGENTS_ENDPOINT: str = os.getenv("TRADING_AGENTS_ENDPOINT", "/analyze").strip() or "/analyze"
+    TRADING_AGENTS_RETRY_COUNT: int = int(os.getenv("TRADING_AGENTS_RETRY_COUNT", "2"))
+    TRADING_AGENTS_RETRY_BACKOFF: float = float(os.getenv("TRADING_AGENTS_RETRY_BACKOFF", "0.5"))
+    TRADING_AGENTS_FALLBACK_LOCAL: bool = os.getenv("TRADING_AGENTS_FALLBACK_LOCAL", "True").lower() == "true"
+    TRADING_AGENTS_HEALTH_ENDPOINT: str = os.getenv("TRADING_AGENTS_HEALTH_ENDPOINT", "/health").strip() or "/health"
+    TRADING_AGENTS_HEALTH_STRICT: bool = os.getenv("TRADING_AGENTS_HEALTH_STRICT", "False").lower() == "true"
+    VERBOSE_ROUTE_LOGGING: bool = os.getenv("VERBOSE_ROUTE_LOGGING", "False").lower() == "true"
+
     def __init__(self):
         """验证配置并创建必要目录"""
         # 安全检查：生产环境必须更改SECRET_KEY

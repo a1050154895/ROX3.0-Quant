@@ -26,6 +26,22 @@ class BatchAnalysisRequest(BaseModel):
     max_concurrent: Optional[int] = 3
 
 
+class TradingAgentsRequest(BaseModel):
+    """TradingAgents-CN 分析请求"""
+    stock_code: str
+    stock_name: Optional[str] = ""
+    market: Optional[str] = "cn"
+    horizon: Optional[str] = "swing"
+
+
+
+async def _analyze_with_local_orchestrator(stock_code: str, stock_name: str = ""):
+    """本地多智能体兜底分析。"""
+    from app.rox_quant.agents import AgentOrchestrator
+
+    orchestrator = AgentOrchestrator()
+    return await orchestrator.analyze_stock(stock_code, stock_name)
+
 @router.post("/analyze/{stock_code}")
 async def analyze_stock(stock_code: str, stock_name: str = ""):
     """
@@ -39,10 +55,7 @@ async def analyze_stock(stock_code: str, stock_name: str = ""):
         综合分析结果
     """
     try:
-        from app.rox_quant.agents import AgentOrchestrator
-        
-        orchestrator = AgentOrchestrator()
-        result = await orchestrator.analyze_stock(stock_code, stock_name)
+        result = await _analyze_with_local_orchestrator(stock_code, stock_name)
         
         return JSONResponse(result)
         
@@ -146,3 +159,60 @@ async def single_agent_analyze(agent_name: str, stock_code: str, stock_name: str
             {"success": False, "error": str(e)},
             status_code=500
         )
+
+
+@router.post("/tradingagents/analyze")
+async def analyze_with_tradingagents(request: TradingAgentsRequest):
+    """优先使用 TradingAgents-CN；失败时可按配置降级到本地分析。"""
+    from app.core.config import settings
+    from app.services.tradingagents_client import TradingAgentsClient
+
+    try:
+        client = TradingAgentsClient()
+        result = await client.analyze_stock(
+            stock_code=request.stock_code,
+            stock_name=request.stock_name or "",
+            market=request.market or "cn",
+            horizon=request.horizon or "swing",
+        )
+        return JSONResponse(result)
+    except RuntimeError as e:
+        if not settings.TRADING_AGENTS_FALLBACK_LOCAL:
+            raise HTTPException(status_code=400, detail=str(e))
+
+        logger.warning("TradingAgents-CN 不可用，切换本地分析兜底: %s", e)
+        local_result = await _analyze_with_local_orchestrator(
+            request.stock_code,
+            request.stock_name or "",
+        )
+        return JSONResponse(
+            {
+                "success": True,
+                "provider": "local-fallback",
+                "fallback_reason": str(e),
+                "stock_code": request.stock_code,
+                "stock_name": request.stock_name or "",
+                "result": local_result,
+            }
+        )
+    except Exception as e:
+        logger.error("TradingAgents-CN analysis failed: %s", e)
+        return JSONResponse(
+            {"success": False, "error": str(e)},
+            status_code=500,
+        )
+
+
+@router.get("/tradingagents/health")
+async def tradingagents_health_check():
+    """检查 TradingAgents-CN 可达性与健康状态。"""
+    from app.core.config import settings
+    from app.services.tradingagents_client import TradingAgentsClient
+
+    client = TradingAgentsClient()
+    status = await client.health_check()
+
+    if settings.TRADING_AGENTS_HEALTH_STRICT and not status.get("reachable", False):
+        raise HTTPException(status_code=503, detail=status)
+
+    return JSONResponse(status)
