@@ -6,6 +6,8 @@
 """
 
 import pytest
+import inspect
+import asyncio
 import os
 import sys
 from pathlib import Path
@@ -99,3 +101,30 @@ class MockResponse:
     def raise_for_status(self):
         if self.status_code >= 400:
             raise Exception(f"HTTP {self.status_code}")
+
+
+@pytest.fixture
+def features():
+    """供测试复用的特征数据"""
+    import pandas as pd
+    import numpy as np
+    from app.rox_quant.feature_engineer import FeatureEngineer
+
+    dates = pd.date_range(start="2023-01-01", periods=120)
+    df = pd.DataFrame({
+        "open": np.random.uniform(100, 110, len(dates)),
+        "high": np.random.uniform(105, 115, len(dates)),
+        "low": np.random.uniform(95, 105, len(dates)),
+        "close": np.random.uniform(100, 110, len(dates)),
+        "volume": np.random.randint(1000, 5000, len(dates)),
+    }, index=dates)
+    return FeatureEngineer().generate_features(df)
+
+
+def pytest_pyfunc_call(pyfuncitem):
+    """在缺少 pytest-asyncio 插件时也能执行 async 测试。"""
+    if inspect.iscoroutinefunction(pyfuncitem.obj):
+        kwargs = {name: pyfuncitem.funcargs[name] for name in pyfuncitem._fixtureinfo.argnames}
+        asyncio.run(pyfuncitem.obj(**kwargs))
+        return True
+    return None
