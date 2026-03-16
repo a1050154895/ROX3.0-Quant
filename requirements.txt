@@ -21,6 +21,7 @@ passlib[bcrypt]
 python-jose[cryptography]
 python-multipart
 redis==5.0.1
+psutil>=5.9.0
 duckduckgo-search
 
 scipy

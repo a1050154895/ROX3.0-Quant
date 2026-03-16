@@ -32,7 +32,7 @@ async def api_spot(limit: int = 500, offset: int = 0):
         df = await asyncio.to_thread(ak.stock_zh_a_spot_em)
         
         if df is None or df.empty:
-            return {"items": [], "total": 0}
+            return {"items": [], "stocks": [], "total": 0}
         
         total = len(df)
         df = df.iloc[offset:offset + limit]
@@ -53,7 +53,7 @@ async def api_spot(limit: int = 500, offset: int = 0):
                 "prev_close": float(row.get("昨收", 0)),
             })
         
-        return {"items": items, "total": total}
+        return {"items": items, "stocks": items, "total": total}
         
     except Exception as e:
         logger.error(f"获取实时行情失败: {e}")
@@ -65,7 +65,7 @@ async def api_spot(limit: int = 500, offset: int = 0):
             {"code": "601318", "name": "中国平安", "price": 48.25, "change_pct": 0.84, "change": 0.40, "volume": 5678901, "amount": 273987973.25, "high": 48.50, "low": 48.00, "open": 48.10, "prev_close": 47.85},
             {"code": "300750", "name": "宁德时代", "price": 220.50, "change_pct": 1.80, "change": 3.90, "volume": 1234567, "amount": 272212023.50, "high": 222.00, "low": 218.00, "open": 219.00, "prev_close": 216.60},
         ]
-        return {"items": sample_items, "total": 5, "error": "网络连接失败，显示示例数据", "is_sample": True}
+        return {"items": sample_items, "stocks": sample_items, "total": 5, "error": "网络连接失败，显示示例数据", "is_sample": True}
 
 
 @router.get("/quotes")

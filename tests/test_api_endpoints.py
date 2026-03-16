@@ -262,3 +262,148 @@ class TestOverviewEndpoint:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+class TestLuPredictionEndpoints:
+    """测试卢式分析器端点"""
+
+    def test_lu_methodology(self):
+        response = client.get("/api/lu-prediction/methodology")
+        assert response.status_code == 200
+        data = response.json()
+        assert data.get("protocol_version") == "lu-analyzer-v4"
+
+    def test_lu_predict_v2(self):
+        with patch("app.api.endpoints.lu_prediction._get_price_data", new_callable=AsyncMock) as mock_price,              patch("app.api.endpoints.lu_prediction._get_market_data", new_callable=AsyncMock) as mock_market,              patch("app.api.endpoints.lu_prediction._get_macro_data", new_callable=AsyncMock) as mock_macro,              patch("app.api.endpoints.lu_prediction._get_fundamental_data", new_callable=AsyncMock) as mock_fund:
+            import pandas as pd
+            mock_price.return_value = pd.DataFrame({
+                "date": pd.date_range("2024-01-01", periods=120),
+                "open": [10.0] * 120,
+                "high": [10.5] * 120,
+                "low": [9.5] * 120,
+                "close": [10.2] * 120,
+                "volume": [100000] * 120,
+            })
+            mock_market.return_value = {"up_count": 3000, "down_count": 2000, "volume": 1000, "avg_volume": 100}
+            mock_macro.return_value = {"gdp": 120, "m2": 200, "direct_tax_ratio": 0.35, "gini": 0.38}
+            mock_fund.return_value = {"roe": 0.12, "pe": 15, "pb": 1.5, "growth_rate": 0.08, "dividend_yield": 0.02}
+
+            response = client.post("/api/lu-prediction/predict-v2", json={
+                "code": "600000",
+                "market": "CN_A",
+                "timeframe": "1d",
+                "lookback_days": 240,
+                "risk_profile": "balanced",
+                "include_reasoning": True
+            })
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data.get("protocol_version") == "lu-analyzer-v4"
+        assert "analysis" in data
+        assert "data_quality" in data
+        assert "compat" in data
+        assert "component_scores" in data["analysis"]
+        assert "action_plan" in data["analysis"]
+        assert "market_regime" in data["analysis"]
+        assert "adaptive_weights" in data["analysis"]
+
+    def test_lu_predict_v2_market_not_supported(self):
+        response = client.post("/api/lu-prediction/predict-v2", json={
+            "code": "600000",
+            "market": "US",
+            "timeframe": "1d",
+            "lookback_days": 240,
+            "risk_profile": "balanced"
+        })
+        assert response.status_code == 400
+
+
+    def test_lu_scan_v2(self):
+        with patch("app.api.endpoints.lu_prediction._get_price_data", new_callable=AsyncMock) as mock_price, \
+             patch("app.api.endpoints.lu_prediction._get_market_data", new_callable=AsyncMock) as mock_market, \
+             patch("app.api.endpoints.lu_prediction._get_macro_data", new_callable=AsyncMock) as mock_macro, \
+             patch("app.api.endpoints.lu_prediction._get_fundamental_data", new_callable=AsyncMock) as mock_fund:
+            import pandas as pd
+            mock_price.return_value = pd.DataFrame({
+                "date": pd.date_range("2024-01-01", periods=120),
+                "open": [10.0] * 120,
+                "high": [10.5] * 120,
+                "low": [9.5] * 120,
+                "close": [10.2] * 120,
+                "volume": [100000] * 120,
+            })
+            mock_market.return_value = {"up_count": 3000, "down_count": 2000, "limit_up": 80, "limit_down": 40, "up_ratio": 0.6, "volume": 1000, "avg_volume": 100}
+            mock_macro.return_value = {"gdp": 120, "m2": 200, "direct_tax_ratio": 0.35, "gini": 0.38}
+            mock_fund.return_value = {"roe": 0.12, "pe": 15, "pb": 1.5, "growth_rate": 0.08, "dividend_yield": 0.02}
+
+            response = client.post("/api/lu-prediction/scan-v2?top_n=2", json=["600000", "000001", "300750"])
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data.get("protocol_version") == "lu-analyzer-v4"
+        assert len(data.get("leaders", [])) <= 2
+
+
+    def test_lu_portfolio_v2(self):
+        with patch("app.api.endpoints.lu_prediction._get_price_data", new_callable=AsyncMock) as mock_price, \
+             patch("app.api.endpoints.lu_prediction._get_market_data", new_callable=AsyncMock) as mock_market, \
+             patch("app.api.endpoints.lu_prediction._get_macro_data", new_callable=AsyncMock) as mock_macro, \
+             patch("app.api.endpoints.lu_prediction._get_fundamental_data", new_callable=AsyncMock) as mock_fund:
+            import pandas as pd
+            mock_price.return_value = pd.DataFrame({
+                "date": pd.date_range("2024-01-01", periods=120),
+                "open": [10.0] * 120,
+                "high": [10.5] * 120,
+                "low": [9.5] * 120,
+                "close": [10.2] * 120,
+                "volume": [100000] * 120,
+            })
+            mock_market.return_value = {"up_count": 3000, "down_count": 2000, "limit_up": 80, "limit_down": 40, "up_ratio": 0.6, "volume": 1000, "avg_volume": 100}
+            mock_macro.return_value = {"gdp": 120, "m2": 200, "direct_tax_ratio": 0.35, "gini": 0.38}
+            mock_fund.return_value = {"roe": 0.12, "pe": 15, "pb": 1.5, "growth_rate": 0.08, "dividend_yield": 0.02}
+
+            response = client.post("/api/lu-prediction/portfolio-v2?top_n=3&risk_profile=balanced", json=["600000", "000001", "300750", "002415"])
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data.get("protocol_version") == "lu-analyzer-v4"
+        assert "portfolio" in data
+        assert "allocations" in data["portfolio"]
+        assert "summary" in data["portfolio"]
+        total_w = data["portfolio"]["summary"]["total_weight"]
+        cash_w = data["portfolio"]["summary"]["cash_weight"]
+        caps = data["portfolio"]["summary"]["caps"]
+        assert total_w <= caps["portfolio_max"] + 1e-6
+        assert abs((total_w + cash_w) - 1.0) < 1e-6
+        for item in data["portfolio"]["allocations"]:
+            assert item["weight"] <= caps["single_max"] + 1e-6
+
+
+    def test_lu_portfolio_v3(self):
+        with patch("app.api.endpoints.lu_prediction._get_price_data", new_callable=AsyncMock) as mock_price, \
+             patch("app.api.endpoints.lu_prediction._get_market_data", new_callable=AsyncMock) as mock_market, \
+             patch("app.api.endpoints.lu_prediction._get_macro_data", new_callable=AsyncMock) as mock_macro, \
+             patch("app.api.endpoints.lu_prediction._get_fundamental_data", new_callable=AsyncMock) as mock_fund:
+            import pandas as pd
+            mock_price.return_value = pd.DataFrame({
+                "date": pd.date_range("2024-01-01", periods=180),
+                "open": [10.0 + i*0.01 for i in range(180)],
+                "high": [10.2 + i*0.01 for i in range(180)],
+                "low": [9.8 + i*0.01 for i in range(180)],
+                "close": [10.0 + i*0.01 for i in range(180)],
+                "volume": [100000 + i for i in range(180)],
+            })
+            mock_market.return_value = {"up_count": 3000, "down_count": 2000, "limit_up": 80, "limit_down": 40, "up_ratio": 0.6, "volume": 1000, "avg_volume": 100}
+            mock_macro.return_value = {"gdp": 120, "m2": 200, "direct_tax_ratio": 0.35, "gini": 0.38}
+            mock_fund.return_value = {"roe": 0.12, "pe": 15, "pb": 1.5, "growth_rate": 0.08, "dividend_yield": 0.02}
+
+            response = client.post("/api/lu-prediction/portfolio-v3?top_n=4&risk_profile=balanced&bucket_cap=0.45", json=["600000", "000001", "300750", "002415", "688001"])
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data.get("protocol_version") == "lu-analyzer-v5"
+        assert "portfolio" in data
+        total_w = data["portfolio"]["summary"]["total_weight"]
+        cash_w = data["portfolio"]["summary"]["cash_weight"]
+        assert abs((total_w + cash_w) - 1.0) < 1e-6

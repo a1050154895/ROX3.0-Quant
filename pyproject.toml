@@ -41,6 +41,7 @@ dependencies = [
     "PyMuPDF>=1.23.0",
     "beautifulsoup4>=4.12.0",
     "duckduckgo-search>=3.0.0",
+    "psutil>=5.9.0",
 ]
 
 [project.optional-dependencies]
