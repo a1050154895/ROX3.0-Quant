@@ -80,12 +80,14 @@ async def fetch_sina_price(code: str) -> Tuple[float, float, float]:
         if len(parts) < 4:
             return 0.0, 0.0, 0.0
         
-        price = float(parts[3]) if parts[3] else 0.0
-        prev_close = float(parts[2]) if parts[2] else 0.0
-        
-        if prev_close > 0:
-            change = price - prev_close
-            change_pct = (change / prev_close) * 100
+        open_price = float(parts[1]) if len(parts) > 1 and parts[1] else 0.0
+        prev_close = float(parts[2]) if len(parts) > 2 and parts[2] else 0.0
+        price = float(parts[3]) if len(parts) > 3 and parts[3] else 0.0
+
+        baseline = open_price if open_price > 0 else prev_close
+        if baseline > 0:
+            change = price - baseline
+            change_pct = (change / baseline) * 100
         else:
             change = 0.0
             change_pct = 0.0

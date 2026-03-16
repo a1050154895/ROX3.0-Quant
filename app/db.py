@@ -171,7 +171,8 @@ class DatabaseConnectionPool:
                 pass
         
         if closed_count > 0:
-            logger.info(f"已关闭 {closed_count} 个数据库连接")
+            # 解释器退出阶段标准输出可能已关闭，避免在 atexit 中写日志
+            return
     
     @property
     def stats(self) -> Dict[str, int]:
@@ -204,6 +205,7 @@ def release_conn(conn: sqlite3.Connection):
 def get_db() -> Generator[sqlite3.Connection, None, None]:
     """FastAPI依赖注入：为每个请求提供数据库连接"""
     with _db_pool.get_connection() as conn:
+        ensure_schema(conn)
         yield conn
 
 
@@ -211,6 +213,7 @@ def get_db() -> Generator[sqlite3.Connection, None, None]:
 def get_db_context() -> Generator[sqlite3.Connection, None, None]:
     """上下文管理器：自动处理连接和事务"""
     with _db_pool.get_connection() as conn:
+        ensure_schema(conn)
         yield conn
 
 

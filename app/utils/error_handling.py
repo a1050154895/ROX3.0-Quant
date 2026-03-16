@@ -11,10 +11,15 @@ import traceback
 import sys
 import time
 import threading
-import psutil
+import importlib.util
 from datetime import datetime
 from typing import Callable, Optional, Dict, Any, List
 from functools import wraps
+
+if importlib.util.find_spec("psutil") is not None:
+    import psutil
+else:
+    psutil = None
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +62,15 @@ class SystemHealthMonitor:
         """检查系统健康状态"""
         with self._lock:
             # 检查系统资源
-            cpu_usage = psutil.cpu_percent()
-            memory_usage = psutil.virtual_memory().percent
-            disk_usage = psutil.disk_usage('/').percent
+            if psutil is not None:
+                cpu_usage = psutil.cpu_percent()
+                memory_usage = psutil.virtual_memory().percent
+                disk_usage = psutil.disk_usage('/').percent
+            else:
+                cpu_usage = 0.0
+                memory_usage = 0.0
+                disk_usage = 0.0
+                logger.debug("psutil 未安装，系统资源监控采用降级模式")
             
             self.resource_usage = {
                 "cpu": cpu_usage,
