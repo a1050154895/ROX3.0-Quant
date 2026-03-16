@@ -343,6 +343,7 @@ class TestLuPredictionEndpoints:
         data = response.json()
         assert data.get("protocol_version") == "lu-analyzer-v4"
         assert len(data.get("leaders", [])) <= 2
+        assert data.get("normalized_count", 0) > 0
 
 
     def test_lu_portfolio_v2(self):
@@ -404,6 +405,16 @@ class TestLuPredictionEndpoints:
         data = response.json()
         assert data.get("protocol_version") == "lu-analyzer-v5"
         assert "portfolio" in data
+        assert "diagnostics" in data
         total_w = data["portfolio"]["summary"]["total_weight"]
         cash_w = data["portfolio"]["summary"]["cash_weight"]
         assert abs((total_w + cash_w) - 1.0) < 1e-6
+
+
+    def test_lu_scan_v2_empty_codes(self):
+        response = client.post("/api/lu-prediction/scan-v2", json=[])
+        assert response.status_code == 400
+
+    def test_lu_portfolio_v3_empty_codes(self):
+        response = client.post("/api/lu-prediction/portfolio-v3", json=[])
+        assert response.status_code == 400

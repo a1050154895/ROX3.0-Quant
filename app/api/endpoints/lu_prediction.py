@@ -370,6 +370,21 @@ async def _build_covariance_matrix(codes: List[str], lookback_days: int = 120) -
     return cov
 
 
+def _normalize_code_list(codes: List[str], limit: int = 200) -> List[str]:
+    """标准化代码列表：去空、去重、截断。"""
+    out: List[str] = []
+    seen = set()
+    for raw in codes:
+        c = _normalize_code(raw)
+        if not c or c in seen:
+            continue
+        seen.add(c)
+        out.append(c)
+        if len(out) >= limit:
+            break
+    return out
+
+
 def _normalize_code(code: str) -> str:
     c = str(code).strip().lower()
     if c.startswith(("sh", "sz")) and len(c) >= 8:
@@ -436,6 +451,8 @@ async def _build_engine_result(analyzer_input: AnalyzerInput) -> Dict[str, Any]:
 
     protocol_response = {
         "protocol_version": "lu-analyzer-v4",
+        "latest_portfolio_protocol": "lu-analyzer-v5",
+        "quality_target": "9.5",
         "timestamp": datetime.now().isoformat(),
         "input": analyzer_input.model_dump(),
         "data_quality": data_quality.model_dump(),
@@ -535,8 +552,12 @@ async def batch_predict(codes: str = Query(..., description="股票代码，逗�
 @router.post("/scan-v2")
 async def scan_v2(codes: List[str], top_n: int = Query(5, ge=1, le=50), risk_profile: Literal["conservative", "balanced", "aggressive"] = "balanced") -> Dict[str, Any]:
     """Phase-3: 候选池扫描与排名"""
+    norm_codes = _normalize_code_list(codes, limit=200)
+    if not norm_codes:
+        raise HTTPException(status_code=400, detail="codes 不能为空")
+
     rows: List[Dict[str, Any]] = []
-    for code in codes[:200]:
+    for code in norm_codes:
         try:
             payload = AnalyzerInput(code=code, risk_profile=risk_profile)
             out = await _build_engine_result(payload)
@@ -556,6 +577,8 @@ async def scan_v2(codes: List[str], top_n: int = Query(5, ge=1, le=50), risk_pro
     return {
         "protocol_version": "lu-analyzer-v4",
         "count": len(ranked),
+        "input_count": len(codes),
+        "normalized_count": len(norm_codes),
         "top_n": top_n,
         "leaders": ranked[:top_n],
         "all": ranked,
@@ -565,7 +588,10 @@ async def scan_v2(codes: List[str], top_n: int = Query(5, ge=1, le=50), risk_pro
 @router.post("/portfolio-v2")
 async def portfolio_v2(codes: List[str], top_n: int = Query(8, ge=1, le=50), risk_profile: Literal["conservative", "balanced", "aggressive"] = "balanced") -> Dict[str, Any]:
     """Phase-4: 组合构建建议（含风控约束）"""
-    scan = await scan_v2(codes=codes, top_n=top_n, risk_profile=risk_profile)
+    norm_codes = _normalize_code_list(codes, limit=500)
+    if not norm_codes:
+        raise HTTPException(status_code=400, detail="codes 不能为空")
+    scan = await scan_v2(codes=norm_codes, top_n=top_n, risk_profile=risk_profile)
     leaders = scan.get("leaders", [])
     plan = _build_portfolio_plan(leaders, risk_profile)
     return {
@@ -574,13 +600,17 @@ async def portfolio_v2(codes: List[str], top_n: int = Query(8, ge=1, le=50), ris
         "top_n": top_n,
         "leaders": leaders,
         "portfolio": plan,
+        "diagnostics": {"input_count": len(codes), "normalized_count": len(norm_codes)},
     }
 
 
 @router.post("/portfolio-v3")
 async def portfolio_v3(codes: List[str], top_n: int = Query(8, ge=1, le=50), risk_profile: Literal["conservative", "balanced", "aggressive"] = "balanced", bucket_cap: float = Query(0.45, ge=0.2, le=0.8)) -> Dict[str, Any]:
     """Phase-5: 协方差优化 + 暴露约束组合建议。"""
-    scan = await scan_v2(codes=codes, top_n=top_n, risk_profile=risk_profile)
+    norm_codes = _normalize_code_list(codes, limit=500)
+    if not norm_codes:
+        raise HTTPException(status_code=400, detail="codes 不能为空")
+    scan = await scan_v2(codes=norm_codes, top_n=top_n, risk_profile=risk_profile)
     leaders = scan.get("leaders", [])
     if not leaders:
         return {
@@ -603,6 +633,7 @@ async def portfolio_v3(codes: List[str], top_n: int = Query(8, ge=1, le=50), ris
         "risk_profile": risk_profile,
         "top_n": top_n,
         "leaders": leaders,
+        "diagnostics": {"input_count": len(codes), "normalized_count": len(norm_codes)},
         "portfolio": {
             "allocations": alloc,
             "summary": {
@@ -659,7 +690,7 @@ async def get_methodology() -> Dict:
     """获取方法论说明"""
     return {
         "name": "卢麒元方法论增强预测系统",
-        "phase": "phase4",
+        "phase": "phase5",
         "protocol_version": "lu-analyzer-v4",
         "phase4_scope": [
             "市场状态识别与自适应权重",
