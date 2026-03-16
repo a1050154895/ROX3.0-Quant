@@ -66,12 +66,25 @@ def register_exception_handlers(app):
             field = error.get("loc", [])[-1] if error.get("loc") else "未知字段"
             msg = error.get("msg", "参数错误")
             error_messages.append(f"{field}: {msg}")
-        
+
+        # 安全序列化：将 exc.errors() 中不可 JSON 序列化的对象（如 ValueError）转为字符串
+        def _safe_serialize(obj):
+            if isinstance(obj, dict):
+                return {k: _safe_serialize(v) for k, v in obj.items()}
+            elif isinstance(obj, (list, tuple)):
+                return [_safe_serialize(v) for v in obj]
+            elif isinstance(obj, (str, int, float, bool, type(None))):
+                return obj
+            else:
+                return str(obj)
+
+        safe_errors = _safe_serialize(exc.errors())
+
         return error_response(
             error="请求参数校验失败",
             code="VALIDATION_ERROR",
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            details={"messages": error_messages, "original": exc.errors()},
+            details={"messages": error_messages, "original": safe_errors},
         )
 
     @app.exception_handler(Exception)
