@@ -45,9 +45,7 @@ def retry_request(max_retries=3, delay=1.0):
     return decorator
 
 async def run_in_executor(func, *args):
-    loop = asyncio.get_event_loop()
-    # Apply retry if not already applied (for internal sync calls)
-    # Note: explicit retry_request on target sync function is better.
+    loop = asyncio.get_running_loop()  # Python 3.10+ 兼容，不再使用废弃的 get_event_loop()
     return await loop.run_in_executor(None, lambda: func(*args))
 
 

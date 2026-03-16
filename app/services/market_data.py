@@ -23,7 +23,7 @@ async def fetch_indices():
         {"name": "科创50", "code": "000688"},
         {"name": "沪深300", "code": "000300"} 
     ]
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()  # Python 3.10+ 兼容
     
     try:
         # 1. Try fetching all indices via spot API (Single Request, Faster & More Stable)
@@ -120,7 +120,7 @@ async def get_market_stats_data():
     main_val = "--"
     
     try:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()  # Python 3.10+ 兼容
         # Northbound
         try:
             north_df = await loop.run_in_executor(None, lambda: ak.stock_hsgt_north_net_flow_in_em(symbol="北上"))
@@ -192,7 +192,7 @@ async def get_real_market_sentiment():
     获取真实的市场情绪数据
     通过聚合行业资金流数据，计算主力和散户的资金流向分布
     """
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()  # Python 3.10+ 兼容
     try:
         sector_df = await loop.run_in_executor(None, lambda: ak.stock_sector_fund_flow_rank(indicator="今日", sector_type="行业资金流"))
         if sector_df is None or sector_df.empty:

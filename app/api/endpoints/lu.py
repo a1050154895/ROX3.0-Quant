@@ -205,9 +205,8 @@ def _calc_lu_technicals(hist: pd.DataFrame) -> dict:
 def _infer_direction_and_matrix(theme: str) -> tuple[str, str]:
     """
     根据主题与当前作战室三流/四矩阵快照，推断方向支持度与矩阵位置。
-    当前为基础规则版（mock 映射），后续可接入实时三流/四矩阵数值。
+    兼容新版 (relative_strength + trend_arrow) 与旧版 (strength + trend 中文值) 字段格式。
     """
-    # 从 LuService 获取当前作战室快照（mock 数据）
     try:
         tf = LuService.get_three_flows_snapshot()
         fm = LuService.get_four_matrix_snapshot()
@@ -248,8 +247,18 @@ def _infer_direction_and_matrix(theme: str) -> tuple[str, str]:
     }
     asset_key = asset_score_map.get(theme, "股票风险资产")
     asset_info = assets.get(asset_key, {})
-    score = asset_info.get("relative_strength", 50)
-    trend = asset_info.get("trend", "→")
+    # 优先读 relative_strength，fallback 到 strength（兼容旧格式）
+    score = asset_info.get("relative_strength") or asset_info.get("strength", 50)
+    # 优先读 trend_arrow 符号字段，兼容中文 trend 值("增强"/"转强"/"分化"/"稳定"/"走弱")
+    trend = asset_info.get("trend_arrow", "")
+    if not trend:
+        trend_text = asset_info.get("trend", "→")
+        _trend_map = {
+            "增强": "↑", "转强": "↑", "分化": "→",
+            "稳定": "→", "走弱": "↓", "下行": "↓",
+            "up": "↑", "down": "↓", "neutral": "→",
+        }
+        trend = _trend_map.get(trend_text, "→")
 
     if score >= 75 and trend == "↑":
         matrix_position = "增强区"

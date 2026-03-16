@@ -103,7 +103,6 @@ from app.api.endpoints import alerts
 api_group.include_router(alerts.router, tags=["alerts"])
 
 # 数据同步 (新添加)
-# 数据同步 (新添加)
 from app.api.endpoints import sync
 api_group.include_router(sync.router)
 
