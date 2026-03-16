@@ -1020,6 +1020,70 @@
 
               html += '</div>'; // end space-y-3
               el.innerHTML = html;
+
+              // ── ECharts 雷达图（六维评分）──────────────────────────
+              // 同时请求 predict-v2 接口以获取六维组件评分
+              var radarId = 'lu-radar-chart-' + (lu.symbol || 'stock');
+              var radarContainer = document.createElement('div');
+              radarContainer.id = radarId;
+              radarContainer.style.cssText = 'width:100%;height:220px;margin-top:12px;';
+              el.appendChild(radarContainer);
+
+              apiGet('/api/lu-prediction/predict-v2', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({code: lu.symbol || code, market: 'CN_A', period: 'daily', lookback: 60})
+              }).then(function(r){ return r.ok ? r.json() : null; })
+              .then(function(v2){
+                if (!v2 || !v2.analysis || !v2.analysis.component_scores) return;
+                var cs = v2.analysis.component_scores;
+                var radarEl = document.getElementById(radarId);
+                if (!radarEl || typeof echarts === 'undefined') return;
+                var chart = echarts.init(radarEl, 'dark');
+                chart.setOption({
+                  backgroundColor: 'transparent',
+                  title: {
+                    text: '六维评分  综合 ' + (v2.analysis.composite_score || '--'),
+                    textStyle: { color: '#f59e0b', fontSize: 11, fontWeight: 'bold' },
+                    top: 4, left: 'center'
+                  },
+                  radar: {
+                    indicator: [
+                      {name:'矛盾分析', max:100},
+                      {name:'价值规律', max:100},
+                      {name:'宏观周期', max:100},
+                      {name:'技术分析', max:100},
+                      {name:'市场情绪', max:100},
+                    ],
+                    radius: '62%',
+                    center: ['50%', '58%'],
+                    axisName: { color: '#94a3b8', fontSize: 10 },
+                    splitLine: { lineStyle: { color: '#334155' } },
+                    splitArea: { areaStyle: { color: ['rgba(30,41,59,0.3)', 'rgba(30,41,59,0.1)'] } },
+                    axisLine: { lineStyle: { color: '#334155' } },
+                  },
+                  series: [{
+                    type: 'radar',
+                    data: [{
+                      value: [
+                        cs.contradiction ? cs.contradiction.score : 50,
+                        cs.value        ? cs.value.score : 50,
+                        cs.macro        ? cs.macro.score : 50,
+                        cs.technical    ? cs.technical.score : 50,
+                        cs.sentiment    ? cs.sentiment.score : 50,
+                      ],
+                      name: '评分',
+                      symbol: 'circle',
+                      symbolSize: 4,
+                      areaStyle: { color: 'rgba(245,158,11,0.18)' },
+                      lineStyle: { color: '#f59e0b', width: 1.5 },
+                      itemStyle: { color: '#f59e0b' },
+                    }],
+                  }],
+                });
+                // 响应式
+                window.addEventListener('resize', function(){ chart.resize(); });
+              }).catch(function(){});
             })
             .catch(function () {
               var el = document.getElementById('diagnosis-lu-result');

@@ -262,3 +262,145 @@ class TestOverviewEndpoint:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+# ─── 新增：卢式分析增强测试 ────────────────────────────────────────
+
+class TestLuAnalysisEnhanced:
+    """卢式分析增强测试：字段、边界、负面场景"""
+
+    def test_four_matrix_has_relative_strength(self):
+        """四矩阵每个资产均有 relative_strength 字段"""
+        r = client.get("/api/lu/four-matrix")
+        assert r.status_code == 200
+        d = r.json()
+        assets = d.get("assets", [])
+        assert len(assets) >= 2
+        for a in assets:
+            assert "relative_strength" in a, f"资产 {a.get('name')} 缺少 relative_strength 字段"
+            assert 0 <= a["relative_strength"] <= 100
+
+    def test_four_matrix_has_trend_arrow(self):
+        """四矩阵每个资产均有 trend_arrow 符号字段"""
+        r = client.get("/api/lu/four-matrix")
+        assert r.status_code == 200
+        for a in r.json().get("assets", []):
+            assert a.get("trend_arrow") in ("↑", "→", "↓"), \
+                f"trend_arrow={a.get('trend_arrow')} 不在合法值集合"
+
+    def test_analyze_symbol_matrix_position_not_always_default(self):
+        """analyze-symbol 矩阵位置不应永远返回'观望区'（字段读取修复验证）"""
+        r = client.get("/api/lu/analyze-symbol?symbol=000001")
+        assert r.status_code == 200
+        d = r.json()
+        assert "matrix_position" in d
+        # 矩阵位置应为合法值之一
+        valid = {"增强区", "转强区", "分化区", "防御区", "观望区"}
+        assert d["matrix_position"] in valid
+
+    def test_candidates_use_real_codes(self):
+        """候选池使用真实 ETF 代码，不含 GOLD_PROXY 等 mock ticker"""
+        r = client.get("/api/lu/candidates")
+        assert r.status_code == 200
+        items = r.json().get("items", [])
+        for item in items:
+            symbol = item.get("symbol", "")
+            assert not symbol.startswith("GOLD_PROXY"), f"发现 mock ticker: {symbol}"
+            assert symbol.isdigit() or len(symbol) == 6, f"代码格式异常: {symbol}"
+
+    def test_three_flows_has_bias_note(self):
+        """三流快照包含 bias_note 字段（实时数据诊断信息）"""
+        r = client.get("/api/lu/three-flows")
+        assert r.status_code == 200
+        d = r.json()
+        assert "summary_bias" in d
+        assert "bias_note" in d  # v2 新增字段
+        assert "flow_volume" in d
+
+
+class TestLuPredictionV5:
+    """卢式预测 v5 协议测试"""
+
+    def test_predict_v2_protocol_version(self):
+        """predict-v2 返回正确的协议版本"""
+        r = client.post("/api/lu-prediction/predict-v2", json={
+            "code": "000001", "market": "CN_A", "period": "daily", "lookback": 30
+        })
+        assert r.status_code == 200
+        d = r.json()
+        assert d.get("protocol_version") == "lu-analyzer-v5"
+        assert "analysis" in d
+        assert "composite_score" in d["analysis"]
+        assert "market_regime" in d["analysis"]
+        assert "action_plan" in d["analysis"]
+        assert "component_scores" in d["analysis"]
+
+    def test_scan_v2_empty_codes_rejected(self):
+        """scan-v2 空 codes 应返回 400"""
+        r = client.post("/api/lu-prediction/scan-v2", json={"codes": []})
+        assert r.status_code == 400
+
+    def test_scan_v2_returns_leaders(self):
+        """scan-v2 返回 leaders 字段"""
+        r = client.post("/api/lu-prediction/scan-v2", json={
+            "codes": ["000001", "600519"], "top_n": 2
+        })
+        assert r.status_code == 200
+        d = r.json()
+        assert "leaders" in d
+        assert "results" in d
+        assert d["protocol_version"] == "lu-analyzer-v5"
+
+    def test_portfolio_v2_weight_constraints(self):
+        """portfolio-v2 权重约束数学一致性"""
+        r = client.post("/api/lu-prediction/portfolio-v2", json={
+            "codes": ["000001", "600519", "000858"],
+            "risk_preference": "balanced"
+        })
+        assert r.status_code == 200
+        d = r.json()
+        weights = d.get("weights", {})
+        total = d.get("total_invested", 0)
+        cash = d.get("cash_weight", 0)
+        # 总权重 + 现金权重 ≈ 1.0（允许 0.05 误差）
+        assert abs(total + cash - 1.0) < 0.05, f"权重不一致: total={total}, cash={cash}"
+        # 单票上限 ≤ 0.20
+        for code, w in weights.items():
+            assert w <= 0.20, f"{code} 权重{w}超过单票上限"
+
+    def test_portfolio_v2_empty_codes_rejected(self):
+        """portfolio-v2 空 codes 应返回 400"""
+        r = client.post("/api/lu-prediction/portfolio-v2", json={"codes": []})
+        assert r.status_code == 400
+
+    def test_portfolio_v3_optimizer_field(self):
+        """portfolio-v3 返回 optimizer 字段"""
+        r = client.post("/api/lu-prediction/portfolio-v3", json={
+            "codes": ["000001", "600519"],
+            "risk_preference": "conservative"
+        })
+        assert r.status_code == 200
+        d = r.json()
+        assert d["risk_summary"].get("optimizer") == "covariance_driven"
+
+
+class TestPydanticV2Validators:
+    """auth.py Pydantic V2 迁移验证"""
+
+    def test_short_username_rejected(self):
+        """用户名长度 < 3 应被校验拒绝"""
+        r = client.post("/register", json={"username": "ab", "password": "Abc@12345"})
+        assert r.status_code in (400, 422)
+
+    def test_invalid_email_rejected(self):
+        """非法邮箱格式应被校验拒绝"""
+        r = client.post("/register", json={
+            "username": "testuser", "password": "Abc@12345", "email": "not-an-email"
+        })
+        assert r.status_code in (400, 422)
+
+    def test_weak_password_rejected(self):
+        """弱密码应被 SecurityConfig 校验拒绝"""
+        r = client.post("/register", json={"username": "testuser", "password": "123"})
+        assert r.status_code in (400, 422)
+

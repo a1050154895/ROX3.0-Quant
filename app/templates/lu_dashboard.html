@@ -7,6 +7,7 @@
     <meta name="description" content="卢麒元式半自动辅助决策系统：三流雷达、四矩阵切换、334仓位纪律、候选池与技术执行层">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -385,7 +386,7 @@
             document.getElementById('flows-bias').textContent = d.summary_bias || '--';
 
             const flows = [d.flow_volume, d.flow_velocity, d.flow_direction];
-            const html = flows.map(f => `
+            const barsHtml = flows.map(f => `
                 <div class="radar-segment">
                     <div class="radar-label">${f.label}</div>
                     <div style="flex:1">
@@ -400,38 +401,92 @@
                     </div>
                 </div>
             `).join('');
-            document.getElementById('flow-bars').innerHTML = html;
+            document.getElementById('flow-bars').innerHTML = barsHtml;
             if (d.notes && d.notes.length) {
                 document.getElementById('flows-note').innerHTML = '<i class="fas fa-info-circle mr-1"></i>' + d.notes[0];
+            }
+
+            // ECharts 三流雷达图
+            const radarEl = document.createElement('div');
+            radarEl.id = 'flows-radar-chart';
+            radarEl.style.cssText = 'width:100%;height:200px;margin-top:12px;';
+            const flowsContent = document.getElementById('flows-content');
+            flowsContent.appendChild(radarEl);
+            if (typeof echarts !== 'undefined') {
+                const chart = echarts.init(radarEl, 'dark');
+                chart.setOption({
+                    backgroundColor: 'transparent',
+                    radar: {
+                        indicator: [
+                            {name:'流量', max:100},
+                            {name:'流速', max:100},
+                            {name:'流向', max:100},
+                        ],
+                        radius: '60%', center: ['50%', '55%'],
+                        axisName: {color:'#94a3b8', fontSize:11},
+                        splitLine: {lineStyle:{color:'#1e293b'}},
+                        splitArea: {areaStyle:{color:['rgba(30,41,59,0.3)','rgba(30,41,59,0.1)']}},
+                        axisLine: {lineStyle:{color:'#334155'}},
+                    },
+                    series: [{
+                        type: 'radar',
+                        data: [{
+                            value: [d.flow_volume.score, d.flow_velocity.score, d.flow_direction.score],
+                            name: '三流',
+                            areaStyle: {color: 'rgba(245,158,11,0.15)'},
+                            lineStyle: {color:'#f59e0b', width:1.5},
+                            itemStyle: {color:'#f59e0b'},
+                            symbol: 'circle', symbolSize: 5,
+                        }],
+                    }],
+                });
+                window.addEventListener('resize', () => chart.resize());
             }
         } catch(e) {
             document.getElementById('flows-content').innerHTML = '<div class="text-slate-500 text-sm">数据加载异常，请刷新重试</div>';
         }
     }
 
-    // ============ B. 四矩阵 ============
+    // ============ B. 四矩阵（热力格子版） ============
     async function loadMatrix() {
         try {
             const r = await fetch('/api/lu/four-matrix');
             const d = await r.json();
-            const html = (d.assets || []).map(a => `
-                <div class="asset-card ${themeClassMap[a.theme] || 'asset-equity'}">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-semibold text-sm text-slate-100">${a.name}</span>
-                        <span class="${trendColor[a.trend_direction] || 'text-slate-400'} font-bold text-base">${trendIcon[a.trend_direction] || '→'}</span>
-                    </div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="score-bar-bg flex-1" style="height:5px">
-                            <div class="score-bar-fill" style="width:${a.strength}%; background:${scoreBarColor(a.strength)}"></div>
+            const html = (d.assets || []).map(a => {
+                const s = a.relative_strength || a.strength || 50;
+                const arrow = a.trend_arrow || (a.trend_direction === 'up' ? '↑' : a.trend_direction === 'down' ? '↓' : '→');
+                const arrowColor = arrow === '↑' ? '#34d399' : arrow === '↓' ? '#f87171' : '#94a3b8';
+                // 热力背景：强度越高颜色越深（绿/红渐变）
+                const heatAlpha = Math.min(0.35, s / 100 * 0.45);
+                const heatColor = s >= 62 ? `rgba(52,211,153,${heatAlpha})` :
+                                  s <= 40 ? `rgba(248,113,113,${heatAlpha})` :
+                                           `rgba(148,163,184,${heatAlpha * 0.5})`;
+                return `
+                <div class="asset-card ${themeClassMap[a.theme] || 'asset-equity'}"
+                     style="position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.08)">
+                    <!-- 热力背景 -->
+                    <div style="position:absolute;inset:0;background:${heatColor};pointer-events:none;border-radius:12px;"></div>
+                    <div style="position:relative">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-sm text-slate-100">${a.name}</span>
+                            <span style="color:${arrowColor};font-size:1.1rem;font-weight:700">${arrow}</span>
                         </div>
-                        <span class="text-xs text-amber-400 font-bold">${a.strength}</span>
+                        <!-- 强度热力条 -->
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="score-bar-bg flex-1" style="height:5px">
+                                <div class="score-bar-fill" style="width:${s}%;background:${scoreBarColor(s)}"></div>
+                            </div>
+                            <span class="text-xs font-bold" style="color:${arrowColor}">${s}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-400">${a.trend} · 风险${a.risk}</span>
+                            <span class="text-xxs px-1.5 py-0.5 rounded text-xs" style="background:rgba(255,255,255,0.06);color:#94a3b8">RS ${s}</span>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-1.5">${a.note}</div>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs text-slate-500">${a.trend} · 风险${a.risk}</span>
-                    </div>
-                    <div class="text-xs text-slate-400 mt-1.5">${a.note}</div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
             document.getElementById('matrix-content').innerHTML = html;
         } catch(e) {
             document.getElementById('matrix-content').innerHTML = '<div class="text-slate-500 text-sm col-span-2">数据加载异常，请刷新重试</div>';

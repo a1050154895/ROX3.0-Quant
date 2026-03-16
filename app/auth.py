@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 import bcrypt
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 import sqlite3
 from app.db import get_db, get_user_by_username, create_user
 from app.core.security_config import settings
@@ -42,13 +42,15 @@ class UserCreate(BaseModel):
     email: Optional[str] = None
     phone: Optional[str] = None
 
-    @validator('username')
+    @field_validator('username', mode='before')
+    @classmethod
     def validate_username(cls, v):
         if len(v) < 3:
             raise ValueError('用户名至少需要3个字符')
         return v
 
-    @validator('email')
+    @field_validator('email', mode='before')
+    @classmethod
     def validate_email(cls, v):
         if v:
             import re
@@ -56,7 +58,8 @@ class UserCreate(BaseModel):
                 raise ValueError('邮箱格式不正确')
         return v
 
-    @validator('phone')
+    @field_validator('phone', mode='before')
+    @classmethod
     def validate_phone(cls, v):
         if v:
             import re
@@ -64,7 +67,8 @@ class UserCreate(BaseModel):
                 raise ValueError('手机号格式不正确')
         return v
 
-    @validator('password')
+    @field_validator('password', mode='before')
+    @classmethod
     def validate_password(cls, v):
         from app.core.security_config import SecurityConfig
         valid, message = SecurityConfig.validate_password(v)
