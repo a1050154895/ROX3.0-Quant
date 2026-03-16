@@ -119,6 +119,10 @@ api_group.include_router(info.router)
 from app.api.endpoints import settings
 api_group.include_router(settings.router, prefix="/settings", tags=["settings"])
 
+# 卢式作战室 (新添加)
+from app.api.endpoints import lu
+api_group.include_router(lu.router, tags=["卢式作战室"])
+
 # 将API组添加到主路由
 api_router.include_router(api_group)
 

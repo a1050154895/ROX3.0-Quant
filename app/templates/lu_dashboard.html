@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卢式作战室 - ROX 3.0</title>
+    <meta name="description" content="卢麒元式半自动辅助决策系统：三流雷达、四矩阵切换、334仓位纪律、候选池与技术执行层">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 50%, #0a0f1e 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .glass-warm {
+            background: rgba(20, 15, 10, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,200,100,0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .layer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        .badge-strategic { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+        .badge-discipline { background: rgba(99,102,241,0.12); color: #818cf8; border: 1px solid rgba(99,102,241,0.25); }
+        .badge-execution { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+
+        .score-bar-bg { background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
+        .score-bar-fill { height: 6px; border-radius: 99px; transition: width 1s ease; }
+
+        .asset-card {
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.25s ease;
+        }
+        .asset-card:hover { transform: translateY(-2px); }
+        .asset-gold { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(251,191,36,0.05)); border: 1px solid rgba(245,158,11,0.2); }
+        .asset-energy { background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(249,115,22,0.05)); border: 1px solid rgba(239,68,68,0.18); }
+        .asset-equity { background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.05)); border: 1px solid rgba(99,102,241,0.18); }
+        .asset-cash { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(52,211,153,0.05)); border: 1px solid rgba(16,185,129,0.18); }
+        .asset-defensive { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(52,211,153,0.05)); border: 1px solid rgba(16,185,129,0.18); }
+
+        .stage-dot {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700;
+        }
+        .stage-active { background: rgba(99,102,241,0.3); border: 2px solid #818cf8; color: #818cf8; }
+        .stage-inactive { background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.1); color: #475569; }
+
+        .candidate-row {
+            display: grid;
+            grid-template-columns: 1fr 90px 80px 100px 1fr;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: background 0.2s ease;
+        }
+        .candidate-row:hover { background: rgba(255,255,255,0.06); }
+
+        .tech-card {
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+        .tech-stage { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.15); }
+        .tech-macd  { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15); }
+
+        .signal-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 99px;
+            font-size: 0.7rem; font-weight: 600;
+        }
+        .pill-gold    { background: rgba(245,158,11,0.15); color: #fbbf24; }
+        .pill-energy  { background: rgba(239,68,68,0.15);  color: #f87171; }
+        .pill-equity  { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+        .pill-cash    { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+        .pill-defensive { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+        .pill-resource { background: rgba(249,115,22,0.15); color: #fb923c; }
+
+        .macd-golden { color: #fbbf24; }
+        .macd-dead   { color: #f87171; }
+        .macd-repair { color: #94a3b8; }
+        .macd-strong { color: #34d399; }
+        .macd-repair_below { color: #60a5fa; }
+
+        .disclaimer-bar {
+            background: rgba(99,102,241,0.06);
+            border: 1px solid rgba(99,102,241,0.12);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 0.72rem;
+            color: #94a3b8;
+        }
+
+        .top-motto {
+            background: linear-gradient(90deg, rgba(245,158,11,0.08), rgba(139,92,246,0.08));
+            border: 1px solid rgba(245,158,11,0.15);
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            letter-spacing: 0.04em;
+        }
+
+        .radar-segment {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+        }
+        .radar-label { width: 40px; font-size: 0.72rem; color: #94a3b8; flex-shrink: 0; }
+
+        .loading-fade { animation: fadein 0.5s ease; }
+        @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+        @media (max-width: 768px) {
+            .candidate-row { grid-template-columns: 1fr 80px; }
+            .candidate-col-hide { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass" style="border-bottom:1px solid rgba(255,255,255,0.07)">
+        <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+                    <i class="fas fa-arrow-left text-xs"></i><span>ROX 3.0</span>
+                </a>
+                <span class="text-slate-700">/</span>
+                <span class="text-amber-400 font-semibold text-sm">卢式作战室</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500">半自动辅助决策 · 非自动交易</span>
+                <a href="/home" class="px-3 py-1.5 bg-gradient-to-r from-amber-600 to-red-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">进入交易</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-20 pb-12 px-4 max-w-7xl mx-auto">
+
+        <!-- 总策略提示 -->
+        <div class="top-motto mb-6">
+            <i class="fas fa-compass text-amber-400 mr-2"></i>
+            先看方向，再看结构，再看节奏，最后才下手
+            <span class="ml-4 text-slate-500">｜</span>
+            <span class="ml-4 text-slate-500">本系统为辅助判断工具，不替代用户决策，不做自动交易</span>
+        </div>
+
+        <!-- 层级提示 -->
+        <div class="flex flex-wrap gap-3 mb-8">
+            <span class="layer-badge badge-strategic"><i class="fas fa-satellite-dish text-xs"></i>战略层：三流 + 四矩阵</span>
+            <span class="layer-badge badge-discipline"><i class="fas fa-shield-alt text-xs"></i>仓位纪律层：334</span>
+            <span class="layer-badge badge-execution"><i class="fas fa-crosshairs text-xs"></i>执行层：候选池 + 一板斧MACD</span>
+        </div>
+
+        <!-- ==============================
+             主网格布局
+        ============================== -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+            <!-- A. 三流雷达（战略层） -->
+            <div class="glass rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <div class="section-title mb-1">A · 三流雷达</div>
+                        <h2 class="text-base font-bold text-slate-100">战略方向观察
+                            <span class="layer-badge badge-strategic ml-2">战略层</span>
+                        </h2>
+                    </div>
+                    <div class="text-right">
+                        <div id="flows-bias" class="text-lg font-bold text-amber-400">--</div>
+                        <div class="text-xs text-slate-500">综合方向</div>
+                    </div>
+                </div>
+
+                <div id="flows-content" class="loading-fade">
+                    <!-- 三流条形渲染区 -->
+                    <div id="flow-bars"></div>
+                    <div class="disclaimer-bar mt-4" id="flows-note">
+                        <i class="fas fa-info-circle mr-1"></i>三流为代理观察，不是自动买卖信号，结论供参考
+                    </div>
+                </div>
+            </div>
+
+            <!-- B. 四矩阵切换面板（战略层） -->
+            <div class="glass rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <div class="section-title mb-1">B · 四矩阵切换</div>
+                        <h2 class="text-base font-bold text-slate-100">资产相对强弱
+                            <span class="layer-badge badge-strategic ml-2">战略层</span>
+                        </h2>
+                    </div>
+                    <div class="text-xs text-slate-500">观察资金搬家方向</div>
+                </div>
+                <div id="matrix-content" class="grid grid-cols-2 gap-3 loading-fade">
+                    <!-- 资产卡片渲染区 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+            <!-- C. 334纪律面板（仓位纪律层） -->
+            <div class="glass rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <div class="section-title mb-1">C · 334纪律面板</div>
+                        <h2 class="text-base font-bold text-slate-100">仓位纪律辅助
+                            <span class="layer-badge badge-discipline ml-2">仓位纪律层</span>
+                        </h2>
+                    </div>
+                </div>
+                <div id="discipline-content" class="loading-fade">
+                    <!-- 334面板渲染区 -->
+                </div>
+                <div class="disclaimer-bar mt-4">
+                    <i class="fas fa-hand-paper mr-1"></i>仓位最终由用户手工决定，系统仅作纪律提示，不执行任何交易
+                </div>
+            </div>
+
+            <!-- D. 候选池（执行层） -->
+            <div class="glass rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <div class="section-title mb-1">D · 候选池</div>
+                        <h2 class="text-base font-bold text-slate-100">方向观察标的
+                            <span class="layer-badge badge-execution ml-2">执行层</span>
+                        </h2>
+                    </div>
+                    <div class="text-xs text-slate-500">仅作方向观察</div>
+                </div>
+                <div id="candidates-content" class="space-y-2 loading-fade">
+                    <!-- 候选池渲染区 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- E. 技术执行区 -->
+        <div class="glass rounded-2xl p-6">
+            <div class="section-title mb-1">E · 技术执行区</div>
+            <h2 class="text-base font-bold text-slate-100 mb-5">
+                节奏执行参考
+                <span class="layer-badge badge-execution ml-2">执行层</span>
+                <span class="text-xs text-slate-500 font-normal ml-3">半自动提示，非自动交易命令</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <!-- 主图结构逻辑 -->
+                <div>
+                    <div class="text-xs font-semibold text-amber-400 mb-3 uppercase tracking-wider">
+                        <i class="fas fa-chart-line mr-2"></i>主图结构逻辑
+                    </div>
+                    <div class="space-y-2">
+                        <div class="tech-card tech-stage flex items-start gap-3">
+                            <span class="text-amber-400 font-bold w-20 flex-shrink-0">① 左脚</span>
+                            <span class="text-slate-400">第一次触底或低接，量能收缩，试仓观察，30%首仓位置</span>
+                        </div>
+                        <div class="tech-card tech-stage flex items-start gap-3">
+                            <span class="text-sky-400 font-bold w-20 flex-shrink-0">② 确认</span>
+                            <span class="text-slate-400">放量突破关键位或二次测试支撑，结构成立，30%二仓确认</span>
+                        </div>
+                        <div class="tech-card tech-stage flex items-start gap-3">
+                            <span class="text-emerald-400 font-bold w-20 flex-shrink-0">③ 主升</span>
+                            <span class="text-slate-400">趋势确立，持续放量，40%主升布局，律动压缩成本</span>
+                        </div>
+                        <div class="tech-card tech-stage flex items-start gap-3">
+                            <span class="text-orange-400 font-bold w-20 flex-shrink-0">④ 右肩风险</span>
+                            <span class="text-slate-400">量能衰竭、高位背离，关注风险，考虑逐步减仓</span>
+                        </div>
+                        <div class="tech-card tech-stage flex items-start gap-3">
+                            <span class="text-red-400 font-bold w-20 flex-shrink-0">⑤ 破位</span>
+                            <span class="text-slate-400">关键支撑丢失，及时止损，保留预备队等待下一个结构</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 一板斧MACD逻辑 -->
+                <div>
+                    <div class="text-xs font-semibold text-emerald-400 mb-3 uppercase tracking-wider">
+                        <i class="fas fa-bolt mr-2"></i>一板斧MACD执行逻辑
+                    </div>
+                    <div class="space-y-2">
+                        <div class="tech-card tech-macd flex items-start gap-3">
+                            <span class="text-amber-400 font-bold w-24 flex-shrink-0">金叉</span>
+                            <span class="text-slate-400">DIF向上穿越DEA，短期动能转正，配合主图结构确认布局</span>
+                        </div>
+                        <div class="tech-card tech-macd flex items-start gap-3">
+                            <span class="text-red-400 font-bold w-24 flex-shrink-0">死叉</span>
+                            <span class="text-slate-400">DIF向下穿越DEA，动能转负，注意减仓或观望</span>
+                        </div>
+                        <div class="tech-card tech-macd flex items-start gap-3">
+                            <span class="text-sky-400 font-bold w-24 flex-shrink-0">零下修复</span>
+                            <span class="text-slate-400">MACD在零轴下方，柱体收缩且DIF向DEA靠拢，等待左脚机会</span>
+                        </div>
+                        <div class="tech-card tech-macd flex items-start gap-3">
+                            <span class="text-emerald-400 font-bold w-24 flex-shrink-0">零上强势</span>
+                            <span class="text-slate-400">MACD在零轴上方，柱体持续放大，趋势强劲，可持续布局</span>
+                        </div>
+                        <div class="tech-card tech-macd flex items-start gap-3">
+                            <span class="text-slate-300 font-bold w-24 flex-shrink-0">柱体变化</span>
+                            <span class="text-slate-400">红柱扩张=加速上涨；绿柱扩张=加速下跌；柱体收缩=动能衰减</span>
+                        </div>
+                    </div>
+                    <div class="disclaimer-bar mt-3">
+                        <i class="fas fa-info-circle mr-1"></i>MACD 是执行工具，服务于"律动压缩成本"，不取代三流战略判断
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /max-w-7xl -->
+
+    <script>
+    // ============ 工具函数 ============
+    const themeClassMap = {
+        gold: 'asset-gold', energy: 'asset-energy',
+        equity: 'asset-equity', cash: 'asset-cash',
+        defensive: 'asset-cash', resource: 'asset-energy'
+    };
+    const themePillMap = {
+        gold: 'pill-gold', energy: 'pill-energy',
+        equity: 'pill-equity', cash: 'pill-cash',
+        defensive: 'pill-defensive', resource: 'pill-resource'
+    };
+    const macdColorMap = {
+        golden: 'macd-golden', dead: 'macd-dead',
+        repair: 'macd-repair', strong: 'macd-strong',
+        repair_below: 'macd-repair_below'
+    };
+    const trendIcon = { up: '↑', down: '↓', neutral: '→' };
+    const trendColor = { up: 'text-emerald-400', down: 'text-red-400', neutral: 'text-slate-400' };
+
+    function scoreBarColor(score) {
+        if (score >= 75) return 'linear-gradient(90deg, #f59e0b, #ef4444)';
+        if (score >= 55) return 'linear-gradient(90deg, #3b82f6, #818cf8)';
+        return 'linear-gradient(90deg, #475569, #64748b)';
+    }
+
+    // ============ A. 三流雷达 ============
+    async function loadFlows() {
+        try {
+            const r = await fetch('/api/lu/three-flows');
+            const d = await r.json();
+            document.getElementById('flows-bias').textContent = d.summary_bias || '--';
+
+            const flows = [d.flow_volume, d.flow_velocity, d.flow_direction];
+            const html = flows.map(f => `
+                <div class="radar-segment">
+                    <div class="radar-label">${f.label}</div>
+                    <div style="flex:1">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-xs text-slate-300">${f.status}</span>
+                            <span class="text-xs text-amber-400 font-bold">${f.score}</span>
+                        </div>
+                        <div class="score-bar-bg" style="height:6px">
+                            <div class="score-bar-fill" style="width:${f.score}%; background:${scoreBarColor(f.score)}"></div>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-1">${(f.drivers || []).join(' · ')}</div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('flow-bars').innerHTML = html;
+            if (d.notes && d.notes.length) {
+                document.getElementById('flows-note').innerHTML = '<i class="fas fa-info-circle mr-1"></i>' + d.notes[0];
+            }
+        } catch(e) {
+            document.getElementById('flows-content').innerHTML = '<div class="text-slate-500 text-sm">数据加载异常，请刷新重试</div>';
+        }
+    }
+
+    // ============ B. 四矩阵 ============
+    async function loadMatrix() {
+        try {
+            const r = await fetch('/api/lu/four-matrix');
+            const d = await r.json();
+            const html = (d.assets || []).map(a => `
+                <div class="asset-card ${themeClassMap[a.theme] || 'asset-equity'}">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-semibold text-sm text-slate-100">${a.name}</span>
+                        <span class="${trendColor[a.trend_direction] || 'text-slate-400'} font-bold text-base">${trendIcon[a.trend_direction] || '→'}</span>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="score-bar-bg flex-1" style="height:5px">
+                            <div class="score-bar-fill" style="width:${a.strength}%; background:${scoreBarColor(a.strength)}"></div>
+                        </div>
+                        <span class="text-xs text-amber-400 font-bold">${a.strength}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-500">${a.trend} · 风险${a.risk}</span>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-1.5">${a.note}</div>
+                </div>
+            `).join('');
+            document.getElementById('matrix-content').innerHTML = html;
+        } catch(e) {
+            document.getElementById('matrix-content').innerHTML = '<div class="text-slate-500 text-sm col-span-2">数据加载异常，请刷新重试</div>';
+        }
+    }
+
+    // ============ C. 334 纪律面板 ============
+    async function loadDiscipline() {
+        try {
+            const r = await fetch('/api/lu/discipline');
+            const d = await r.json();
+            const acc = d.account_structure;
+            const trade = d.trade_stage;
+            const detail = trade.detail || [];
+
+            const html = `
+                <div class="mb-4">
+                    <div class="text-xs text-slate-500 mb-2">${acc.label}</div>
+                    <div class="grid grid-cols-3 gap-2">
+                        ${[acc.long_term, acc.mid_term, acc.reserve].map(item => `
+                            <div class="rounded-xl p-3 text-center" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.15)">
+                                <div class="text-2xl font-bold text-indigo-400">${item.ratio}%</div>
+                                <div class="text-xs text-slate-300 mt-0.5">${item.label}</div>
+                                <div class="text-xs text-slate-500 mt-1">${item.note}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500 mb-2">${trade.label}</div>
+                    <div class="flex items-center gap-3 mb-3">
+                        ${detail.map(step => `
+                            <div class="flex flex-col items-center gap-1">
+                                <div class="stage-dot ${step.active ? 'stage-active' : 'stage-inactive'}">${step.step}</div>
+                                <div class="text-xs ${step.active ? 'text-indigo-300' : 'text-slate-500'}">${step.label}</div>
+                                <div class="text-xs ${step.active ? 'text-amber-400' : 'text-slate-600'}">${step.tag}</div>
+                            </div>
+                            ${step.step < detail.length ? '<div class="flex-1 h-px bg-slate-700 mb-5"></div>' : ''}
+                        `).join('')}
+                    </div>
+                    <div class="rounded-lg p-3 text-sm text-amber-300" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15)">
+                        <i class="fas fa-flag mr-1.5"></i>当前阶段：<strong>${trade.current_stage}</strong>
+                        <span class="text-slate-400 ml-2 text-xs">${trade.allowed_action}</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="text-xs text-slate-500 mb-2">纪律原则</div>
+                    <div class="flex flex-wrap gap-2">
+                        ${(d.principles || []).map(p => `
+                            <span class="px-2.5 py-1 rounded-lg text-xs text-slate-300" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">${p}</span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('discipline-content').innerHTML = html;
+        } catch(e) {
+            document.getElementById('discipline-content').innerHTML = '<div class="text-slate-500 text-sm">数据加载异常，请刷新重试</div>';
+        }
+    }
+
+    // ============ D. 候选池 ============
+    async function loadCandidates() {
+        try {
+            const r = await fetch('/api/lu/candidates');
+            const d = await r.json();
+            const html = (d.items || []).map(item => `
+                <div class="rounded-xl p-3 flex flex-col gap-1" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-medium text-sm text-slate-100">${item.name}</span>
+                            <span class="signal-pill ${themePillMap[item.theme_code] || 'pill-equity'}">${item.theme}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-400">结构：<strong class="text-sky-300">${item.stage}</strong></span>
+                            <span class="text-xs text-slate-400">MACD：<strong class="${macdColorMap[item.macd_code] || ''}">${item.macd_status}</strong></span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500">${item.note}</div>
+                </div>
+            `).join('');
+            document.getElementById('candidates-content').innerHTML = html ||
+                '<div class="text-slate-500 text-sm">暂无候选标的</div>';
+        } catch(e) {
+            document.getElementById('candidates-content').innerHTML = '<div class="text-slate-500 text-sm">数据加载异常，请刷新重试</div>';
+        }
+    }
+
+    // 并发加载所有区块
+    Promise.all([loadFlows(), loadMatrix(), loadDiscipline(), loadCandidates()]);
+    </script>
+</body>
+</html>
