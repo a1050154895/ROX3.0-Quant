@@ -1,6 +1,7 @@
 <!doctype html>
 <!-- 1.0 外壳 + 3.0 嵌入：布局与导航为 1.0 风格，内容与能力（K线/排行/API）为 3.0 -->
 <html lang="zh" class="dark">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -14,60 +15,208 @@
     <meta name="theme-color" content="#0f172a">
     <style>
         /* ROX 设计 token：1.0/3.0 共用主色与背景，便于 UI 一致 */
-        :root { --rox-primary: #38bdf8; --rox-bg: #0f172a; --rox-up: #ff333a; --rox-down: #00aa3b; }
+        :root {
+            --rox-primary: #38bdf8;
+            --rox-bg: #0f172a;
+            --rox-up: #ff333a;
+            --rox-down: #00aa3b;
+        }
+
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        body { background-color: var(--rox-bg); color: #e2e8f0; font-family: 'Microsoft YaHei', 'SimHei', sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .neon-text { text-shadow: 0 0 10px #38bdf8; }
-        .neon-border { box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); border: 1px solid #38bdf8; }
-        input, select { background: #1e293b; border: 1px solid #334155; color: #f1f5f9; }
-        input:focus { border-color: #38bdf8; outline: none; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
-        .border-trade { border-color: #334155; }
-        .text-up { color: #ff333a; }
-        .text-down { color: #00aa3b; }
-        .tab-btn { padding: 4px 12px; font-size: 12px; background: #1e293b; border: 1px solid #334155; border-bottom: none; color: #94a3b8; cursor: pointer; }
-        .tab-btn.active { background: #0f172a; color: #38bdf8; border-top: 2px solid #38bdf8; font-weight: bold; }
-        .text-xxs { font-size: 10px; }
+
+        body {
+            background-color: var(--rox-bg);
+            color: #e2e8f0;
+            font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .neon-text {
+            text-shadow: 0 0 10px #38bdf8;
+        }
+
+        .neon-border {
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+            border: 1px solid #38bdf8;
+        }
+
+        input,
+        select {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+        }
+
+        input:focus {
+            border-color: #38bdf8;
+            outline: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 2px;
+        }
+
+        .border-trade {
+            border-color: #334155;
+        }
+
+        .text-up {
+            color: #ff333a;
+        }
+
+        .text-down {
+            color: #00aa3b;
+        }
+
+        .tab-btn {
+            padding: 4px 12px;
+            font-size: 12px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-bottom: none;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: #0f172a;
+            color: #38bdf8;
+            border-top: 2px solid #38bdf8;
+            font-weight: bold;
+        }
+
+        .text-xxs {
+            font-size: 10px;
+        }
+
         /* 各板块严格独立：仅带 view-active 的视图可见 */
-        .rox1-view { display: none !important; flex: 1 1 0; min-height: 0; overflow-y: auto; width: 100%; min-width: 0; }
-        .rox1-view.view-active { display: flex !important; flex-direction: column; width: 100%; }
-        .rox1-view.view-active .rox1-full-view-inner { width: 100%; max-width: none; min-width: 0; flex: 1 1 0; min-height: 0; }
+        .rox1-view {
+            display: none !important;
+            flex: 1 1 0;
+            min-height: 0;
+            overflow-y: auto;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .rox1-view.view-active {
+            display: flex !important;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .rox1-view.view-active .rox1-full-view-inner {
+            width: 100%;
+            max-width: none;
+            min-width: 0;
+            flex: 1 1 0;
+            min-height: 0;
+        }
+
         /* UI 排布：统一区块间距与层级 */
-        .rox1-section { margin-bottom: 1rem; }
-        .rox1-section-title { font-size: 0.875rem; font-weight: 600; color: #94a3b8; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.375rem; }
-        .rox1-card { border-radius: 0.75rem; border: 1px solid rgba(51, 65, 85, 0.5); padding: 0.75rem 1rem; }
-        @media (min-width: 768px) { .rox1-view.view-active { padding: 1rem 1.5rem; } }
+        .rox1-section {
+            margin-bottom: 1rem;
+        }
+
+        .rox1-section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .rox1-card {
+            border-radius: 0.75rem;
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            padding: 0.75rem 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .rox1-view.view-active {
+                padding: 1rem 1.5rem;
+            }
+        }
+
         /* 移除 max-width 限制，让视图占满全屏 */
-        @media (min-width: 1024px) { .rox1-view.view-active { padding: 1.25rem 2rem; width: 100%; } }
+        @media (min-width: 1024px) {
+            .rox1-view.view-active {
+                padding: 1.25rem 2rem;
+                width: 100%;
+            }
+        }
+
         /* 强制内部容器全宽 */
-        .rox1-full-view-inner { width: 100% !important; max-width: none !important; }
+        .rox1-full-view-inner {
+            width: 100% !important;
+            max-width: none !important;
+        }
     </style>
 </head>
+
 <body class="bg-[#0f172a] text-slate-200 h-screen flex flex-col overflow-hidden">
     <!-- Navbar (1.0 风格) -->
-    <nav class="h-14 border-b border-slate-700 bg-slate-900/80 backdrop-blur flex items-center px-4 justify-between shrink-0 z-30">
+    <nav
+        class="h-14 border-b border-slate-700 bg-slate-900/80 backdrop-blur flex items-center px-4 justify-between shrink-0 z-30">
         <div class="flex items-center gap-3">
             <i class="fas fa-chart-network text-sky-500 text-xl"></i>
-            <h1 class="font-bold text-lg bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">ROX QUANT</h1>
+            <h1 class="font-bold text-lg bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">ROX
+                QUANT</h1>
         </div>
         <!-- Mode Switcher（ROX 3.0 夹在个股诊断与知识库之间） -->
         <div class="hidden md:flex bg-slate-800/50 p-1 rounded-lg gap-1 flex-wrap">
-            <button onclick="switchMode('market')" class="px-3 py-1.5 rounded-md text-sm transition-all font-medium bg-sky-600 text-white" id="nav-market"><i class="fas fa-globe mr-1"></i>市场看板</button>
-            <button onclick="switchMode('macro')" class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200" id="nav-macro"><i class="fas fa-landmark mr-1"></i>宏观</button>
-            <button onclick="switchMode('weekly')" class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200" id="nav-weekly"><i class="fas fa-star mr-1"></i>每周推荐</button>
-            <button onclick="switchMode('screener')" class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200" id="nav-screener"><i class="fas fa-filter mr-1"></i>选股器</button>
-            <button onclick="switchMode('diagnosis')" class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200" id="nav-diagnosis"><i class="fas fa-microscope mr-1"></i>个股诊断</button>
-            <a href="/pro" class="px-3 py-1.5 rounded-md text-sm transition-all text-amber-400 hover:text-amber-300 border border-amber-500/60 hover:border-amber-400 bg-slate-800/80" id="nav-rox3" onclick="var s=window._lastDiagnosisSymbol,n=window._lastDiagnosisName;if(s){var u='/pro?code='+encodeURIComponent(s);if(n) u+='&name='+encodeURIComponent(n); event.preventDefault();location.href=u;}"><i class="fas fa-external-link-alt mr-1"></i>ROX 3.0</a>
-            <button onclick="switchMode('kb')" class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200" id="nav-kb"><i class="fas fa-book mr-1"></i>知识库</button>
-            <button onclick="switchMode('trading')" class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200" id="nav-trading"><i class="fas fa-wallet mr-1"></i>交易</button>
+            <button onclick="switchMode('market')"
+                class="px-3 py-1.5 rounded-md text-sm transition-all font-medium bg-sky-600 text-white"
+                id="nav-market"><i class="fas fa-globe mr-1"></i>市场看板</button>
+            <button onclick="switchMode('macro')"
+                class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200"
+                id="nav-macro"><i class="fas fa-landmark mr-1"></i>宏观</button>
+            <button onclick="switchMode('weekly')"
+                class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200"
+                id="nav-weekly"><i class="fas fa-star mr-1"></i>每周推荐</button>
+            <button onclick="switchMode('screener')"
+                class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200"
+                id="nav-screener"><i class="fas fa-filter mr-1"></i>选股器</button>
+            <button onclick="switchMode('diagnosis')"
+                class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200"
+                id="nav-diagnosis"><i class="fas fa-microscope mr-1"></i>个股诊断</button>
+            <a href="/pro"
+                class="px-3 py-1.5 rounded-md text-sm transition-all text-amber-400 hover:text-amber-300 border border-amber-500/60 hover:border-amber-400 bg-slate-800/80"
+                id="nav-rox3"
+                onclick="var s=window._lastDiagnosisSymbol,n=window._lastDiagnosisName;if(s){var u='/pro?code='+encodeURIComponent(s);if(n) u+='&name='+encodeURIComponent(n); event.preventDefault();location.href=u;}"><i
+                    class="fas fa-external-link-alt mr-1"></i>ROX 3.0</a>
+            <button onclick="switchMode('kb')"
+                class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200" id="nav-kb"><i
+                    class="fas fa-book mr-1"></i>知识库</button>
+            <button onclick="switchMode('trading')"
+                class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200"
+                id="nav-trading"><i class="fas fa-wallet mr-1"></i>交易</button>
             <!-- 社区功能已移除 -->
-            <button onclick="switchMode('system')" class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200" id="nav-system"><i class="fas fa-cog mr-1"></i>系统</button>
+            <button onclick="switchMode('system')"
+                class="px-3 py-1.5 rounded-md text-sm transition-all text-slate-400 hover:text-slate-200"
+                id="nav-system"><i class="fas fa-cog mr-1"></i>系统</button>
         </div>
         <div class="flex items-center gap-2 md:hidden">
-            <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white p-2 rounded hover:bg-slate-800"><i class="fas fa-bars text-lg"></i></button>
+            <button onclick="toggleMobileMenu()"
+                class="text-slate-300 hover:text-white p-2 rounded hover:bg-slate-800"><i
+                    class="fas fa-bars text-lg"></i></button>
         </div>
         <div class="hidden md:flex items-center gap-2 text-xs text-slate-500">
             <span id="ws-status-text">在线</span>
@@ -75,18 +224,33 @@
     </nav>
 
     <!-- Mobile Menu -->
-    <div id="mobile-menu" class="fixed inset-0 bg-slate-900/95 z-40 hidden flex-col items-center justify-center gap-6 md:hidden" style="display: none;">
-        <button onclick="switchMode('market'); toggleMobileMenu()" class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-globe mr-2"></i>市场看板</button>
-        <button onclick="switchMode('macro'); toggleMobileMenu()" class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-landmark mr-2"></i>宏观</button>
-        <button onclick="switchMode('weekly'); toggleMobileMenu()" class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-star mr-2"></i>每周推荐</button>
-        <button onclick="switchMode('screener'); toggleMobileMenu()" class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-filter mr-2"></i>选股器</button>
-        <button onclick="switchMode('diagnosis'); toggleMobileMenu()" class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-microscope mr-2"></i>个股诊断</button>
-        <a href="/pro" class="text-xl font-bold text-amber-400 hover:text-amber-300" onclick="var s=window._lastDiagnosisSymbol,n=window._lastDiagnosisName;if(s){var u='/pro?code='+encodeURIComponent(s);if(n) u+='&name='+encodeURIComponent(n); event.preventDefault();location.href=u;}"><i class="fas fa-external-link-alt mr-2"></i>ROX 3.0</a>
-        <button onclick="switchMode('kb'); toggleMobileMenu()" class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-book mr-2"></i>知识库</button>
-        <button onclick="switchMode('trading'); toggleMobileMenu()" class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-wallet mr-2"></i>交易</button>
+    <div id="mobile-menu"
+        class="fixed inset-0 bg-slate-900/95 z-40 hidden flex-col items-center justify-center gap-6 md:hidden"
+        style="display: none;">
+        <button onclick="switchMode('market'); toggleMobileMenu()"
+            class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-globe mr-2"></i>市场看板</button>
+        <button onclick="switchMode('macro'); toggleMobileMenu()"
+            class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-landmark mr-2"></i>宏观</button>
+        <button onclick="switchMode('weekly'); toggleMobileMenu()"
+            class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-star mr-2"></i>每周推荐</button>
+        <button onclick="switchMode('screener'); toggleMobileMenu()"
+            class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-filter mr-2"></i>选股器</button>
+        <button onclick="switchMode('diagnosis'); toggleMobileMenu()"
+            class="text-xl font-bold text-slate-300 hover:text-sky-400"><i
+                class="fas fa-microscope mr-2"></i>个股诊断</button>
+        <a href="/pro" class="text-xl font-bold text-amber-400 hover:text-amber-300"
+            onclick="var s=window._lastDiagnosisSymbol,n=window._lastDiagnosisName;if(s){var u='/pro?code='+encodeURIComponent(s);if(n) u+='&name='+encodeURIComponent(n); event.preventDefault();location.href=u;}"><i
+                class="fas fa-external-link-alt mr-2"></i>ROX 3.0</a>
+        <button onclick="switchMode('kb'); toggleMobileMenu()"
+            class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-book mr-2"></i>知识库</button>
+        <button onclick="switchMode('trading'); toggleMobileMenu()"
+            class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-wallet mr-2"></i>交易</button>
         <!-- 社区功能已移除 -->
-        <button onclick="switchMode('system'); toggleMobileMenu()" class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-cog mr-2"></i>系统</button>
-        <button onclick="toggleMobileMenu()" class="absolute top-4 right-4 text-slate-400 p-2 rounded-full border border-slate-700"><i class="fas fa-times"></i></button>
+        <button onclick="switchMode('system'); toggleMobileMenu()"
+            class="text-xl font-bold text-slate-300 hover:text-sky-400"><i class="fas fa-cog mr-2"></i>系统</button>
+        <button onclick="toggleMobileMenu()"
+            class="absolute top-4 right-4 text-slate-400 p-2 rounded-full border border-slate-700"><i
+                class="fas fa-times"></i></button>
     </div>
 
     <!-- Main Layout：无左侧边栏，主区全宽 -->
@@ -109,17 +273,25 @@
                 <!-- 分时 / 五日（默认上证 000001） -->
                 <div class="glass rox1-card rox1-section">
                     <div class="flex gap-2 mb-2">
-                        <button type="button" class="market-fenshi-tab px-2 py-1 rounded text-xs bg-sky-600 text-white" data-f="fenshi">分时</button>
-                        <button type="button" class="market-fenshi-tab px-2 py-1 rounded text-xs text-slate-400 hover:bg-slate-700" data-f="5day">五日</button>
+                        <button type="button" class="market-fenshi-tab px-2 py-1 rounded text-xs bg-sky-600 text-white"
+                            data-f="fenshi">分时</button>
+                        <button type="button"
+                            class="market-fenshi-tab px-2 py-1 rounded text-xs text-slate-400 hover:bg-slate-700"
+                            data-f="5day">五日</button>
                     </div>
                     <div id="market-fenshi-chart" class="h-48 w-full rounded bg-slate-800/50"></div>
                 </div>
                 <!-- K 线：日线/周线/月线 -->
                 <div class="glass rox1-card rox1-section">
                     <div class="flex gap-2 mb-2">
-                        <button type="button" class="market-kline-tab px-2 py-1 rounded text-xs bg-sky-600 text-white" data-p="daily">日线</button>
-                        <button type="button" class="market-kline-tab px-2 py-1 rounded text-xs text-slate-400 hover:bg-slate-700" data-p="weekly">周线</button>
-                        <button type="button" class="market-kline-tab px-2 py-1 rounded text-xs text-slate-400 hover:bg-slate-700" data-p="monthly">月线</button>
+                        <button type="button" class="market-kline-tab px-2 py-1 rounded text-xs bg-sky-600 text-white"
+                            data-p="daily">日线</button>
+                        <button type="button"
+                            class="market-kline-tab px-2 py-1 rounded text-xs text-slate-400 hover:bg-slate-700"
+                            data-p="weekly">周线</button>
+                        <button type="button"
+                            class="market-kline-tab px-2 py-1 rounded text-xs text-slate-400 hover:bg-slate-700"
+                            data-p="monthly">月线</button>
                     </div>
                     <div id="market-kline-chart" class="h-56 w-full rounded bg-slate-800/50"></div>
                 </div>
@@ -131,7 +303,8 @@
                             <p class="text-xxs text-slate-500 mb-1">南北资金</p>
                             <div class="flex gap-2 text-xs">
                                 <span>北向</span><span id="north-live" class="font-mono font-bold text-up">--亿</span>
-                                <span class="ml-2">南向</span><span id="south-live" class="font-mono font-bold text-down">--亿</span>
+                                <span class="ml-2">南向</span><span id="south-live"
+                                    class="font-mono font-bold text-down">--亿</span>
                             </div>
                             <div class="grid grid-cols-2 gap-1 mt-1">
                                 <div id="hsgt-chart-north" class="h-16 w-full rounded bg-slate-800/50"></div>
@@ -148,15 +321,23 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 rox1-section">
                     <div class="glass rox1-card">
                         <h3 class="rox1-section-title">板块热力</h3>
-                        <div id="sector-heatmap" class="min-h-[140px] flex flex-wrap gap-1 content-start text-xxs"></div>
+                        <div id="sector-heatmap" class="min-h-[140px] flex flex-wrap gap-1 content-start text-xxs">
+                        </div>
                     </div>
                     <div class="glass rox1-card">
-                        <h3 class="rox1-section-title"><i class="fas fa-chart-line text-amber-400"></i>趋势预测 <span class="text-xxs font-normal text-slate-500">(仅交易日)</span></h3>
-                        <div class="flex gap-2 text-xxs mb-1"><span class="text-slate-500">置信</span><span id="pred-confidence">--</span> <span class="text-slate-500">支撑</span><span id="pred-support" class="text-down">--</span> <span class="text-slate-500">压力</span><span id="pred-pressure" class="text-up">--</span></div>
+                        <h3 class="rox1-section-title"><i class="fas fa-chart-line text-amber-400"></i>趋势预测 <span
+                                class="text-xxs font-normal text-slate-500">(仅交易日)</span></h3>
+                        <div class="flex gap-2 text-xxs mb-1"><span class="text-slate-500">置信</span><span
+                                id="pred-confidence">--</span> <span class="text-slate-500">支撑</span><span
+                                id="pred-support" class="text-down">--</span> <span
+                                class="text-slate-500">压力</span><span id="pred-pressure" class="text-up">--</span></div>
                         <p id="pred-logic" class="text-xxs text-slate-400 mb-1 min-h-[2rem]">加载中…</p>
-                        <div id="pred-chart-wrap" class="relative cursor-pointer rounded bg-slate-800/50 border border-slate-700/50 hover:border-sky-500/50 transition-colors" title="点击放大">
+                        <div id="pred-chart-wrap"
+                            class="relative cursor-pointer rounded bg-slate-800/50 border border-slate-700/50 hover:border-sky-500/50 transition-colors"
+                            title="点击放大">
                             <div id="pred-chart" class="h-64 w-full rounded"></div>
-                            <span class="absolute right-2 bottom-2 text-xxs text-slate-500"><i class="fas fa-expand-alt mr-0.5"></i>点击放大</span>
+                            <span class="absolute right-2 bottom-2 text-xxs text-slate-500"><i
+                                    class="fas fa-expand-alt mr-0.5"></i>点击放大</span>
                         </div>
                     </div>
                 </div>
@@ -173,192 +354,303 @@
                         <span class="text-slate-500">指数加载中…</span>
                     </div>
                 </div>
-                <p class="text-xxs text-slate-500 text-center">更多 K 线、排行、盘口请点击顶部 <a href="/pro" class="text-amber-400 hover:underline">ROX 3.0 专业版</a></p>
+                <p class="text-xxs text-slate-500 text-center">更多 K 线、排行、盘口请点击顶部 <a href="/pro"
+                        class="text-amber-400 hover:underline">ROX 3.0 专业版</a></p>
             </div>
 
             <!-- VIEW: 宏观 -->
             <div id="view-macro" class="rox1-view p-6" data-rox1-view="macro">
                 <div class="glass p-6 rounded-xl border border-slate-700/50">
-                    <h2 class="text-xl font-bold text-slate-200 mb-4"><i class="fas fa-landmark text-amber-500 mr-2"></i>宏观经济仪表盘</h2>
-                    <div class="rounded-lg border border-slate-600/60 bg-slate-800/50 p-3 mb-4 text-xs text-slate-400 space-y-2">
-                        <p><span class="text-sky-400 font-medium">板块作用：</span> 用于观察 PMI、CPI/PPI、M2、国债收益率、汇率等宏观指标，判断经济周期与政策环境，为仓位与行业配置提供大方向参考。</p>
-                        <p><span class="text-sky-400 font-medium">当前操作逻辑：</span> ① 看制造业 PMI 是否 &gt;50（扩张/收缩）；② CPI/PPI 判断通胀压力；③ M2/社融看流动性；④ 10 年国债与汇率影响资金成本与外资流向。综合偏暖时可适当提高权益仓位，偏冷或高通胀时偏向防御或观望。汇率在下方与其它指标一并展示；若后续增加多币对与历史曲线，可单独建「汇率」子板块。</p>
+                    <h2 class="text-xl font-bold text-slate-200 mb-4"><i
+                            class="fas fa-landmark text-amber-500 mr-2"></i>宏观经济仪表盘</h2>
+                    <div
+                        class="rounded-lg border border-slate-600/60 bg-slate-800/50 p-3 mb-4 text-xs text-slate-400 space-y-2">
+                        <p><span class="text-sky-400 font-medium">板块作用：</span> 用于观察
+                            PMI、CPI/PPI、M2、国债收益率、汇率等宏观指标，判断经济周期与政策环境，为仓位与行业配置提供大方向参考。</p>
+                        <p><span class="text-sky-400 font-medium">当前操作逻辑：</span> ① 看制造业 PMI 是否 &gt;50（扩张/收缩）；② CPI/PPI
+                            判断通胀压力；③ M2/社融看流动性；④ 10
+                            年国债与汇率影响资金成本与外资流向。综合偏暖时可适当提高权益仓位，偏冷或高通胀时偏向防御或观望。汇率在下方与其它指标一并展示；若后续增加多币对与历史曲线，可单独建「汇率」子板块。
+                        </p>
                     </div>
-                    <div class="rox1-macro-inner"><p class="text-slate-400 text-sm">加载中…</p></div>
+                    <div class="rox1-macro-inner">
+                        <p class="text-slate-400 text-sm">加载中…</p>
+                    </div>
                 </div>
             </div>
             <!-- VIEW: 每周推荐 -->
             <div id="view-weekly" class="rox1-view p-6" data-rox1-view="weekly">
                 <div class="glass p-6 rounded-xl border border-slate-700/50">
-                    <h2 class="text-xl font-bold text-slate-200 mb-4"><i class="fas fa-star text-yellow-500 mr-2"></i>每周推荐</h2>
+                    <h2 class="text-xl font-bold text-slate-200 mb-4"><i
+                            class="fas fa-star text-yellow-500 mr-2"></i>每周推荐</h2>
                     <div id="rox1-weekly-macro-brief" class="text-xs text-slate-300 mb-2 min-h-[1.5rem]"></div>
                     <div id="rox1-weekly-position" class="text-xxs text-slate-400 mb-2 min-h-[1.5rem]"></div>
                     <div id="rox1-weekly-sector" class="text-xxs text-slate-500 mb-3 min-h-[1.5rem]"></div>
                     <p class="text-slate-400 text-xs mb-1">334 仓位法则：底仓 30% + 律动 30% + 预备队 40%（柱状图表示三类仓位占比）</p>
                     <div id="rox1-weekly-334-chart" class="h-80 w-full mb-1 rounded bg-slate-800/50"></div>
-                    <p class="text-xxs text-slate-500 mb-4">底仓长期持有、律动做波段降成本、预备队应对加仓或风险；具体标的与买卖点见下方推荐卡片及 <a href="/pro" class="text-amber-400 hover:underline">ROX 3.0</a>。</p>
-                    <div class="rox1-weekly-cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"><p class="text-slate-400 text-sm">加载中…</p></div>
+                    <p class="text-xxs text-slate-500 mb-4">底仓长期持有、律动做波段降成本、预备队应对加仓或风险；具体标的与买卖点见下方推荐卡片及 <a href="/pro"
+                            class="text-amber-400 hover:underline">ROX 3.0</a>。</p>
+                    <div class="rox1-weekly-cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <p class="text-slate-400 text-sm">加载中…</p>
+                    </div>
                 </div>
             </div>
             <!-- VIEW: 选股器（寻龙诀 + AI 总结） -->
             <div id="view-screener" class="rox1-view p-6 hidden" data-rox1-view="screener">
                 <div class="glass p-6 rounded-xl border border-slate-700/50">
-                    <h2 class="text-xl font-bold text-slate-200 mb-4"><i class="fas fa-filter text-violet-400 mr-2"></i>选股器</h2>
+                    <h2 class="text-xl font-bold text-slate-200 mb-4"><i
+                            class="fas fa-filter text-violet-400 mr-2"></i>选股器</h2>
                     <div class="flex flex-wrap items-center gap-2 mb-4">
-                        <button type="button" id="screener-run-btn" class="px-4 py-2 rounded bg-violet-600 hover:bg-violet-500 text-white text-sm">寻龙诀选股</button>
-                        <label class="flex items-center gap-1.5 text-sm text-slate-400"><input type="checkbox" id="screener-ai" checked> 带 AI 总结</label>
+                        <button type="button" id="screener-run-btn"
+                            class="px-4 py-2 rounded bg-violet-600 hover:bg-violet-500 text-white text-sm">寻龙诀选股</button>
+                        <label class="flex items-center gap-1.5 text-sm text-slate-400"><input type="checkbox"
+                                id="screener-ai" checked> 带 AI 总结</label>
                         <span id="screener-status" class="text-xs text-slate-500"></span>
                     </div>
-                    <div id="screener-ai-summary" class="mb-3 p-3 rounded bg-slate-800/60 text-sm text-slate-300 hidden"></div>
-                    <div id="screener-results" class="space-y-2 max-h-96 overflow-y-auto"><p class="text-slate-500 text-sm">点击「寻龙诀选股」执行选股。</p></div>
+                    <div id="screener-ai-summary"
+                        class="mb-3 p-3 rounded bg-slate-800/60 text-sm text-slate-300 hidden"></div>
+                    <div id="screener-results" class="space-y-2 max-h-96 overflow-y-auto">
+                        <p class="text-slate-500 text-sm">点击「寻龙诀选股」执行选股。</p>
+                    </div>
                 </div>
             </div>
             <!-- VIEW: 个股诊断（完整表单：现价/目标/止损/获利盘/量能/共振/模拟建仓/历史） -->
             <div id="view-diagnosis" class="rox1-view p-6" data-rox1-view="diagnosis">
                 <div class="glass p-6 rounded-xl border border-slate-700/50 flex flex-col h-full min-h-0">
-                    <h2 class="text-xl font-bold text-slate-200 mb-3 shrink-0"><i class="fas fa-microscope text-sky-400 mr-2"></i>个股诊断</h2>
+                    <h2 class="text-xl font-bold text-slate-200 mb-3 shrink-0"><i
+                            class="fas fa-microscope text-sky-400 mr-2"></i>个股诊断</h2>
                     <!-- 顶部：股票输入 + 获取诊断 -->
                     <div class="flex flex-wrap items-center gap-2 mb-3 shrink-0">
-                        <input id="diag-input" type="text" class="p-2 rounded text-sm bg-slate-800 border-slate-700 w-48 max-w-full" placeholder="股票代码或名称，如 600519 或 贵州茅台">
-                        <button type="button" id="diag-btn" class="px-4 py-2 rounded bg-sky-600 hover:bg-sky-500 text-white text-sm">获取行情并诊断</button>
-                        <button type="button" id="diag-to-trade-btn" class="px-3 py-2 rounded text-xs bg-emerald-700/50 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50" title="将当前诊断带入交易并填写止损/目标">模拟建仓</button>
+                        <input id="diag-input" type="text"
+                            class="p-2 rounded text-sm bg-slate-800 border-slate-700 w-48 max-w-full"
+                            placeholder="股票代码或名称，如 600519 或 贵州茅台">
+                        <button type="button" id="diag-btn"
+                            class="px-4 py-2 rounded bg-sky-600 hover:bg-sky-500 text-white text-sm">获取行情并诊断</button>
+                        <button type="button" id="diag-to-trade-btn"
+                            class="px-3 py-2 rounded text-xs bg-emerald-700/50 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50"
+                            title="将当前诊断带入交易并填写止损/目标">模拟建仓</button>
                         <span id="diag-result" class="text-xs text-slate-500 hidden"></span>
                     </div>
                     <!-- 诊断完整表单：现价 / 目标价 / 止损 / 获利盘 / 量能 / 共振等级 -->
-                    <div id="diagnosis-form-card" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4 p-3 rounded-lg border border-slate-600/60 bg-slate-800/40 shrink-0">
-                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">现价</span><span id="diag-f-current" class="font-mono text-sky-300">--</span></div>
-                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">目标价</span><span id="diag-f-target" class="font-mono text-up">--</span></div>
-                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">止损</span><span id="diag-f-stop" class="font-mono text-down">--</span></div>
-                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">获利盘</span><span id="diag-f-chips" class="font-mono text-slate-300">--</span></div>
-                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">量能</span><span id="diag-f-volume" class="font-mono text-slate-300">--</span></div>
-                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">共振等级</span><span id="diag-f-resonance" class="font-mono text-amber-400">--</span></div>
+                    <div id="diagnosis-form-card"
+                        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4 p-3 rounded-lg border border-slate-600/60 bg-slate-800/40 shrink-0">
+                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">现价</span><span
+                                id="diag-f-current" class="font-mono text-sky-300">--</span></div>
+                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">目标价</span><span
+                                id="diag-f-target" class="font-mono text-up">--</span></div>
+                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">止损</span><span
+                                id="diag-f-stop" class="font-mono text-down">--</span></div>
+                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">获利盘</span><span
+                                id="diag-f-chips" class="font-mono text-slate-300">--</span></div>
+                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">量能</span><span
+                                id="diag-f-volume" class="font-mono text-slate-300">--</span></div>
+                        <div class="flex flex-col"><span class="text-xxs text-slate-500 mb-0.5">共振等级</span><span
+                                id="diag-f-resonance" class="font-mono text-amber-400">--</span></div>
                     </div>
                     <!-- Tab 栏 -->
-                    <nav id="diagnosis-nav" class="flex flex-wrap gap-1 mb-3 shrink-0 border-b border-slate-700/50 pb-2">
-                        <button type="button" class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm bg-sky-600/20 text-sky-400 border border-sky-500/40" data-tab="latest">最新提示</button>
-                        <button type="button" class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm text-slate-400 hover:bg-slate-800/50" data-tab="fund">资金动向</button>
-                        <button type="button" class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm text-slate-400 hover:bg-slate-800/50" data-tab="profile">公司资料</button>
-                        <button type="button" class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm text-slate-400 hover:bg-slate-800/50" data-tab="finance">财务分析</button>
-                        <button type="button" class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm text-slate-400 hover:bg-slate-800/50" data-tab="news">公司资讯</button>
+                    <nav id="diagnosis-nav"
+                        class="flex flex-wrap gap-1 mb-3 shrink-0 border-b border-slate-700/50 pb-2">
+                        <button type="button"
+                            class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm bg-sky-600/20 text-sky-400 border border-sky-500/40"
+                            data-tab="latest">最新提示</button>
+                        <button type="button"
+                            class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm text-slate-400 hover:bg-slate-800/50"
+                            data-tab="fund">资金动向</button>
+                        <button type="button"
+                            class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm text-slate-400 hover:bg-slate-800/50"
+                            data-tab="profile">公司资料</button>
+                        <button type="button"
+                            class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm text-slate-400 hover:bg-slate-800/50"
+                            data-tab="finance">财务分析</button>
+                        <button type="button"
+                            class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm text-slate-400 hover:bg-slate-800/50"
+                            data-tab="news">公司资讯</button>
+                        <button type="button"
+                            class="diagnosis-nav-btn px-3 py-1.5 rounded text-sm text-amber-400 hover:bg-amber-900/20 border border-amber-500/40"
+                            data-tab="lu"><i class="fas fa-chess-king mr-1"></i>卢式分析</button>
                     </nav>
                     <div id="diagnosis-content" class="flex-1 overflow-y-auto min-h-0">
                         <div id="diagnosis-tab-latest" class="diagnosis-tab">
                             <p class="text-slate-400 text-sm mb-2">输入代码或名称并点击「获取行情并诊断」后，上方表单与下方结论将自动更新。</p>
                             <div id="diagnosis-result-main" class="hidden"></div>
-                            <p class="text-slate-500 text-xs mt-4">完整 K 线、分时、MACD/KDJ 等请点击导航栏 <strong class="text-amber-400">ROX 3.0</strong> 进入专业版。</p>
+                            <p class="text-slate-500 text-xs mt-4">完整 K 线、分时、MACD/KDJ 等请点击导航栏 <strong
+                                    class="text-amber-400">ROX 3.0</strong> 进入专业版。</p>
+                        </div>
+                        <div id="diagnosis-tab-fund" class="diagnosis-tab hidden">
+                            <p class="text-slate-400 text-sm mb-2">资金动向大致包括：今日/5
+                                日主力与散户流入流出占比、主买/主卖金额、以及按订单规模划分的净额（超大单、大单、中单、小单）。</p>
+                            <p class="text-slate-500 text-xs mb-2">本页仅提供简要说明，完整资金动向图表与历史曲线请点击顶部导航栏 <a href="/pro"
+                                    class="text-amber-400 hover:underline font-medium">ROX 3.0</a> 跳转至专业版查看。</p>
+                        </div>
+                        <div id="diagnosis-tab-profile" class="diagnosis-tab hidden">
+                            <p class="text-slate-500 text-sm">公司资料：主营业务、概念题材、可比公司等。诊断个股后展示。</p>
+                        </div>
+                        <div id="diagnosis-tab-finance" class="diagnosis-tab hidden">
+                            <p class="text-slate-500 text-sm">财务分析：市盈率、市净率、营收、净利润、ROE 等。诊断个股后展示。</p>
+                        </div>
+                        <div id="diagnosis-tab-news" class="diagnosis-tab hidden">
+                            <p class="text-slate-500 text-sm">公司资讯：新闻与公告。完整列表请点击导航栏 <a href="/pro"
+                                    class="text-amber-400">ROX 3.0</a>。</p>
+                        </div>
+                        <!-- 卢式分析 Tab 面板 -->
+                        <div id="diagnosis-tab-lu" class="diagnosis-tab hidden">
+                            <div id="diagnosis-lu-result">
+                                <p class="text-slate-500 text-sm">请先在上方输入股票代码，点击「获取行情并诊断」后，卢式六层分析将自动更新。</p>
                             </div>
-                            <div id="diagnosis-tab-fund" class="diagnosis-tab hidden">
-                                <p class="text-slate-400 text-sm mb-2">资金动向大致包括：今日/5 日主力与散户流入流出占比、主买/主卖金额、以及按订单规模划分的净额（超大单、大单、中单、小单）。</p>
-                                <p class="text-slate-500 text-xs mb-2">本页仅提供简要说明，完整资金动向图表与历史曲线请点击顶部导航栏 <a href="/pro" class="text-amber-400 hover:underline font-medium">ROX 3.0</a> 跳转至专业版查看。</p>
-                            </div>
-                            <div id="diagnosis-tab-profile" class="diagnosis-tab hidden"><p class="text-slate-500 text-sm">公司资料：主营业务、概念题材、可比公司等。诊断个股后展示。</p></div>
-                            <div id="diagnosis-tab-finance" class="diagnosis-tab hidden"><p class="text-slate-500 text-sm">财务分析：市盈率、市净率、营收、净利润、ROE 等。诊断个股后展示。</p></div>
-                            <div id="diagnosis-tab-news" class="diagnosis-tab hidden"><p class="text-slate-500 text-sm">公司资讯：新闻与公告。完整列表请点击导航栏 <a href="/pro" class="text-amber-400">ROX 3.0</a>。</p></div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <!-- VIEW: 知识库 -->
-            <div id="view-kb" class="rox1-view p-6 flex flex-col min-h-0 w-full" data-rox1-view="kb">
-                <div class="rox1-full-view-inner w-full glass p-6 rounded-xl border border-slate-700/50 flex flex-col min-h-0 overflow-y-auto">
-                    <h2 class="text-xl font-bold text-slate-200 mb-4 shrink-0"><i class="fas fa-book text-indigo-400 mr-2"></i>知识库</h2>
-                    <div class="flex flex-wrap gap-2 mb-4 items-center shrink-0">
-                        <input id="kb-search-input" type="text" class="flex-1 min-w-[200px] p-2 rounded text-sm bg-slate-800 border-slate-700" placeholder="输入关键词搜索">
-                        <select id="kb-mode" class="p-2 rounded text-sm bg-slate-800 border-slate-700">
-                            <option value="local">仅本地</option><option value="web">仅联网</option><option value="mixed" selected>混合</option>
-                        </select>
-                        <button type="button" onclick="rox1KbSearch()" class="px-4 py-2 rounded bg-sky-600 hover:bg-sky-500 text-white text-sm">搜索</button>
-                    </div>
-                    <div id="kb-results-list" class="min-h-[200px] flex-1 min-h-0 overflow-y-auto"><p class="text-slate-500 text-sm">输入关键词后搜索（支持本地文档与联网）</p></div>
-                </div>
-            </div>
-            <!-- VIEW: 交易系统 -->
-            <div id="view-trading" class="rox1-view p-6 flex flex-col min-h-0 w-full" data-rox1-view="trading">
-                <div class="rox1-full-view-inner w-full glass p-6 rounded-xl border border-slate-700/50 flex flex-col min-h-0 overflow-y-auto">
-                    <h2 class="text-xl font-bold text-slate-200 mb-4"><i class="fas fa-wallet text-emerald-400 mr-2"></i>交易系统</h2>
-                    <div class="rounded-lg border border-slate-600/60 bg-slate-800/50 p-3 mb-4 text-xs text-slate-400 space-y-2">
-                        <p><span class="text-sky-400 font-medium">板块作用：</span> 用于记录您的买卖操作与持仓，便于复盘与策略验证。不需要记录交易时可忽略本板块。</p>
-                        <p><span class="text-sky-400 font-medium">操作逻辑：</span> ① 选择「模拟盘」（仅记账）或「实盘」（对接券商后真实下单）；② 填写代码、名称、买/卖、价格、数量；③ 点击「下单」后记录在下方「近期成交」；④ 账户余额与成交列表需登录后查看。</p>
-                    </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-300 mb-2">账户余额</h3>
-                            <div id="trading-accounts" class="mb-4"><p class="text-slate-400 text-sm">加载中…</p></div>
-                            <h3 class="text-sm font-bold text-slate-300 mb-2">新建交易</h3>
-                            <div class="flex gap-2 mb-2">
-                                <button type="button" id="trade-fill-from-diagnosis" class="px-3 py-1.5 rounded text-xs bg-slate-700 hover:bg-sky-600 text-slate-300 hover:text-white">从诊断带入</button>
-                                <button type="button" id="trade-fill-from-watchlist" class="px-3 py-1.5 rounded text-xs bg-slate-700 hover:bg-sky-600 text-slate-300 hover:text-white">从自选带入</button>
-                            </div>
-                            <form id="trading-form" class="space-y-2 text-sm">
-                                <label class="block text-xxs text-slate-500">账户</label>
-                                <select id="trade-account" class="w-full p-2 rounded bg-slate-800 border-slate-700"><option value="sim">模拟盘</option><option value="real">实盘</option></select>
-                                <label class="block text-xxs text-slate-500">代码 / 名称</label>
-                                <div class="flex gap-2">
-                                    <input id="trade-symbol" type="text" placeholder="股票代码" class="flex-1 p-2 rounded bg-slate-800 border-slate-700">
-                                    <input id="trade-name" type="text" placeholder="股票名称" class="flex-1 p-2 rounded bg-slate-800 border-slate-700">
-                                </div>
-                                <label class="block text-xxs text-slate-500">方向 / 价格 / 数量</label>
-                                <div class="flex gap-2">
-                                    <select id="trade-side" class="w-full p-2 rounded bg-slate-800 border-slate-700"><option value="buy">买入</option><option value="sell">卖出</option></select>
-                                    <input id="trade-price" type="number" step="0.01" placeholder="价格" class="w-full p-2 rounded bg-slate-800 border-slate-700">
-                                    <input id="trade-qty" type="number" placeholder="数量" class="w-full p-2 rounded bg-slate-800 border-slate-700">
-                                </div>
-                                <label class="block text-xxs text-slate-500">止损 / 目标价（选填，风控参考）</label>
-                                <div class="flex gap-2">
-                                    <input id="trade-stop-loss" type="number" step="0.01" placeholder="止损价" class="flex-1 p-2 rounded bg-slate-800 border-slate-700">
-                                    <input id="trade-target-price" type="number" step="0.01" placeholder="目标价" class="flex-1 p-2 rounded bg-slate-800 border-slate-700">
-                                </div>
-                                <input id="trade-note" type="text" placeholder="策略笔记（选填）" class="w-full p-2 rounded bg-slate-800 border-slate-700">
-                                <button type="submit" id="trading-submit-btn" class="w-full py-2 rounded bg-sky-600 hover:bg-sky-500 text-white font-medium">记录交易</button>
-                            </form>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-300 mb-2">近期成交</h3>
-                            <div id="trading-trades-list"><p class="text-slate-500 text-sm">请先登录</p></div>
-                            <h3 class="text-sm font-bold text-slate-300 mt-4 mb-2">AI 复盘</h3>
-                            <p class="text-xxs text-slate-500 mb-2">根据近期成交，按周/月由 AI 生成复盘摘要，便于总结得失与改进策略。</p>
-                            <div class="flex gap-2 mb-2">
-                                <button type="button" id="trade-ai-review-week" class="px-3 py-1.5 rounded text-xs bg-slate-700 hover:bg-sky-600 text-slate-300 hover:text-white">生成本周复盘</button>
-                                <button type="button" id="trade-ai-review-month" class="px-3 py-1.5 rounded text-xs bg-slate-700 hover:bg-sky-600 text-slate-300 hover:text-white">生成本月复盘</button>
-                            </div>
-                            <div id="trading-ai-review-result" class="min-h-[60px] rounded-lg border border-slate-700/50 bg-slate-800/50 p-3 text-xs text-slate-400"><span class="text-slate-500">点击上方按钮生成（需登录且有成交记录）</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- VIEW: 社区跟单 (已移除) -->
-            <!-- VIEW: 系统状态 -->
-            <div id="view-system" class="rox1-view p-6 flex flex-col min-h-0 w-full" data-rox1-view="system">
-                <div class="rox1-full-view-inner w-full glass p-6 rounded-xl border border-slate-700/50 flex flex-col min-h-0 overflow-y-auto">
-                    <h2 class="text-xl font-bold text-slate-200 mb-4 shrink-0"><i class="fas fa-cog text-slate-400 mr-2"></i>系统状态</h2>
-                    <div id="system-status-content" class="min-h-0 flex-1"><p class="text-slate-400 text-sm">加载中…</p></div>
                 </div>
             </div>
         </div>
+        <!-- VIEW: 知识库 -->
+        <div id="view-kb" class="rox1-view p-6 flex flex-col min-h-0 w-full" data-rox1-view="kb">
+            <div
+                class="rox1-full-view-inner w-full glass p-6 rounded-xl border border-slate-700/50 flex flex-col min-h-0 overflow-y-auto">
+                <h2 class="text-xl font-bold text-slate-200 mb-4 shrink-0"><i
+                        class="fas fa-book text-indigo-400 mr-2"></i>知识库</h2>
+                <div class="flex flex-wrap gap-2 mb-4 items-center shrink-0">
+                    <input id="kb-search-input" type="text"
+                        class="flex-1 min-w-[200px] p-2 rounded text-sm bg-slate-800 border-slate-700"
+                        placeholder="输入关键词搜索">
+                    <select id="kb-mode" class="p-2 rounded text-sm bg-slate-800 border-slate-700">
+                        <option value="local">仅本地</option>
+                        <option value="web">仅联网</option>
+                        <option value="mixed" selected>混合</option>
+                    </select>
+                    <button type="button" onclick="rox1KbSearch()"
+                        class="px-4 py-2 rounded bg-sky-600 hover:bg-sky-500 text-white text-sm">搜索</button>
+                </div>
+                <div id="kb-results-list" class="min-h-[200px] flex-1 min-h-0 overflow-y-auto">
+                    <p class="text-slate-500 text-sm">输入关键词后搜索（支持本地文档与联网）</p>
+                </div>
+            </div>
+        </div>
+        <!-- VIEW: 交易系统 -->
+        <div id="view-trading" class="rox1-view p-6 flex flex-col min-h-0 w-full" data-rox1-view="trading">
+            <div
+                class="rox1-full-view-inner w-full glass p-6 rounded-xl border border-slate-700/50 flex flex-col min-h-0 overflow-y-auto">
+                <h2 class="text-xl font-bold text-slate-200 mb-4"><i
+                        class="fas fa-wallet text-emerald-400 mr-2"></i>交易系统</h2>
+                <div
+                    class="rounded-lg border border-slate-600/60 bg-slate-800/50 p-3 mb-4 text-xs text-slate-400 space-y-2">
+                    <p><span class="text-sky-400 font-medium">板块作用：</span> 用于记录您的买卖操作与持仓，便于复盘与策略验证。不需要记录交易时可忽略本板块。</p>
+                    <p><span class="text-sky-400 font-medium">操作逻辑：</span> ① 选择「模拟盘」（仅记账）或「实盘」（对接券商后真实下单）；②
+                        填写代码、名称、买/卖、价格、数量；③ 点击「下单」后记录在下方「近期成交」；④ 账户余额与成交列表需登录后查看。</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-300 mb-2">账户余额</h3>
+                        <div id="trading-accounts" class="mb-4">
+                            <p class="text-slate-400 text-sm">加载中…</p>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-300 mb-2">新建交易</h3>
+                        <div class="flex gap-2 mb-2">
+                            <button type="button" id="trade-fill-from-diagnosis"
+                                class="px-3 py-1.5 rounded text-xs bg-slate-700 hover:bg-sky-600 text-slate-300 hover:text-white">从诊断带入</button>
+                            <button type="button" id="trade-fill-from-watchlist"
+                                class="px-3 py-1.5 rounded text-xs bg-slate-700 hover:bg-sky-600 text-slate-300 hover:text-white">从自选带入</button>
+                        </div>
+                        <form id="trading-form" class="space-y-2 text-sm">
+                            <label class="block text-xxs text-slate-500">账户</label>
+                            <select id="trade-account" class="w-full p-2 rounded bg-slate-800 border-slate-700">
+                                <option value="sim">模拟盘</option>
+                                <option value="real">实盘</option>
+                            </select>
+                            <label class="block text-xxs text-slate-500">代码 / 名称</label>
+                            <div class="flex gap-2">
+                                <input id="trade-symbol" type="text" placeholder="股票代码"
+                                    class="flex-1 p-2 rounded bg-slate-800 border-slate-700">
+                                <input id="trade-name" type="text" placeholder="股票名称"
+                                    class="flex-1 p-2 rounded bg-slate-800 border-slate-700">
+                            </div>
+                            <label class="block text-xxs text-slate-500">方向 / 价格 / 数量</label>
+                            <div class="flex gap-2">
+                                <select id="trade-side" class="w-full p-2 rounded bg-slate-800 border-slate-700">
+                                    <option value="buy">买入</option>
+                                    <option value="sell">卖出</option>
+                                </select>
+                                <input id="trade-price" type="number" step="0.01" placeholder="价格"
+                                    class="w-full p-2 rounded bg-slate-800 border-slate-700">
+                                <input id="trade-qty" type="number" placeholder="数量"
+                                    class="w-full p-2 rounded bg-slate-800 border-slate-700">
+                            </div>
+                            <label class="block text-xxs text-slate-500">止损 / 目标价（选填，风控参考）</label>
+                            <div class="flex gap-2">
+                                <input id="trade-stop-loss" type="number" step="0.01" placeholder="止损价"
+                                    class="flex-1 p-2 rounded bg-slate-800 border-slate-700">
+                                <input id="trade-target-price" type="number" step="0.01" placeholder="目标价"
+                                    class="flex-1 p-2 rounded bg-slate-800 border-slate-700">
+                            </div>
+                            <input id="trade-note" type="text" placeholder="策略笔记（选填）"
+                                class="w-full p-2 rounded bg-slate-800 border-slate-700">
+                            <button type="submit" id="trading-submit-btn"
+                                class="w-full py-2 rounded bg-sky-600 hover:bg-sky-500 text-white font-medium">记录交易</button>
+                        </form>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-300 mb-2">近期成交</h3>
+                        <div id="trading-trades-list">
+                            <p class="text-slate-500 text-sm">请先登录</p>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-300 mt-4 mb-2">AI 复盘</h3>
+                        <p class="text-xxs text-slate-500 mb-2">根据近期成交，按周/月由 AI 生成复盘摘要，便于总结得失与改进策略。</p>
+                        <div class="flex gap-2 mb-2">
+                            <button type="button" id="trade-ai-review-week"
+                                class="px-3 py-1.5 rounded text-xs bg-slate-700 hover:bg-sky-600 text-slate-300 hover:text-white">生成本周复盘</button>
+                            <button type="button" id="trade-ai-review-month"
+                                class="px-3 py-1.5 rounded text-xs bg-slate-700 hover:bg-sky-600 text-slate-300 hover:text-white">生成本月复盘</button>
+                        </div>
+                        <div id="trading-ai-review-result"
+                            class="min-h-[60px] rounded-lg border border-slate-700/50 bg-slate-800/50 p-3 text-xs text-slate-400">
+                            <span class="text-slate-500">点击上方按钮生成（需登录且有成交记录）</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- VIEW: 社区跟单 (已移除) -->
+        <!-- VIEW: 系统状态 -->
+        <div id="view-system" class="rox1-view p-6 flex flex-col min-h-0 w-full" data-rox1-view="system">
+            <div
+                class="rox1-full-view-inner w-full glass p-6 rounded-xl border border-slate-700/50 flex flex-col min-h-0 overflow-y-auto">
+                <h2 class="text-xl font-bold text-slate-200 mb-4 shrink-0"><i
+                        class="fas fa-cog text-slate-400 mr-2"></i>系统状态</h2>
+                <div id="system-status-content" class="min-h-0 flex-1">
+                    <p class="text-slate-400 text-sm">加载中…</p>
+                </div>
+            </div>
+        </div>
+        </div>
     </main>
 
-    <footer class="h-6 bg-[#1a1a1a] border-t border-slate-700 flex items-center justify-between px-2 text-xs text-gray-500 shrink-0">
+    <footer
+        class="h-6 bg-[#1a1a1a] border-t border-slate-700 flex items-center justify-between px-2 text-xs text-gray-500 shrink-0">
         <span><span class="text-green-500">●</span> 1.0 外壳 · 3.0 嵌入</span>
         <a href="/pro" class="text-sky-400 hover:underline">专业版</a>
     </footer>
 
     <!-- 趋势预测图放大弹窗 -->
-    <div id="pred-chart-modal" class="fixed inset-0 bg-slate-900/95 z-[90] hidden items-center justify-center p-4" style="display: none;">
-        <div class="bg-slate-800 w-full max-w-3xl rounded-xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div id="pred-chart-modal" class="fixed inset-0 bg-slate-900/95 z-[90] hidden items-center justify-center p-4"
+        style="display: none;">
+        <div
+            class="bg-slate-800 w-full max-w-3xl rounded-xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="flex items-center justify-between px-4 py-2 border-b border-slate-700">
                 <span class="text-sm font-bold text-amber-400">趋势预测 · 放大</span>
-                <button type="button" onclick="typeof closePredChartModal==='function'&&closePredChartModal()" class="text-slate-400 hover:text-white p-2"><i class="fas fa-times"></i></button>
+                <button type="button" onclick="typeof closePredChartModal==='function'&&closePredChartModal()"
+                    class="text-slate-400 hover:text-white p-2"><i class="fas fa-times"></i></button>
             </div>
             <div id="pred-chart-modal-body" class="flex-1 min-h-[320px] p-3"></div>
         </div>
     </div>
 
     <!-- 通用图表放大弹窗 -->
-    <div id="large-chart-modal" class="fixed inset-0 bg-slate-900/95 z-[100] hidden items-center justify-center p-4" style="display: none;">
-        <div class="bg-slate-800 w-full max-w-5xl h-[80vh] rounded-xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col">
+    <div id="large-chart-modal" class="fixed inset-0 bg-slate-900/95 z-[100] hidden items-center justify-center p-4"
+        style="display: none;">
+        <div
+            class="bg-slate-800 w-full max-w-5xl h-[80vh] rounded-xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col">
             <div class="flex items-center justify-between px-4 py-3 border-b border-slate-700 bg-slate-800/50">
                 <span id="large-chart-title" class="text-base font-bold text-white">图表详情</span>
-                <button type="button" onclick="closeLargeChartModal()" class="text-slate-400 hover:text-white p-2 transition-colors"><i class="fas fa-times text-lg"></i></button>
+                <button type="button" onclick="closeLargeChartModal()"
+                    class="text-slate-400 hover:text-white p-2 transition-colors"><i
+                        class="fas fa-times text-lg"></i></button>
             </div>
             <div id="large-chart-body" class="flex-1 w-full h-full p-4 bg-slate-900/50 relative"></div>
         </div>
@@ -366,37 +658,54 @@
 
     <!-- Auth Modal (同 3.0) -->
     <div id="auth-modal" class="fixed inset-0 bg-slate-900/90 z-[100] flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 w-full max-w-sm rounded-2xl border border-slate-700 shadow-2xl overflow-hidden relative">
+        <div
+            class="bg-slate-800 w-full max-w-sm rounded-2xl border border-slate-700 shadow-2xl overflow-hidden relative">
             <div class="p-8">
-                <button type="button" onclick="typeof hideAuthModal==='function'&&hideAuthModal()" class="absolute top-3 right-3 text-slate-500 hover:text-white p-1"><i class="fas fa-times"></i></button>
+                <button type="button" onclick="typeof hideAuthModal==='function'&&hideAuthModal()"
+                    class="absolute top-3 right-3 text-slate-500 hover:text-white p-1"><i
+                        class="fas fa-times"></i></button>
                 <div class="text-center mb-6">
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent mb-1">ROX QUANT</h1>
+                    <h1
+                        class="text-2xl font-bold bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent mb-1">
+                        ROX QUANT</h1>
                     <p class="text-xs text-slate-400">量化投研 · 智能决策</p>
                 </div>
                 <div class="flex bg-slate-900/50 rounded-lg p-1 mb-4">
-                    <button type="button" onclick="typeof switchAuthMode==='function'&&switchAuthMode('login')" id="tab-login" class="flex-1 py-2 rounded text-sm font-medium bg-indigo-600 text-white">登录</button>
-                    <button type="button" onclick="typeof switchAuthMode==='function'&&switchAuthMode('register')" id="tab-register" class="flex-1 py-2 rounded text-sm font-medium text-slate-300 hover:text-white">注册</button>
+                    <button type="button" onclick="typeof switchAuthMode==='function'&&switchAuthMode('login')"
+                        id="tab-login"
+                        class="flex-1 py-2 rounded text-sm font-medium bg-indigo-600 text-white">登录</button>
+                    <button type="button" onclick="typeof switchAuthMode==='function'&&switchAuthMode('register')"
+                        id="tab-register"
+                        class="flex-1 py-2 rounded text-sm font-medium text-slate-300 hover:text-white">注册</button>
                 </div>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">用户名</label>
-                        <input id="auth-username" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm" placeholder="用户名">
+                        <input id="auth-username" type="text"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm"
+                            placeholder="用户名">
                     </div>
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">密码</label>
-                        <input id="auth-password" type="password" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm" placeholder="密码" onkeydown="if(event.key==='Enter'){event.preventDefault();typeof submitAuth==='function'&&submitAuth();}">
+                        <input id="auth-password" type="password"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm"
+                            placeholder="密码"
+                            onkeydown="if(event.key==='Enter'){event.preventDefault();typeof submitAuth==='function'&&submitAuth();}">
                     </div>
                     <div id="auth-error" class="text-xs text-red-400 text-center min-h-[16px]"></div>
-                    <button type="button" onclick="typeof submitAuth==='function'&&submitAuth()" id="btn-auth-submit" class="w-full bg-gradient-to-r from-sky-600 to-indigo-600 text-white font-bold py-2.5 rounded-lg">登录</button>
+                    <button type="button" onclick="typeof submitAuth==='function'&&submitAuth()" id="btn-auth-submit"
+                        class="w-full bg-gradient-to-r from-sky-600 to-indigo-600 text-white font-bold py-2.5 rounded-lg">登录</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-200 text-sm opacity-0 transition-opacity pointer-events-none z-[110]"></div>
+    <div id="toast"
+        class="fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-200 text-sm opacity-0 transition-opacity pointer-events-none z-[110]">
+    </div>
 
     <script>
-        function showToast(msg) { var t = document.getElementById('toast'); if (t) { t.innerText = msg; t.classList.remove('opacity-0'); setTimeout(function(){ t.classList.add('opacity-0'); }, 2000); } }
+        function showToast(msg) { var t = document.getElementById('toast'); if (t) { t.innerText = msg; t.classList.remove('opacity-0'); setTimeout(function () { t.classList.add('opacity-0'); }, 2000); } }
         window.showToast = showToast;
     </script>
     <script>window.ROX_SKIP_AUTH_ON_LOAD = false;</script>
@@ -407,10 +716,10 @@
         // 经典界面：模式切换与侧栏标题
         var allModes = ['market', 'macro', 'weekly', 'screener', 'diagnosis', 'kb', 'trading', 'community', 'system'];
         function switchMode(mode) {
-            document.querySelectorAll('.rox1-view').forEach(function(el) { el.classList.remove('view-active'); });
+            document.querySelectorAll('.rox1-view').forEach(function (el) { el.classList.remove('view-active'); });
             var viewEl = document.getElementById('view-' + mode);
             if (viewEl) { viewEl.classList.add('view-active'); }
-            allModes.forEach(function(m) {
+            allModes.forEach(function (m) {
                 var btn = document.getElementById('nav-' + m);
                 if (btn) { btn.classList.remove('bg-sky-600', 'text-white'); btn.classList.add('text-slate-400'); }
             });
@@ -432,19 +741,19 @@
         window.switchMode = switchMode;
         window.toggleMobileMenu = toggleMobileMenu;
         // 同步 watchlist 容器：经典界面侧栏与市场看板内各有一处，main.js 可能用 watchlist-container，统一指向市场看板内的列表
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             if (window.rox1Views && typeof rox1Views.loadMarketDashboard === 'function') rox1Views.loadMarketDashboard();
             // 个股诊断顶部 Tab 切换
-            document.querySelectorAll('.diagnosis-nav-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
+            document.querySelectorAll('.diagnosis-nav-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
                     var tab = this.getAttribute('data-tab');
-                    document.querySelectorAll('.diagnosis-nav-btn').forEach(function(b) {
+                    document.querySelectorAll('.diagnosis-nav-btn').forEach(function (b) {
                         b.classList.remove('bg-sky-600/20', 'text-sky-400', 'border', 'border-sky-500/40');
                         b.classList.add('text-slate-400');
                     });
                     this.classList.add('bg-sky-600/20', 'text-sky-400', 'border', 'border-sky-500/40');
                     this.classList.remove('text-slate-400');
-                    document.querySelectorAll('.diagnosis-tab').forEach(function(panel) {
+                    document.querySelectorAll('.diagnosis-tab').forEach(function (panel) {
                         panel.classList.add('hidden');
                     });
                     var panel = document.getElementById('diagnosis-tab-' + tab);
@@ -453,7 +762,7 @@
             });
             var tradingForm = document.getElementById('trading-form');
             if (tradingForm) {
-                tradingForm.addEventListener('submit', function(e) {
+                tradingForm.addEventListener('submit', function (e) {
                     e.preventDefault();
                     var accountEl = document.getElementById('trade-account');
                     var account = accountEl && accountEl.value || 'sim';
@@ -476,4 +785,5 @@
         });
     </script>
 </body>
+
 </html>

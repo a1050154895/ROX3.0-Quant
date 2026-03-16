@@ -184,7 +184,7 @@
         // 转换数据格式为前端所需
         var dates = [];
         var ohlc = [];
-        items.forEach(function(item) {
+        items.forEach(function (item) {
           dates.push(item.time);
           ohlc.push([item.open, item.high, item.low, item.close]);
         });
@@ -894,7 +894,139 @@
               }
             })
             .catch(function () { var ph = document.getElementById('diag-summary-placeholder'); if (ph) ph.textContent = '诊断加载失败，仅显示行情。'; });
+
+          // ─── 并行：卢式六层分析 ───
+          var luEl = document.getElementById('diagnosis-lu-result');
+          if (luEl) luEl.innerHTML = '<p class="text-amber-400/70 text-xs animate-pulse">卢式分析加载中…</p>';
+          apiGet('/api/lu/analyze-symbol?symbol=' + encodeURIComponent(code))
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (lu) {
+              var el = document.getElementById('diagnosis-lu-result');
+              if (!el) return;
+              if (!lu || typeof lu !== 'object') {
+                el.innerHTML = '<p class="text-slate-500 text-xs">卢式分析暂不可用。</p>';
+                return;
+              }
+
+              // 辅助：生成标签徽章
+              function _badge(text, color) {
+                color = color || 'slate';
+                var colorMap = {
+                  amber: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+                  sky: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+                  green: 'bg-green-500/20 text-green-300 border-green-500/40',
+                  red: 'bg-red-500/20 text-red-300 border-red-500/40',
+                  slate: 'bg-slate-700/60 text-slate-300 border-slate-600/40',
+                };
+                return '<span class="inline-block px-2 py-0.5 rounded border text-xs ' + (colorMap[color] || colorMap.slate) + '">' + text + '</span>';
+              }
+
+              // 辅助：结构阶段 → 颜色
+              function _stageColor(stage) {
+                if (stage === '主升') return 'green';
+                if (stage === '确认' || stage === '左脚') return 'sky';
+                if (stage === '右肩风险' || stage === '破位') return 'red';
+                return 'slate';
+              }
+
+              // 辅助：方向偏向 → 颜色
+              function _biasColor(bias) {
+                if (bias === '较强支持') return 'green';
+                if (bias === '中度支持') return 'sky';
+                if (bias === '方向不占优') return 'red';
+                return 'slate';
+              }
+
+              // 辅助：纪律建议 → 颜色
+              function _adviceColor(adv) {
+                if (adv === '可考虑主升布局' || adv === '可考虑二仓确认') return 'green';
+                if (adv === '可考虑首仓') return 'sky';
+                if (adv === '风险控制') return 'red';
+                return 'amber';
+              }
+
+              var macdArr = Array.isArray(lu.macd_status) ? lu.macd_status : [];
+              var macdBadges = macdArr.map(function (m) {
+                var c = (m === '金叉' || m === '零上强势' || m === '柱体放大') ? 'green' : (m === '死叉') ? 'red' : 'slate';
+                return _badge(m, c);
+              }).join(' ');
+
+              var html = '<div class="space-y-3 text-sm">';
+
+              // 免责声明横幅
+              html += '<div class="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-400/80">';
+              html += '<i class="fas fa-info-circle mr-1"></i>本分析为辅助参考工具，不构成投资建议，不做自动交易，仓位由用户手工决定。';
+              html += '</div>';
+
+              // 层 A：基本信息
+              html += '<div class="border border-slate-700/50 rounded-lg p-3">';
+              html += '<div class="text-xxs text-slate-500 mb-1.5 font-medium uppercase tracking-wide">A · 基本信息层</div>';
+              html += '<div class="flex flex-wrap gap-3 text-xs">';
+              html += '<span class="text-slate-400">代码 <span class="text-slate-200 font-mono">' + (lu.symbol || '--') + '</span></span>';
+              html += '<span class="text-slate-400">名称 <span class="text-slate-200">' + (lu.name || '--') + '</span></span>';
+              html += '<span class="text-slate-400">行业 <span class="text-slate-200">' + (lu.industry || '--') + '</span></span>';
+              html += '<span class="text-slate-400">主题/方向 ' + _badge(lu.theme || '--', 'amber') + '</span>';
+              html += '</div></div>';
+
+              // 层 B：方向判断
+              html += '<div class="border border-slate-700/50 rounded-lg p-3">';
+              html += '<div class="text-xxs text-slate-500 mb-1.5 font-medium uppercase tracking-wide">B · 方向判断层（战略层）</div>';
+              html += '<div class="flex flex-wrap gap-3 text-xs items-center">';
+              html += '<span class="text-slate-400">三流支持 ' + _badge(lu.direction_bias || '--', _biasColor(lu.direction_bias)) + '</span>';
+              html += '<span class="text-slate-400">四矩阵位置 ' + _badge(lu.matrix_position || '--', 'sky') + '</span>';
+              html += '</div>';
+              html += '<p class="text-xxs text-slate-600 mt-1.5">' + (lu.direction_note || '') + '</p>';
+              html += '</div>';
+
+              // 层 C：结构判断
+              html += '<div class="border border-slate-700/50 rounded-lg p-3">';
+              html += '<div class="text-xxs text-slate-500 mb-1.5 font-medium uppercase tracking-wide">C · 结构判断层（主图）</div>';
+              html += '<div class="flex flex-wrap gap-3 text-xs items-center">';
+              html += '<span class="text-slate-400">当前阶段 ' + _badge(lu.structure_stage || '--', _stageColor(lu.structure_stage)) + '</span>';
+              var ma = lu.ma_detail || {};
+              if (ma.price) html += '<span class="text-slate-400">现价 <span class="font-mono text-slate-200">' + ma.price + '</span></span>';
+              if (ma.ma20) html += '<span class="text-slate-400">MA20 <span class="font-mono text-slate-200">' + ma.ma20 + '</span></span>';
+              if (ma.ma60) html += '<span class="text-slate-400">MA60 <span class="font-mono text-slate-200">' + ma.ma60 + '</span></span>';
+              html += '</div></div>';
+
+              // 层 D：MACD 节奏
+              html += '<div class="border border-slate-700/50 rounded-lg p-3">';
+              html += '<div class="text-xxs text-slate-500 mb-1.5 font-medium uppercase tracking-wide">D · 节奏判断层（MACD）</div>';
+              html += '<div class="flex flex-wrap gap-1.5">' + (macdBadges || _badge('数据不足', 'slate')) + '</div>';
+              var md = lu.macd_detail || {};
+              if (md.dif !== undefined) {
+                html += '<div class="flex gap-3 text-xxs text-slate-500 font-mono mt-1.5">';
+                html += '<span>DIF ' + md.dif + '</span><span>DEA ' + md.dea + '</span><span>柱 ' + md.bar + '</span>';
+                html += '</div>';
+              }
+              html += '</div>';
+
+              // 层 E：334 纪律建议
+              html += '<div class="border border-amber-500/30 rounded-lg p-3 bg-amber-500/5">';
+              html += '<div class="text-xxs text-amber-500/70 mb-1.5 font-medium uppercase tracking-wide">E · 334纪律建议层</div>';
+              html += '<div class="flex items-center gap-3">';
+              html += _badge(lu.discipline_advice || '--', _adviceColor(lu.discipline_advice));
+              html += '<span class="text-xxs text-slate-500">' + (lu.risk_note || '') + '</span>';
+              html += '</div></div>';
+
+              // 层 F：总结
+              html += '<div class="border border-slate-700/50 rounded-lg p-3">';
+              html += '<div class="text-xxs text-slate-500 mb-1.5 font-medium uppercase tracking-wide">F · 总结层</div>';
+              html += '<p class="text-slate-300 leading-relaxed text-xs">' + (lu.summary || '暂无总结') + '</p>';
+              if (lu.data_note) {
+                html += '<p class="text-xxs text-slate-600 mt-2">' + lu.data_note + '</p>';
+              }
+              html += '</div>';
+
+              html += '</div>'; // end space-y-3
+              el.innerHTML = html;
+            })
+            .catch(function () {
+              var el = document.getElementById('diagnosis-lu-result');
+              if (el) el.innerHTML = '<p class="text-slate-500 text-xs">卢式分析加载失败，可能因网络原因，请稍后重试。</p>';
+            });
         }
+
       })
       .catch(function (e) {
         if (resultEl) {

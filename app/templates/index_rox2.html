@@ -616,6 +616,9 @@
                             <button
                                 class="diagnosis-nav-btn text-sm font-medium text-slate-500 hover:text-slate-300 pb-2 transition-colors"
                                 data-tab="news">相关资讯</button>
+                            <button
+                                class="diagnosis-nav-btn text-sm font-medium text-amber-400 hover:text-amber-300 pb-2 transition-colors border-b-2 border-transparent hover:border-amber-400"
+                                data-tab="lu"><i class="fas fa-chess-king mr-1"></i>卢式分析</button>
                         </div>
 
                         <div id="diagnosis-content" class="flex-1 overflow-y-auto">
@@ -634,6 +637,12 @@
                             <div id="diagnosis-tab-profile" class="diagnosis-tab hidden"></div>
                             <div id="diagnosis-tab-finance" class="diagnosis-tab hidden"></div>
                             <div id="diagnosis-tab-news" class="diagnosis-tab hidden"></div>
+                            <!-- 卢式分析 Tab 面板 -->
+                            <div id="diagnosis-tab-lu" class="diagnosis-tab hidden">
+                                <div id="diagnosis-lu-result">
+                                    <p class="text-slate-500 text-sm">请先在左侧输入股票代码并点击搜索，卢式六层分析将自动在此处更新。</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
