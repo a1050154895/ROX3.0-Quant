@@ -138,6 +138,13 @@ class AppFactory:
             if templates is None:
                 return "<h1>Rox Quant</h1><p>模板未找到</p>"
             return templates.TemplateResponse("strategy_center.html", {"request": request})
+
+        @app.get("/lu", response_class=HTMLResponse)
+        async def read_lu_dashboard(request: Request):
+            """卢式作战室"""
+            if templates is None:
+                return "<h1>Rox Quant</h1><p>模板未找到</p>"
+            return templates.TemplateResponse("lu_dashboard.html", {"request": request})
     
     @staticmethod
     def _setup_static_files(app: FastAPI):
