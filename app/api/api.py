@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.endpoints import auth, market, trade, analysis, kb, system, ws, ws_enhanced, professional, strategy, ai, stock, philosophy, backtest, tdx
+from app.api.endpoints import auth, market, trade, analysis, kb, system, ws, ws_enhanced, professional, strategy, ai, stock, philosophy, backtest, tdx, lu
 
 api_router = APIRouter()
 
@@ -81,6 +81,9 @@ api_group.include_router(marketplace.router)
 # 数据导出 (新添加)
 from app.api.endpoints import export
 api_group.include_router(export.router, tags=["export"])
+
+# 卢式作战室增强模块
+api_group.include_router(lu.router, tags=["Lu War Room"])
 
 # 卢麒元方法论预测系统 (新添加)
 from app.api.endpoints import lu_prediction

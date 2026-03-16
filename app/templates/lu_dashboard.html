@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卢式作战室 - ROX 3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen">
+    <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+        <header class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-semibold">卢式作战室</h1>
+                    <p class="text-slate-400 mt-1">先看方向，再看结构，再看节奏，最后才下手。</p>
+                </div>
+                <div class="text-xs text-slate-400">定位：半自动辅助决策系统（非自动交易）</div>
+            </div>
+        </header>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <article class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <h2 class="text-lg font-semibold mb-2">A. 三流雷达（战略观察）</h2>
+                <p class="text-sm text-slate-400 mb-4">基于代理指标的辅助判断，不构成自动结论。</p>
+                <div id="three-flows" class="space-y-3 text-sm"></div>
+            </article>
+
+            <article class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <h2 class="text-lg font-semibold mb-2">B. 四矩阵切换面板（资产切换）</h2>
+                <p class="text-sm text-slate-400 mb-4">观察黄金、能源、风险资产、防御资产之间的相对变化。</p>
+                <div id="four-matrix" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            </article>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <article class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <h2 class="text-lg font-semibold mb-2">C. 334纪律面板（仓位纪律）</h2>
+                <p class="text-sm text-slate-400 mb-4">纪律提示服务于执行，仓位最终由用户手工决定。</p>
+                <div id="discipline" class="space-y-3 text-sm"></div>
+            </article>
+
+            <article class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <h2 class="text-lg font-semibold mb-2">D. 候选池面板（方向到执行）</h2>
+                <p class="text-sm text-slate-400 mb-4">承接战略过滤与执行节奏，示例数据便于后续接入真实算法。</p>
+                <div id="candidates" class="space-y-2 text-sm"></div>
+            </article>
+        </section>
+
+        <section class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+            <h2 class="text-lg font-semibold mb-4">技术执行区（说明型组件）</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border border-slate-800 rounded-lg p-4">
+                    <h3 class="font-medium mb-3">主图结构逻辑（半自动提示）</h3>
+                    <ul class="list-disc ml-5 space-y-1 text-sm text-slate-300">
+                        <li>左脚：下跌衰减后首次企稳观察</li>
+                        <li>确认：关键位站稳并成交改善</li>
+                        <li>主升：结构顺势，强调跟踪节奏</li>
+                        <li>右肩风险：上涨末端波动加剧，警惕追高</li>
+                        <li>破位：结构失效，优先风险控制</li>
+                    </ul>
+                </div>
+                <div class="border border-slate-800 rounded-lg p-4">
+                    <h3 class="font-medium mb-3">一板斧 MACD 逻辑（执行节奏）</h3>
+                    <ul class="list-disc ml-5 space-y-1 text-sm text-slate-300">
+                        <li>金叉：执行节奏改善，配合结构确认</li>
+                        <li>死叉：节奏走弱，关注仓位收缩</li>
+                        <li>零下修复：弱势中的修复观察段</li>
+                        <li>零上强势：强势节奏延续段</li>
+                        <li>柱体变化：关注动能扩张与衰减</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        async function loadLuData() {
+            try {
+                const [flows, matrix, discipline, candidates] = await Promise.all([
+                    fetch('/api/lu/three-flows').then(r => r.json()),
+                    fetch('/api/lu/four-matrix').then(r => r.json()),
+                    fetch('/api/lu/discipline').then(r => r.json()),
+                    fetch('/api/lu/candidates').then(r => r.json())
+                ]);
+
+            document.getElementById('three-flows').innerHTML = `
+                <div class="p-3 rounded bg-slate-800/60">综合倾向：<span class="text-amber-300">${flows.summary_bias}</span> <span class="text-xs text-slate-500">(${flows.layer} · ${flows.mode} / mock)</span></div>
+                <div class="p-3 rounded bg-slate-800/60">流量：${flows.flow_volume.score}（${flows.flow_volume.status}）<br><span class="text-slate-400">${flows.flow_volume.proxy}</span><br><span class="text-xs text-slate-500">驱动：${flows.flow_volume.drivers.join('、')}</span></div>
+                <div class="p-3 rounded bg-slate-800/60">流速：${flows.flow_velocity.score}（${flows.flow_velocity.status}）<br><span class="text-slate-400">${flows.flow_velocity.proxy}</span><br><span class="text-xs text-slate-500">驱动：${flows.flow_velocity.drivers.join('、')}</span></div>
+                <div class="p-3 rounded bg-slate-800/60">流向：${flows.flow_direction.score}（${flows.flow_direction.status}）<br><span class="text-slate-400">${flows.flow_direction.proxy}</span><br><span class="text-xs text-slate-500">驱动：${flows.flow_direction.drivers.join('、')}</span></div>
+                <div class="text-xs text-slate-500">${flows.confidence_note}</div>
+            `;
+
+            document.getElementById('four-matrix').innerHTML = matrix.assets.map(asset => `
+                <div class="p-3 rounded bg-slate-800/60 border border-slate-700">
+                    <div class="font-medium">${asset.name}</div>
+                    <div>相对强弱：${asset.strength}</div>
+                    <div>近期变化：${asset.trend}</div>
+                    <div>风险状态：${asset.risk}</div>
+                    <div class="text-slate-400 text-xs mt-1">${asset.note}</div>
+                </div>
+            `).join('') + `<div class="text-xs text-slate-500">${matrix.layer}：${matrix.notes?.[0] || ''}</div>`;
+
+            const account = discipline.account_structure;
+            const stage = discipline.trade_stage;
+            document.getElementById('discipline').innerHTML = `
+                <div class="p-3 rounded bg-slate-800/60">账户层：长期仓 ${account.long_term}% / 中期仓 ${account.mid_term}% / 预备队 ${account.reserve}%</div>
+                <div class="p-3 rounded bg-slate-800/60">单笔层：${discipline.single_trade_rhythm.join(' → ')}</div>
+                <div class="p-3 rounded bg-slate-800/60">当前阶段：${stage.current_stage}，建议：${stage.allowed_action}</div>
+                <div class="text-xs text-rose-300">${stage.warning}</div>
+                <div class="text-xs text-slate-500">${discipline.layer}：${discipline.principles.join('；')}</div>
+            `;
+
+            document.getElementById('candidates').innerHTML = candidates.items.map(item => `
+                <div class="p-3 rounded bg-slate-800/60 border border-slate-700">
+                    <div class="font-medium">${item.name} <span class="text-xs text-slate-400">(${item.symbol})</span></div>
+                    <div class="text-slate-300">方向：${item.theme} ｜ 阶段：${item.stage} ｜ MACD：${item.macd_status}</div>
+                    <div class="text-slate-400 text-xs mt-1">${item.note}</div>
+                </div>
+            `).join('') + `<div class="text-xs text-slate-500">${candidates.layer}：${candidates.notes?.[0] || ''}</div>`;
+            } catch (error) {
+                const message = `<div class="text-sm text-rose-300">数据加载失败，请稍后重试（仅影响卢式作战室展示）。</div>`;
+                document.getElementById('three-flows').innerHTML = message;
+                document.getElementById('four-matrix').innerHTML = message;
+                document.getElementById('discipline').innerHTML = message;
+                document.getElementById('candidates').innerHTML = message;
+                console.error('loadLuData failed', error);
+            }
+        }
+
+        loadLuData();
+    </script>
+</body>
+</html>
