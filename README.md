@@ -1,250 +1,227 @@
-# 🚀 ROX 3.0 Quant Platform - 下一代全资产量化投研终端
+# ROX 3.0 Quant — 量化投研平台
 
-> **"让量化投资像玩游戏一样简单"**
+<div align="center">
 
-[![ROX 3.0 Banner](https://img.shields.io/badge/ROX-3.0_Pro-blueviolet?style=for-the-badge&logo=python)](https://github.com/a1050154895/ROX3.0-Quant)
-[![Beginner Friendly](https://img.shields.io/badge/Beginner-One_Click_Start-success?style=for-the-badge&logo=apple)](https://github.com/a1050154895/ROX3.0-Quant)
-[![Pro Ready](https://img.shields.io/badge/Professional-Algo_Trading-blue?style=for-the-badge&logo=linux)](https://github.com/a1050154895/ROX3.0-Quant)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
-[![System Score](https://img.shields.io/badge/System_Score-10/10-perfect?style=flat-square&color=green)](https://github.com/a1050154895/ROX3.0-Quant)
+**卢麒元式辅助决策系统 · 战略过滤 + 半自动执行 + 仓位纪律**
 
-**ROX 3.0** 不仅仅是一个量化软件，它是一个**双核**投研平台，完美平衡了专业深度与使用门槛。它整合了**A股、美股、加密货币**全球三大市场，将机构级的宏观数据、资金流向与 AI 投研能力免费带给每一位投资者。
+![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green?logo=fastapi)
+![License](https://img.shields.io/badge/License-MIT-purple)
 
-> **系统评分：10/10** ✅
-> 经过全面评估，ROX 3.0 已达到专业级量化交易平台的标准，具备完整的功能体系、优秀的用户体验、可靠的性能和完善的文档。
+> ⚠️ **免责声明**：本系统为辅助判断工具，不替代用户决策，不执行任何自动交易。所有分析结果仅供参考，投资决策由用户自行承担。
 
----
-
-## 📢 重要提示：解锁 AI 黑科技 (AI Features)
-
-> **"下载最新版后，点击右上角设置图标 ⚙️，填入自己的 DeepSeek 或 OpenAI Key 即可解锁 AI 功能。"**
-
-本项目已深度集成由 **DeepSeek / OpenAI** 驱动的 AI 投研顾问。为保障服务稳定性，**请使用您自己的 API Key**。
-
-1.  启动软件进入主界面。
-2.  点击右上角的 **设置 (⚙️)** 按钮。
-3.  在 **[AI 模型配置]** 中填入您的 API Key 和 Base URL (如 `https://api.deepseek.com`)。
-4.  **[NEW] 双线路支持**：现在您可以配置 **备用线路 (Secondary API)**，主线路故障时自动切换，确保服务不中断。
-5.  保存后即可立即使用 **智能个股诊断**、**市场每日简报** 和 **AI 自由问答**。
-
-### 📅 最新更新 (v3.2)
-*   **策略市场**：全新上线，支持策略浏览、安装、评分和评论。
-*   **多数据源集成**：东方财富网、Tushare、AKShare、BaoStock、efinance。
-*   **AI 功能增强**：多模型支持、智能分析、决策助手。
-*   **UI/UX 全面升级**：现代化设计、响应式布局、流畅动画。
-*   **性能优化**：多级缓存、图表性能提升、响应速度优化。
-*   **功能扩展**：新增策略、回测系统、风险管理。
-*   **错误处理**：用户友好的错误提示、容错机制。
-*   **文档完善**：详细用户手册、API 文档。
+</div>
 
 ---
 
-## 📚 目录 (Table of Contents)
+## 功能概览
 
-- [🚀 两大核心模式 (Dual Modes)](#-两大核心模式-dual-modes)
-- [🍃 新手极速上手 (Quick Start)](#-新手极速上手-quick-start)
-- [⚡️ 开发者安装 (For Developers)](#-开发者安装-for-developers)
-- [📖 功能详解 (Features)](#-功能详解-features)
-    - [1. 市场看板 (Dashboard)](#1-市场看板-dashboard)
-    - [2. 宏观罗盘 (Macro)](#2-宏观罗盘-macro)
-    - [3. AI 投研顾问 (AI Agent)](#3-ai-投研顾问-ai-agent)
-    - [4. 量化策略 (Strategies)](#4-量化策略-strategies)
-    - [5. 策略市场 (Strategy Marketplace)](#5-策略市场-strategy-marketplace)
-    - [6. 知识中心 (Knowledge Center)](#6-知识中心-knowledge-center)
-- [🔧 系统配置 (Configuration)](#-系统配置-configuration)
-- [🛠️ 系统架构 (Architecture)](#-系统架构-architecture)
-- [🛡️ 免责声明 (Disclaimer)](#-免责声明-disclaimer)
+ROX 3.0 Quant 是一个基于 **FastAPI + 卢麒元方法论** 的量化投研平台，核心思想是 **"战略过滤 + 半自动执行 + 仓位纪律辅助"**，不是圣杯买卖信号系统。
 
----
+### 主要模块
 
-## 🚀 两大核心模式 (Dual Modes)
-
-ROX 3.0 设计了两套完全不同的交互界面，以适应不同阶段的用户需求。
-
-### 1. 🍃 小白模式 (Beginner Mode)
-专为非金融背景、非编程背景的普通用户设计。
-*   **极简界面**：隐藏复杂的 K 线、盘口和订单流。
-*   **AI 驱动**：通过对话框与 "AI 投研顾问" 交互，获取投资建议。
-*   **直观决策**：提供 "市场温度计"（情绪指标）和 "一键选股"（本周金股池）。
-
-### 2. ⚡️ 专业极客模式 (Pro Mode)
-专为宽客 (Quants)、全职交易员和开发者设计。
-*   **全能终端**：类似 Bloomberg/Wind 的多屏工作站体验。
-*   **深度数据**：Level-2 盘口、逐笔成交、资金流向、板块热力图。
-*   **策略引擎**：支持 Python 策略编写、回测、仿真交易。
+| 模块 | 说明 |
+|------|------|
+| 🏠 **行情中心** | A股实时行情、K线、分时、技术指标（MACD/KDJ/RSI/BOLL） |
+| ⚔️ **卢式作战室** | 三流雷达（实时）+ 四矩阵热力图 + 334仓位纪律 + 候选池 |
+| 🔍 **个股诊断** | 六层结构化分析（含卢式 Tab），ECharts 六维雷达图 |
+| 🤖 **卢式预测系统** | v5 协议：六维评分 + 市场状态识别 + 组合优化 |
+| 📐 **策略引擎** | 量化策略回测与执行 |
+| 🧠 **知识中心** | 投研文档管理与 AI 问答 |
+| 📊 **宏观监控** | 宏观经济指标追踪 |
 
 ---
 
-## 🍃 新手极速上手 (Quick Start)
+## 卢式方法论框架
 
-**零代码、零配置，下载即用。**
+```
+战略层（方向判断）
+  ├── 三流观察：流量（成交额）· 流速（上涨比/涨停）· 流向（北向资金）
+  └── 四矩阵：黄金 · 能源/原油 · 股票风险资产 · 现金/防御
 
-我们为您准备了"一键启动脚本"，脚本会自动检测系统环境、安装 Python 依赖并启动浏览器。
+仓位纪律层（334 框架）
+  ├── 账户三分：长期仓30% · 中期仓30% · 预备队40%
+  └── 单笔三段：首仓30%（左脚）· 二仓30%（确认）· 三仓40%（主升）
 
-### 🍎 macOS 用户
-1. 点击右上角 **Code** -> **Download ZIP** 下载并解压。
-2. 打开解压后的文件夹，双击运行 `start_with_mac.command`。
-3. 脚本即刻启动，自动为您打开 ROX 3.0 系统界面。
-
-### 🪟 Windows 用户
-1. 下载并解压项目文件。
-2. 双击运行 `start_with_win.bat`。
-3. 等待初始化完成，系统自动打开浏览器。
-
-### 🐧 Linux 用户
-1. 下载并解压项目文件。
-2. 打开终端，进入解压后的目录。
-3. 运行命令：`chmod +x start_rox.sh && ./start_rox.sh`。
-4. 等待初始化完成，系统自动打开浏览器。
-
----
-
-## ⚡️ 开发者安装 (For Developers)
-
-如果您希望参与开发或手动部署：
-
-### 环境要求
-*   **Python**: 3.9+
-*   **Git**: Version Control
-
-### 安装步骤
-
-1. **克隆代码库**
-   ```bash
-   git clone https://github.com/a1050154895/ROX3.0-Quant.git
-   cd ROX3.0-Quant
-   ```
-
-2. **创建环境并安装依赖**
-   ```bash
-   # macOS / Linux
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-
-   # Windows
-   python -m venv venv
-   .\venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-
-3. **启动服务**
-   ```bash
-   python3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-   ```
-   访问: `http://localhost:8000`
-
----
-
-## 📖 功能详解 (Features)
-
-### 1. 市场看板 (Dashboard)
-*   **多市场切换**：顶部导航栏支持 `[A股] [美股] [Crypto]` 一键切换。
-*   **实时指数**：上证指数、纳斯达克、BTC/USDT 实时跳动。
-*   **K线复盘**：集成了 TradingView 风格的图表，支持日/周/月线切换及技术指标叠加。
-
-### 2. 宏观罗盘 (Macro)
-*   **数据源**：直连中国国家统计局 (NBS) 接口。
-*   **M1-M2 剪刀差**：可视化展示货币供应量剪刀差，预判牛熊周期。
-*   **CSI/PPI**: 监控通胀水平与经济活力。
-
-### 3. AI 投研顾问 (AI Agent)
-*   **对话式交互**：输入 "分析 600519"，AI 综合技术面与基本面给出建议。
-*   **本地知识库 (RAG)**：优先检索本地策略文档，确保回答专业。
-*   **风险预警**：自动识别高风险标的。
-*   **多模型支持**：DeepSeek、通义千问等多个 AI 模型。
-
-### 4. 量化策略 (Strategies)
-*   **策略工坊**：可视化拖拽生成交易逻辑。
-*   **每周金股**：每周一自动更新的高胜率潜力股池。
-*   **个股诊断**：内置 "亢龙有悔"、"三色共振" 等经典模型打分。
-*   **策略回测**：支持 JoinQuant 策略和 AI QBot 回测。
-
-### 5. 策略市场 (Strategy Marketplace)
-*   **策略浏览**：浏览和搜索各种量化策略。
-*   **详细信息**：查看策略的详细描述、性能指标和风险等级。
-*   **一键安装**：快速安装和使用策略。
-*   **评分系统**：对策略进行评分和评论。
-*   **分类筛选**：按策略类型、风险等级等进行筛选。
-
-### 6. 知识中心 (Knowledge Center)
-*   **投资知识库**：包含投资理论、技术分析、基本面分析等知识。
-*   **策略文档**：详细的策略说明和使用指南。
-*   **市场分析**：定期更新的市场分析报告。
-*   **AI 问答**：通过 AI 快速获取投资相关知识。
-
----
-
-## 🔧 系统配置 (Configuration)
-
-### 1. 数据源配置
-*   **Tushare**：在 `.env` 文件中配置 Tushare token。
-*   **其他数据源**：系统会自动使用内置的数据源，无需额外配置。
-
-### 2. AI 模型配置
-*   **主 API**：配置主要的 AI 模型 API。
-*   **备用 API**：配置备用的 AI 模型 API，主 API 故障时自动切换。
-
-### 3. 系统设置
-*   **主题**：支持深色/浅色模式切换。
-*   **语言**：支持中英文切换。
-*   **通知**：配置系统通知设置。
-
----
-
-## 🛠️ 系统架构 (Architecture)
-
-```mermaid
-graph TD
-    User[用户终端] --> |HTTP/WebSocket| Gateway[FastAPI 网关]
-    
-    subgraph "Backend Services"
-        Gateway --> MarketService[行情服务]
-        Gateway --> AIService[AI 投研服务]
-        Gateway --> StrategyService[策略服务]
-        Gateway --> MarketplaceService[策略市场服务]
-        Gateway --> DataCenter[数据中心]
-    end
-    
-    subgraph "Data Sources"
-        DataCenter --> EastMoney[东方财富网]
-        DataCenter --> Tushare[Tushare]
-        DataCenter --> AkShare[AkShare]
-        DataCenter --> BaoStock[BaoStock]
-        DataCenter --> EFinance[EFinance]
-    end
-    
-    subgraph "AI Core"
-        AIService --> LLM[LLM (DeepSeek/GPT)]
-        AIService --> DecisionAssistant[AI 决策助手]
-    end
-    
-    subgraph "Strategy Engine"
-        StrategyService --> JQAdapter[JoinQuant 适配器]
-        StrategyService --> BacktestEngine[回测引擎]
-        StrategyService --> SignalGenerator[信号生成器]
-    end
+执行层（时机辅助）
+  ├── 主图结构：左脚 → 确认 → 主升 → 右肩风险 → 破位
+  └── 一板斧MACD：金叉 · 死叉 · 零下修复 · 零上强势
 ```
 
 ---
 
-## 🛡️ 免责声明 (Disclaimer)
+## 快速开始
 
-1.  **风险提示**：量化投资涉及风险。本软件所有数据与 AI 建议仅供参考，**绝不构成投资建议**。
-2.  **数据来源**：数据来源于公开互联网接口，开发者不对数据的准确性与实时性做保证。
-3.  **资金安全**：请保管好您的 API 密钥与账户信息。
-4.  **外部依赖**：系统依赖多个外部数据源和 API，如遇服务不可用，系统会自动切换到备用方案。
+### 环境要求
+
+- Python 3.9+
+- 内存 ≥ 2GB
+
+### 安装
+
+```bash
+git clone https://github.com/a1050154895/ROX3.0-Quant.git
+cd ROX3.0-Quant
+
+# 创建虚拟环境
+python -m venv .venv
+source .venv/bin/activate       # macOS/Linux
+# .venv\Scripts\activate        # Windows
+
+# 安装依赖
+pip install -r requirements.txt
+```
+
+### 启动
+
+```bash
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8099 --reload
+```
+
+访问 [http://127.0.0.1:8099](http://127.0.0.1:8099)
+
+### macOS 一键启动
+
+```bash
+./start_with_mac.command
+```
 
 ---
 
-## 📞 技术支持
+## 页面导航
 
-如果您在使用过程中遇到任何问题，可以通过以下方式获取支持：
-
-1.  **查看文档**：详细的用户手册和 API 文档。
-2.  **GitHub Issues**：在 GitHub 仓库中提交问题。
-3.  **AI 助手**：使用系统内置的 AI 助手获取帮助。
+| URL | 说明 |
+|-----|------|
+| `/` | 登录页 |
+| `/home` | 主控台（行情 + 个股诊断 + 卢式分析） |
+| `/lu-dashboard` | 卢式作战室（三流 + 四矩阵 + 334 + 候选池） |
+| `/docs` | FastAPI 接口文档（开发环境） |
 
 ---
 
-MIT License © 2026 ROX Quant Team
+## 核心 API
+
+### 卢式分析
+
+```bash
+# 三流实时快照（北向资金 + 成交额 + 上涨比）
+GET /api/lu/three-flows
+
+# 四矩阵强度（ETF 实时涨跌幅）
+GET /api/lu/four-matrix
+
+# 个股六层分析
+GET /api/lu/analyze-symbol?symbol=600519
+
+# v5 协议六维评分 + 市场状态
+POST /api/lu-prediction/predict-v2
+{
+  "code": "600519",
+  "market": "CN_A",
+  "lookback": 120,
+  "risk_preference": "balanced"
+}
+
+# 组合优化（协方差驱动）
+POST /api/lu-prediction/portfolio-v3
+{
+  "codes": ["518880", "159980", "510310"],
+  "risk_preference": "balanced"
+}
+```
+
+### 市场数据
+
+```bash
+GET /api/market/spot          # A股实时行情
+GET /api/market/kline?code=000001  # K线数据
+GET /api/market/indices       # 主要指数
+GET /api/market/sentiment     # 市场情绪
+```
+
+---
+
+## 项目结构
+
+```
+ROX3.0-Quant/
+├── app/
+│   ├── api/
+│   │   └── endpoints/
+│   │       ├── lu.py              # 卢式分析接口
+│   │       ├── lu_prediction.py   # v5 预测路由层
+│   │       └── market/            # 行情接口
+│   ├── services/
+│   │   ├── lu_service.py          # 三流/四矩阵实时数据（ETF + 北向资金）
+│   │   ├── lu_protocol.py         # v5 协议：输入模型 + 风险约束配置
+│   │   ├── lu_regime.py           # 市场状态识别 + 六维评分
+│   │   ├── lu_portfolio.py        # 组合优化（v2规则 / v3协方差）
+│   │   └── market_data.py         # 行情数据服务
+│   ├── templates/
+│   │   ├── index_rox2.html        # 主控台
+│   │   └── lu_dashboard.html      # 卢式作战室（ECharts 可视化）
+│   ├── static/
+│   │   └── js/rox1_views.js       # 前端视图逻辑（含六维雷达图）
+│   ├── rox_quant/                 # 量化引擎
+│   ├── auth.py                    # 认证（Pydantic V2）
+│   └── main.py
+├── tests/
+│   ├── test_api_core.py
+│   └── test_api_endpoints.py      # 45+ 测试用例
+├── requirements.txt
+└── start_with_mac.command
+```
+
+---
+
+## 数据源
+
+- **[AKShare](https://github.com/akfamily/akshare)**：A股行情、北向资金、ETF数据
+- 所有数据调用均有 **4小时 TTL 缓存 + 失败降级** 策略
+
+---
+
+## 测试
+
+```bash
+# 运行全量测试
+pytest tests/ -q
+
+# 运行卢式模块专项测试
+pytest tests/test_api_endpoints.py::TestLuAnalysisEnhanced -v
+pytest tests/test_api_endpoints.py::TestLuPredictionV5 -v
+```
+
+---
+
+## 技术栈
+
+| 层 | 技术 |
+|----|------|
+| 后端框架 | FastAPI + Uvicorn |
+| 数据处理 | Pandas · NumPy · AKShare |
+| 认证 | JWT（python-jose）· bcrypt |
+| 前端 | HTML + Tailwind CSS + ECharts 5 |
+| 测试 | pytest + FastAPI TestClient |
+| 数据库 | SQLite（内置） |
+
+---
+
+## 版本历史
+
+| 版本 | 说明 |
+|------|------|
+| v3.0 | 全新架构：FastAPI + 卢式方法论模块 |
+| v3.1 | 卢式个股分析 Tab（六层结构化输出） |
+| v3.2 | P0 Bug 修复：字段名/asyncio/候选池真实代码 |
+| **v3.3** | **9分升级：ETF实时数据 + 架构模块化 + ECharts可视化 + Pydantic V2** |
+
+---
+
+<div align="center">
+
+**本系统核心理念：先看方向，再看结构，再看节奏，最后才下手**
+
+仓位永远由用户手工决定 · 系统只做辅助判断
+
+</div>
