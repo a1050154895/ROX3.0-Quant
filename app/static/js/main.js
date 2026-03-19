@@ -1,13 +1,45 @@
 
-import { AIChatWidget } from './modules/chat.js';
-import { initProfessionalSystem, switchProfessionalTab, fetchProfessionalSignal, calculateRisk } from './modules/professional-system.js';
-import { AIAgentController } from './modules/ai_agent.js';
+// 核心模块直接导入
 import { loadWatchlist, removeStockFromWatchlist, toggleWatchlist, isStockInWatchlist, setWatchlistChangeCallback } from './watchlist.js';
-import './feature_handlers.js'; // Portfolio, Risk, AutoTrade, Replay, Conditions, TDX
 import { performanceOptimizer } from './modules/performance-optimizer.js';
 
+// 非关键模块动态导入
+let AIChatWidget = null;
+let AIAgentController = null;
+let initProfessionalSystem = null;
+let switchProfessionalTab = null;
+let fetchProfessionalSignal = null;
+let calculateRisk = null;
+
+// 动态加载模块
+async function loadDynamicModules() {
+    try {
+        // 聊天模块
+        const chatModule = await import('./modules/chat.js');
+        AIChatWidget = chatModule.AIChatWidget;
+        
+        // AI代理模块
+        const aiAgentModule = await import('./modules/ai_agent.js');
+        AIAgentController = aiAgentModule.AIAgentController;
+        
+        // 专业系统模块
+        const professionalModule = await import('./modules/professional-system.js');
+        initProfessionalSystem = professionalModule.initProfessionalSystem;
+        switchProfessionalTab = professionalModule.switchProfessionalTab;
+        fetchProfessionalSignal = professionalModule.fetchProfessionalSignal;
+        calculateRisk = professionalModule.calculateRisk;
+        
+        // 功能处理器模块
+        await import('./feature_handlers.js'); // Portfolio, Risk, AutoTrade, Replay, Conditions, TDX
+        
+        console.log('动态模块加载完成');
+    } catch (error) {
+        console.error('动态模块加载失败:', error);
+    }
+}
+
 // --- Initialization ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log("ROX 3.0 Core Initialized");
 
     // 初始化性能优化器
@@ -19,18 +51,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } catch (e) { console.error("Performance Optimizer Init Failed", e); }
 
+    // 加载动态模块
+    await loadDynamicModules();
+
+    // 初始化聊天组件
     try {
         if (typeof AIChatWidget === 'function') {
             window.roxChat = new AIChatWidget();
+            console.log("Chat Widget Initialized");
         }
     } catch (e) { console.error("Chat Widget Init Failed", e); }
 
+    // 初始化AI代理
     try {
         if (typeof AIAgentController === 'function') {
             window.aiAgent = new AIAgentController();
+            console.log("AI Agent Initialized");
         }
     } catch (e) { console.error("AI Agent Init Failed", e); }
 
+    // 暴露全局函数
     window.switchProfessionalTab = switchProfessionalTab;
     window.fetchProfessionalSignal = fetchProfessionalSignal;
     window.calculateRisk = calculateRisk;

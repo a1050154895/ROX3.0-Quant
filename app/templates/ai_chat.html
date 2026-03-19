@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI聊天室 - ROX Quant</title>
+    <link rel="stylesheet" href="/static/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/layout.css">
+    <style>
+        .chat-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .chat-layout {
+            display: flex;
+            gap: 20px;
+            height: 80vh;
+        }
+        .room-list {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .room-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            border-left: 4px solid #007bff;
+            transition: all 0.3s ease;
+        }
+        .room-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .room-item.active {
+            background: #e3f2fd;
+            border-left-color: #1976d2;
+        }
+        .chat-area {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .message {
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+        .message.user {
+            margin-left: auto;
+            background: #e3f2fd;
+            border-radius: 18px 18px 0 18px;
+            padding: 10px 15px;
+        }
+        .message.ai {
+            margin-right: auto;
+            background: #f1f3f4;
+            border-radius: 18px 18px 18px 0;
+            padding: 10px 15px;
+        }
+        .message-sender {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        .message-content {
+            font-size: 14px;
+        }
+        .message-time {
+            font-size: 10px;
+            color: #adb5bd;
+            text-align: right;
+            margin-top: 5px;
+        }
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #e9ecef;
+            background: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+        .form-control {
+            flex: 1;
+        }
+        .btn {
+            white-space: nowrap;
+        }
+        .create-room {
+            margin-bottom: 20px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .alert {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>AI聊天室</h1>
+        <p class="lead">与AI交易员交流投资心得，分享市场见解</p>
+        
+        <div class="chat-layout">
+            <!-- 聊天室列表 -->
+            <div class="room-list">
+                <div class="create-room">
+                    <button id="create-room-btn" class="btn btn-primary btn-block">创建聊天室</button>
+                </div>
+                <h3>聊天室</h3>
+                <div id="room-list">
+                    <p>加载中...</p>
+                </div>
+            </div>
+            
+            <!-- 聊天区域 -->
+            <div class="chat-area">
+                <div class="chat-header">
+                    <h3 id="room-name">选择聊天室</h3>
+                    <p id="room-description"></p>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <p class="text-center text-muted">请选择一个聊天室开始聊天</p>
+                </div>
+                <div class="chat-input">
+                    <form id="message-form">
+                        <div class="form-row">
+                            <input type="text" class="form-control" id="sender" placeholder="你的名字" value="用户">
+                            <input type="text" class="form-control" id="message" placeholder="输入消息..." required>
+                            <button type="submit" class="btn btn-primary">发送</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 创建聊天室模态框 -->
+        <div class="modal fade" id="createRoomModal" tabindex="-1" role="dialog" aria-labelledby="createRoomModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createRoomModalLabel">创建聊天室</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="create-room-form">
+                            <div class="form-group">
+                                <label for="room-name-input">聊天室名称</label>
+                                <input type="text" class="form-control" id="room-name-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="room-topic-input">聊天主题</label>
+                                <select class="form-control" id="room-topic-input">
+                                    <option value="market">市场讨论</option>
+                                    <option value="strategy">策略交流</option>
+                                    <option value="tech">科技前沿</option>
+                                    <option value="general">综合讨论</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="room-description-input">描述</label>
+                                <textarea class="form-control" id="room-description-input" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="save-room-btn">创建</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 加载指示器 -->
+        <div id="loading" class="loading">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">加载中...</span>
+            </div>
+            <p>加载中...</p>
+        </div>
+    </div>
+    
+    <script>
+        // API基础URL
+        const API_BASE = '/api';
+        
+        // 当前选中的聊天室
+        let currentRoomId = null;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRooms();
+            
+            // 绑定事件
+            document.getElementById('message-form').addEventListener('submit', sendMessage);
+            document.getElementById('create-room-btn').addEventListener('click', function() {
+                $('#createRoomModal').modal('show');
+            });
+            document.getElementById('save-room-btn').addEventListener('click', createRoom);
+        });
+        
+        // 显示加载状态
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+        
+        // 隐藏加载状态
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        // 加载聊天室列表
+        async function loadRooms() {
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE}/ai-chat/rooms`);
+                const rooms = await response.json();
+                
+                const roomList = document.getElementById('room-list');
+                roomList.innerHTML = rooms.map(room => `
+                    <div class="room-item ${currentRoomId === room.id ? 'active' : ''}" data-room-id="${room.id}">
+                        <h4>${room.name}</h4>
+                        <p>${room.description || '无描述'}</p>
+                        <small class="text-muted">创建于: ${new Date(room.created_at).toLocaleString()}</small>
+                    </div>
+                `).join('');
+                
+                // 绑定点击事件
+                document.querySelectorAll('.room-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const roomId = this.dataset.roomId;
+                        selectRoom(roomId);
+                    });
+                });
+            } catch (error) {
+                console.error('加载聊天室失败:', error);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 选择聊天室
+        async function selectRoom(roomId) {
+            currentRoomId = roomId;
+            showLoading();
+            
+            try {
+                // 更新UI
+                document.querySelectorAll('.room-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-room-id="${roomId}"]`).classList.add('active');
+                
+                // 获取聊天室详情
+                const response = await fetch(`${API_BASE}/ai-chat/rooms/${roomId}`);
+                const room = await response.json();
+                
+                document.getElementById('room-name').textContent = room.name;
+                document.getElementById('room-description').textContent = room.description || '无描述';
+                
+                // 加载消息
+                await loadMessages(roomId);
+            } catch (error) {
+                console.error('选择聊天室失败:', error);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 加载消息
+        async function loadMessages(roomId) {
+            try {
+                const response = await fetch(`${API_BASE}/ai-chat/rooms/${roomId}/messages`);
+                const messages = await response.json();
+                
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = messages.map(message => `
+                    <div class="message ${message.type === 'user' ? 'user' : 'ai'}">
+                        <div class="message-sender">${message.sender}</div>
+                        <div class="message-content">${message.content}</div>
+                        <div class="message-time">${new Date(message.timestamp).toLocaleString()}</div>
+                    </div>
+                `).join('');
+                
+                // 滚动到底部
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } catch (error) {
+                console.error('加载消息失败:', error);
+            }
+        }
+        
+        // 发送消息
+        async function sendMessage(e) {
+            e.preventDefault();
+            
+            if (!currentRoomId) {
+                alert('请先选择一个聊天室');
+                return;
+            }
+            
+            const sender = document.getElementById('sender').value;
+            const content = document.getElementById('message').value;
+            
+            if (!content) {
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch(`${API_BASE}/ai-chat/rooms/${currentRoomId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `sender=${encodeURIComponent(sender)}&content=${encodeURIComponent(content)}`
+                });
+                
+                if (response.ok) {
+                    // 清空输入框
+                    document.getElementById('message').value = '';
+                    // 重新加载消息
+                    await loadMessages(currentRoomId);
+                } else {
+                    const error = await response.json();
+                    alert(`发送失败: ${error.detail}`);
+                }
+            } catch (error) {
+                console.error('发送消息失败:', error);
+                alert('发送消息失败，请重试');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 创建聊天室
+        async function createRoom() {
+            const name = document.getElementById('room-name-input').value;
+            const topic = document.getElementById('room-topic-input').value;
+            const description = document.getElementById('room-description-input').value;
+            
+            if (!name) {
+                alert('请输入聊天室名称');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch(`${API_BASE}/ai-chat/rooms`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `name=${encodeURIComponent(name)}&topic=${encodeURIComponent(topic)}&description=${encodeURIComponent(description)}`
+                });
+                
+                if (response.ok) {
+                    const room = await response.json();
+                    $('#createRoomModal').modal('hide');
+                    
+                    // 重新加载聊天室列表
+                    await loadRooms();
+                    // 选择新创建的聊天室
+                    await selectRoom(room.id);
+                } else {
+                    const error = await response.json();
+                    alert(`创建失败: ${error.detail}`);
+                }
+            } catch (error) {
+                console.error('创建聊天室失败:', error);
+                alert('创建聊天室失败，请重试');
+            } finally {
+                hideLoading();
+            }
+        }
+    </script>
+</body>
+</html>

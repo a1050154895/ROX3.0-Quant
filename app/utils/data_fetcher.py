@@ -20,6 +20,7 @@ from typing import Optional, List, Dict, Any
 
 from app.utils.akshare_wrapper import akshare_client, safe_ak_call
 from app.utils.qveris_wrapper import qveris_client, safe_qveris_call
+from app.utils.redis_cache import redis_cache_decorator
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class DataFetcher:
         self.akshare_client = akshare_client
         self.qveris_client = qveris_client
     
+    @redis_cache_decorator(ttl=60, key_prefix="stock_quote")
     async def get_stock_quote(self, symbol: str) -> Optional[Dict[str, Any]]:
         """
         获取股票实时行情
@@ -72,7 +74,7 @@ class DataFetcher:
             # 尝试使用QVeris API
             logger.info(f"尝试使用QVeris API获取 {symbol} 实时行情")
             data = await self._async_qveris_call(
-                lambda: self.qveris_client.get_stock_quote(symbol)
+                lambda: self.qveris_client.async_get_stock_quote(symbol)
             )
             if data:
                 return data
@@ -81,6 +83,7 @@ class DataFetcher:
         
         return None
     
+    @redis_cache_decorator(ttl=300, key_prefix="market_indices")
     async def get_market_indices(self) -> List[Dict[str, Any]]:
         """
         获取市场指数
@@ -107,7 +110,7 @@ class DataFetcher:
             # 尝试使用QVeris API
             logger.info("尝试使用QVeris API获取市场指数")
             indices = await self._async_qveris_call(
-                lambda: self.qveris_client.get_market_indices()
+                lambda: self.qveris_client.async_get_market_indices()
             )
             if indices:
                 return indices
@@ -122,6 +125,7 @@ class DataFetcher:
             {"code": "399300.SZ", "name": "沪深300", "price": 4999.99, "change": -33.33, "change_pct": -0.66},
         ]
     
+    @redis_cache_decorator(ttl=600, key_prefix="sector_list")
     async def get_sector_list(self) -> List[Dict[str, Any]]:
         """
         获取行业板块列表
@@ -149,7 +153,7 @@ class DataFetcher:
             # 尝试使用QVeris API
             logger.info("尝试使用QVeris API获取行业板块列表")
             sectors = await self._async_qveris_call(
-                lambda: self.qveris_client.get_sector_list()
+                lambda: self.qveris_client.async_get_sector_list()
             )
             if sectors:
                 return sectors
@@ -165,6 +169,7 @@ class DataFetcher:
             {"code": "BK0448", "name": "光伏产业", "change_pct": 1.0},
         ]
     
+    @redis_cache_decorator(ttl=1800, key_prefix="stock_kline")
     async def get_stock_kline(self, symbol: str, interval: str = "daily", limit: int = 100) -> List[List[Any]]:
         """
         获取股票K线数据
@@ -210,7 +215,7 @@ class DataFetcher:
             # 尝试使用QVeris API
             logger.info(f"尝试使用QVeris API获取 {symbol} K线数据")
             kline_data = await self._async_qveris_call(
-                lambda: self.qveris_client.get_stock_kline(symbol, interval, limit)
+                lambda: self.qveris_client.async_get_stock_kline(symbol, interval, limit)
             )
             if kline_data:
                 return kline_data
@@ -224,9 +229,7 @@ class DataFetcher:
         """
         异步调用QVeris API
         """
-        import asyncio
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, lambda: safe_qveris_call(func))
+        return await func()
 
 
 # 创建全局数据获取器实例

@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ROX 3.0 - 知识中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -12,336 +16,271 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f5f5f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 0;
-            text-align: center;
-            margin-bottom: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
+        .card-hover {
+            transition: all 0.3s ease;
         }
         
-        .subtitle {
-            font-size: 1.2em;
-            opacity: 0.9;
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
         
-        .search-section {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
+        .nav-link {
+            position: relative;
+            overflow: hidden;
         }
         
-        .search-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            transition: width 0.3s ease;
         }
         
-        #search-input {
-            flex: 1;
-            padding: 15px;
-            font-size: 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            transition: border-color 0.3s;
+        .nav-link:hover::after {
+            width: 100%;
         }
         
-        #search-input:focus {
-            outline: none;
-            border-color: #667eea;
+        .pulse-dot {
+            animation: pulse 2s infinite;
         }
         
-        #search-btn {
-            padding: 0 30px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        #search-btn:hover {
-            background: #5a6fd8;
-        }
-        
-        .filters {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-btn {
-            padding: 8px 16px;
-            background: #f0f0f0;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        .filter-btn.active {
-            background: #667eea;
-            color: white;
-        }
-        
-        .filter-btn:hover {
-            background: #e0e0e0;
-        }
-        
-        .filter-btn.active:hover {
-            background: #5a6fd8;
-        }
-        
-        .results-section {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-        }
-        
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .results-title {
-            font-size: 1.5em;
-            font-weight: 600;
-        }
-        
-        .results-count {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        #results-list {
-            display: grid;
-            gap: 20px;
-        }
-        
-        .result-item {
-            padding: 20px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        
-        .result-item:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
-        }
-        
-        .item-title {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .item-meta {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .item-category {
-            background: #e8f0fe;
-            color: #667eea;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-        
-        .item-content {
-            color: #555;
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
-        
-        .item-keywords {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .keyword {
-            background: #f0f0f0;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .stats-section {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
         .stat-card {
-            text-align: center;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .stat-number {
-            font-size: 2em;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(129, 140, 248, 0.1) 100%);
         }
         
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 4px solid rgba(56, 189, 248, 0.2);
+            border-top: 4px solid #38bdf8;
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
         }
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .empty {
-            text-align: center;
-            padding: 60px;
-            color: #666;
-        }
-        
-        .empty-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 30px 0;
-            color: #666;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📚 ROX 知识中心</h1>
-            <p class="subtitle">整合167本专业书籍，为您的投资决策提供智慧支持</p>
-        </header>
-        
-        <div class="search-section">
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="搜索书籍、策略或投资概念...">
-                <button id="search-btn">🔍 搜索</button>
-            </div>
-            <div class="filters">
-                <button class="filter-btn active" data-category="all">全部</button>
-                <button class="filter-btn" data-category="investment">投资</button>
-                <button class="filter-btn" data-category="economics">经济学</button>
-                <button class="filter-btn" data-category="policy">政策</button>
-                <button class="filter-btn" data-category="philosophy">哲学</button>
-                <button class="filter-btn" data-category="history">历史</button>
-            </div>
-        </div>
-        
-        <div class="results-section">
-            <div class="results-header">
-                <h2 class="results-title">搜索结果</h2>
-                <span class="results-count" id="results-count">共 0 条结果</span>
-            </div>
-            <div id="results-list">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>加载中...</p>
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold gradient-text">ROX 3.0</span>
                 </div>
-            </div>
-        </div>
-        
-        <div class="stats-section">
-            <h2 style="margin-bottom: 20px; color: #333;">知识库统计</h2>
-            <div class="stats-grid" id="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="total-docs">0</div>
-                    <div class="stat-label">总书籍数</div>
+                
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="/" class="nav-link px-4 py-2 text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-home mr-2"></i>首页
+                    </a>
+                    <a href="/home" class="nav-link px-4 py-2 text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-desktop mr-2"></i>交易界面
+                    </a>
+                    <a href="/strategies" class="nav-link px-4 py-2 text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-chess mr-2"></i>策略中心
+                    </a>
+                    <a href="/knowledge" class="nav-link px-4 py-2 text-sky-400 hover:text-sky-300 transition-colors font-medium">
+                        <i class="fas fa-book mr-2"></i>知识中心
+                    </a>
+                    <a href="/trading-simulation" class="nav-link px-4 py-2 text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-robot mr-2"></i>交易模拟
+                    </a>
+                    <a href="/lu" class="nav-link px-4 py-2 text-amber-400 hover:text-amber-300 transition-colors font-medium">
+                        <i class="fas fa-chess-king mr-2"></i>卢式作战室
+                    </a>
+                    <a href="/docs" class="nav-link px-4 py-2 text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-file-code mr-2"></i>API文档
+                    </a>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="total-categories">0</div>
-                    <div class="stat-label">分类数</div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="hidden sm:flex items-center gap-2 text-sm">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+                        <span class="text-slate-400">系统运行中</span>
+                    </div>
+                    <a href="/home" class="px-4 py-2 bg-gradient-to-r from-sky-500 to-indigo-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
+                        进入交易
+                    </a>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="investment-count">0</div>
-                    <div class="stat-label">投资类书籍</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="economics-count">0</div>
-                    <div class="stat-label">经济类书籍</div>
-                </div>
+                
+                <button id="mobile-menu-btn" class="md:hidden p-2 text-slate-400 hover:text-white">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
             </div>
         </div>
         
-        <footer>
-            <p>© 2026 ROX Quant Platform | 知识中心</p>
-        </footer>
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden glass border-t border-slate-700">
+            <div class="px-4 py-3 space-y-2">
+                <a href="/" class="block px-4 py-3 rounded-lg hover:bg-slate-700/50 text-slate-300">
+                    <i class="fas fa-home mr-3"></i>首页
+                </a>
+                <a href="/home" class="block px-4 py-3 rounded-lg hover:bg-slate-700/50 text-slate-300">
+                    <i class="fas fa-desktop mr-3"></i>交易界面
+                </a>
+                <a href="/strategies" class="block px-4 py-3 rounded-lg hover:bg-slate-700/50 text-slate-300">
+                    <i class="fas fa-chess mr-3"></i>策略中心
+                </a>
+                <a href="/knowledge" class="block px-4 py-3 rounded-lg bg-sky-900/30 text-sky-400 font-medium">
+                    <i class="fas fa-book mr-3"></i>知识中心
+                </a>
+                <a href="/trading-simulation" class="block px-4 py-3 rounded-lg hover:bg-slate-700/50 text-slate-300">
+                    <i class="fas fa-robot mr-3"></i>交易模拟
+                </a>
+                <a href="/lu" class="block px-4 py-3 rounded-lg hover:bg-amber-900/30 text-amber-400 font-medium">
+                    <i class="fas fa-chess-king mr-3"></i>卢式作战室
+                </a>
+                <a href="/docs" class="block px-4 py-3 rounded-lg hover:bg-slate-700/50 text-slate-300">
+                    <i class="fas fa-file-code mr-3"></i>API文档
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主内容 -->
+    <div class="pt-24 pb-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- 标题 -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl sm:text-5xl font-bold mb-4">
+                    <span class="gradient-text">知识中心</span>
+                </h1>
+                <p class="text-lg text-slate-400">整合167本专业书籍，为您的投资决策提供智慧支持</p>
+            </div>
+            
+            <!-- 搜索区域 -->
+            <div class="glass rounded-2xl p-6 mb-8">
+                <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                    <div class="flex-1 relative">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="search-input" 
+                            class="w-full bg-slate-800/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-colors"
+                            placeholder="搜索书籍、策略或投资概念...">
+                    </div>
+                    <button id="search-btn" 
+                        class="px-8 py-3 bg-gradient-to-r from-sky-500 to-indigo-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity">
+                        <i class="fas fa-search mr-2"></i>搜索
+                    </button>
+                </div>
+                
+                <div class="flex flex-wrap gap-3">
+                    <button class="filter-btn active px-4 py-2 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 font-medium transition-all hover:bg-sky-500/30" data-category="all">
+                        全部
+                    </button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-slate-700/50 text-slate-300 border border-slate-600 transition-all hover:bg-slate-700" data-category="investment">
+                        投资
+                    </button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-slate-700/50 text-slate-300 border border-slate-600 transition-all hover:bg-slate-700" data-category="economics">
+                        经济学
+                    </button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-slate-700/50 text-slate-300 border border-slate-600 transition-all hover:bg-slate-700" data-category="policy">
+                        政策
+                    </button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-slate-700/50 text-slate-300 border border-slate-600 transition-all hover:bg-slate-700" data-category="philosophy">
+                        哲学
+                    </button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-slate-700/50 text-slate-300 border border-slate-600 transition-all hover:bg-slate-700" data-category="history">
+                        历史
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card rounded-2xl p-6 text-center card-hover">
+                    <div class="text-3xl sm:text-4xl font-bold gradient-text mb-2" id="total-docs">0</div>
+                    <div class="text-slate-400 text-sm">总书籍数</div>
+                </div>
+                <div class="stat-card rounded-2xl p-6 text-center card-hover">
+                    <div class="text-3xl sm:text-4xl font-bold gradient-text mb-2" id="total-categories">0</div>
+                    <div class="text-slate-400 text-sm">分类数</div>
+                </div>
+                <div class="stat-card rounded-2xl p-6 text-center card-hover">
+                    <div class="text-3xl sm:text-4xl font-bold gradient-text mb-2" id="investment-count">0</div>
+                    <div class="text-slate-400 text-sm">投资类书籍</div>
+                </div>
+                <div class="stat-card rounded-2xl p-6 text-center card-hover">
+                    <div class="text-3xl sm:text-4xl font-bold gradient-text mb-2" id="economics-count">0</div>
+                    <div class="text-slate-400 text-sm">经济类书籍</div>
+                </div>
+            </div>
+            
+            <!-- 搜索结果 -->
+            <div class="glass rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-slate-200">搜索结果</h2>
+                    <span class="text-slate-400 text-sm" id="results-count">共 0 条结果</span>
+                </div>
+                
+                <div id="results-list" class="space-y-4">
+                    <div class="flex flex-col items-center justify-center py-12">
+                        <div class="spinner mb-4"></div>
+                        <p class="text-slate-400">加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <!-- 页脚 -->
+    <footer class="py-8 px-4 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex justify-center items-center gap-6 mb-4">
+                <a href="/home" class="text-slate-400 hover:text-white transition-colors">交易界面</a>
+                <a href="/strategies" class="text-slate-400 hover:text-white transition-colors">策略中心</a>
+                <a href="/knowledge" class="text-slate-400 hover:text-white transition-colors">知识中心</a>
+                <a href="/trading-simulation" class="text-slate-400 hover:text-white transition-colors">交易模拟</a>
+                <a href="/docs" class="text-slate-400 hover:text-white transition-colors">API文档</a>
+            </div>
+            <p class="text-slate-500 text-sm">
+                © 2024 ROX Quant Platform. All rights reserved.
+            </p>
+        </div>
+    </footer>
     
     <script>
         let currentCategory = 'all';
+        
+        // 移动端菜单切换
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
         
         // 初始化页面
         async function initPage() {
@@ -355,7 +294,7 @@
                 const response = await fetch('/api/knowledge/stats');
                 const data = await response.json();
                 
-                document.getElementById('total-docs').textContent = data.total_documents;
+                document.getElementById('total-docs').textContent = data.total_documents || 0;
                 document.getElementById('total-categories').textContent = data.categories ? data.categories.length : 0;
                 
                 const categoryStats = data.vector_db_stats?.categories || {};
@@ -369,7 +308,6 @@
         // 搜索知识库
         async function searchKnowledge(query) {
             try {
-                // 使用支持网络搜索的API端点
                 const url = `/api/kb/search?query=${encodeURIComponent(query)}&mode=mixed`;
                 
                 const response = await fetch(url);
@@ -387,12 +325,12 @@
             const resultsList = document.getElementById('results-list');
             const resultsCount = document.getElementById('results-count');
             
-            if (!results || !Array.isArray(results)) {
+            if (!results || !Array.isArray(results) || results.length === 0) {
                 resultsList.innerHTML = `
-                    <div class="empty">
-                        <div class="empty-icon">📭</div>
-                        <h3>未找到相关内容</h3>
-                        <p>尝试使用不同的关键词或浏览其他分类</p>
+                    <div class="flex flex-col items-center justify-center py-12 text-slate-400">
+                        <i class="fas fa-inbox text-5xl mb-4 opacity-50"></i>
+                        <h3 class="text-lg font-medium mb-2">未找到相关内容</h3>
+                        <p class="text-sm">尝试使用不同的关键词或浏览其他分类</p>
                     </div>
                 `;
                 resultsCount.textContent = '共 0 条结果';
@@ -401,26 +339,15 @@
             
             resultsCount.textContent = `共 ${results.length} 条结果`;
             
-            if (results.length === 0) {
-                resultsList.innerHTML = `
-                    <div class="empty">
-                        <div class="empty-icon">📭</div>
-                        <h3>未找到相关内容</h3>
-                        <p>尝试使用不同的关键词或浏览其他分类</p>
-                    </div>
-                `;
-                return;
-            }
-            
             let html = '';
             results.forEach(item => {
                 html += `
-                    <div class="result-item">
-                        <h3 class="item-title">${item.title}</h3>
-                        <div class="item-meta">
-                            <span class="item-category">${item.source}</span>
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-5 hover:border-sky-500/50 transition-all cursor-pointer">
+                        <h3 class="text-lg font-semibold text-slate-200 mb-2">${item.title}</h3>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="px-3 py-1 rounded-lg bg-sky-500/20 text-sky-400 text-xs font-medium">${item.source}</span>
                         </div>
-                        <div class="item-content">${item.snippet}</div>
+                        <p class="text-slate-400 text-sm leading-relaxed">${item.snippet}</p>
                     </div>
                 `;
             });
@@ -432,10 +359,10 @@
         function displayError(message) {
             const resultsList = document.getElementById('results-list');
             resultsList.innerHTML = `
-                <div class="empty">
-                    <div class="empty-icon">❌</div>
-                    <h3>错误</h3>
-                    <p>${message}</p>
+                <div class="flex flex-col items-center justify-center py-12 text-red-400">
+                    <i class="fas fa-exclamation-circle text-5xl mb-4 opacity-50"></i>
+                    <h3 class="text-lg font-medium mb-2">错误</h3>
+                    <p class="text-sm">${message}</p>
                 </div>
             `;
         }
@@ -455,14 +382,16 @@
         
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                // 更新按钮状态
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('active', 'bg-sky-500/20', 'text-sky-400', 'border-sky-500/30');
+                    b.classList.add('bg-slate-700/50', 'text-slate-300', 'border-slate-600');
+                });
                 
-                // 更新当前分类
+                this.classList.remove('bg-slate-700/50', 'text-slate-300', 'border-slate-600');
+                this.classList.add('active', 'bg-sky-500/20', 'text-sky-400', 'border-sky-500/30');
+                
                 currentCategory = this.dataset.category;
                 
-                // 重新搜索
                 const query = document.getElementById('search-input').value;
                 searchKnowledge(query);
             });

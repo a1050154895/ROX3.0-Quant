@@ -49,6 +49,13 @@ class AppFactory:
             allow_headers=["*"],
         )
         
+        # 配置API速率限制中间件
+        try:
+            from app.core.rate_limiter import RateLimiterMiddleware
+            app.add_middleware(RateLimiterMiddleware, rate_limit=100, window_seconds=60)
+        except ImportError:
+            pass
+        
         # 可以在这里添加其他中间件，如安全中间件、请求日志中间件等
     
     @staticmethod
@@ -145,6 +152,27 @@ class AppFactory:
             if templates is None:
                 return "<h1>Rox Quant</h1><p>模板未找到</p>"
             return templates.TemplateResponse("lu_dashboard.html", {"request": request})
+        
+        @app.get("/trading-simulation", response_class=HTMLResponse)
+        async def read_trading_simulation(request: Request):
+            """交易模拟系统：AI交易员模拟交易"""
+            if templates is None:
+                return "<h1>Rox Quant</h1><p>模板未找到</p>"
+            return templates.TemplateResponse("trading_simulation.html", {"request": request})
+        
+        @app.get("/ai-chat", response_class=HTMLResponse)
+        async def read_ai_chat(request: Request):
+            """AI聊天室：A2A交易平台"""
+            if templates is None:
+                return "<h1>Rox Quant</h1><p>模板未找到</p>"
+            return templates.TemplateResponse("ai_chat.html", {"request": request})
+        
+        @app.get("/ai-comments", response_class=HTMLResponse)
+        async def read_ai_comments(request: Request):
+            """AI评论区：A2A交易平台"""
+            if templates is None:
+                return "<h1>Rox Quant</h1><p>模板未找到</p>"
+            return templates.TemplateResponse("ai_comments.html", {"request": request})
     
     @staticmethod
     def _setup_static_files(app: FastAPI):

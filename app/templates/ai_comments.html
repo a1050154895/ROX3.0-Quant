@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI评论系统 - ROX交易平台</title>
+    <link rel="stylesheet" href="/static/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/layout.css">
+    <style>
+        .comment-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .target-selector {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .comment-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #6c757d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .comment-content {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .comment-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .action-btn:hover {
+            color: #007bff;
+        }
+        
+        .reply-form {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .reply-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .replies-container {
+            margin-top: 15px;
+            margin-left: 50px;
+        }
+        
+        .reply-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .comment-form {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.875rem;
+        }
+        
+        .rating-stars {
+            color: #ffc107;
+        }
+        
+        .sentiment-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .sentiment-positive {
+            background: #28a745;
+        }
+        
+        .sentiment-neutral {
+            background: #ffc107;
+        }
+        
+        .sentiment-negative {
+            background: #dc3545;
+        }
+        
+        .personality-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            background: #e9ecef;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="comment-container">
+        <h1>AI评论系统</h1>
+        
+        <!-- 目标选择器 -->
+        <div class="target-selector">
+            <h3>选择评论目标</h3>
+            <div class="form-group">
+                <label class="form-label">目标类型</label>
+                <select id="target-type" class="form-input">
+                    <option value="stock_comment">股票评论</option>
+                    <option value="strategy_comment">策略评论</option>
+                    <option value="trade_comment">交易评论</option>
+                    <option value="market_comment">市场评论</option>
+                    <option value="analysis_comment">分析评论</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">目标ID</label>
+                <input type="text" id="target-id" class="form-input" placeholder="例如：600519">
+            </div>
+            <button id="load-comments" class="btn btn-primary">加载评论</button>
+        </div>
+        
+        <!-- 评论列表 -->
+        <div id="comments-list">
+            <!-- 评论将通过JavaScript动态加载 -->
+        </div>
+        
+        <!-- 评论表单 -->
+        <div class="comment-form">
+            <h3>发表评论</h3>
+            <div class="form-group">
+                <label class="form-label">作者名称</label>
+                <input type="text" id="author-name" class="form-input" value="AI交易员">
+            </div>
+            <div class="form-group">
+                <label class="form-label">人格类型</label>
+                <select id="author-personality" class="form-input">
+                    <option value="理性投资者">理性投资者</option>
+                    <option value="激进交易者">激进交易者</option>
+                    <option value="保守投资者">保守投资者</option>
+                    <option value="技术派">技术派</option>
+                    <option value="价值投资者">价值投资者</option>
+                    <option value="成长投资者">成长投资者</option>
+                    <option value="量化交易者">量化交易者</option>
+                    <option value="趋势跟踪者">趋势跟踪者</option>
+                    <option value="逆向投资者">逆向投资者</option>
+                    <option value="短线交易者">短线交易者</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">评论内容</label>
+                <textarea id="comment-content" class="form-textarea" placeholder="请输入评论内容..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">评分</label>
+                <select id="comment-rating" class="form-input">
+                    <option value="">不评分</option>
+                    <option value="1">1星</option>
+                    <option value="2">2星</option>
+                    <option value="3">3星</option>
+                    <option value="4">4星</option>
+                    <option value="5">5星</option>
+                </select>
+            </div>
+            <button id="submit-comment" class="btn btn-primary">发表评论</button>
+            <button id="generate-ai-comment" class="btn btn-secondary">生成AI评论</button>
+        </div>
+    </div>
+    
+    <script>
+        // 全局变量
+        let currentTargetId = '';
+        let currentTargetType = 'stock_comment';
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 绑定事件
+            document.getElementById('load-comments').addEventListener('click', loadComments);
+            document.getElementById('submit-comment').addEventListener('click', submitComment);
+            document.getElementById('generate-ai-comment').addEventListener('click', generateAIComment);
+            
+            // 预设目标
+            document.getElementById('target-id').value = '600519';
+        });
+        
+        // 加载评论
+        async function loadComments() {
+            currentTargetType = document.getElementById('target-type').value;
+            currentTargetId = document.getElementById('target-id').value;
+            
+            if (!currentTargetId) {
+                alert('请输入目标ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/ai_comments/targets/${currentTargetId}/comments`);
+                const data = await response.json();
+                
+                renderComments(data.comments);
+            } catch (error) {
+                console.error('加载评论失败:', error);
+                alert('加载评论失败');
+            }
+        }
+        
+        // 渲染评论
+        function renderComments(comments) {
+            const commentsList = document.getElementById('comments-list');
+            commentsList.innerHTML = '';
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<p>暂无评论</p>';
+                return;
+            }
+            
+            comments.forEach(comment => {
+                const commentCard = createCommentCard(comment);
+                commentsList.appendChild(commentCard);
+            });
+        }
+        
+        // 创建评论卡片
+        function createCommentCard(comment) {
+            const card = document.createElement('div');
+            card.className = 'comment-card';
+            
+            // 情感指示器
+            let sentimentClass = 'sentiment-neutral';
+            if (comment.sentiment > 0.6) {
+                sentimentClass = 'sentiment-positive';
+            } else if (comment.sentiment < 0.4) {
+                sentimentClass = 'sentiment-negative';
+            }
+            
+            // 评分星星
+            let ratingStars = '';
+            if (comment.rating) {
+                for (let i = 1; i <= 5; i++) {
+                    ratingStars += i <= comment.rating ? '★' : '☆';
+                }
+            }
+            
+            card.innerHTML = `
+                <div class="comment-header">
+                    <div class="author-info">
+                        <div class="author-avatar">${comment.author_name.charAt(0)}</div>
+                        <div>
+                            <strong>${comment.author_name}</strong>
+                            <span class="personality-badge">${comment.author_personality}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="sentiment-indicator ${sentimentClass}"></span>
+                        <small>${new Date(comment.timestamp).toLocaleString()}</small>
+                    </div>
+                </div>
+                <div class="comment-content">${comment.content}</div>
+                ${ratingStars ? `<div class="rating-stars">${ratingStars}</div>` : ''}
+                <div class="comment-actions">
+                    <button class="action-btn" onclick="likeComment('${comment.id}')">
+                        <i class="far fa-thumbs-up"></i> ${comment.likes}
+                    </button>
+                    <button class="action-btn" onclick="dislikeComment('${comment.id}')">
+                        <i class="far fa-thumbs-down"></i> ${comment.dislikes}
+                    </button>
+                    <button class="action-btn" onclick="showReplyForm('${comment.id}')">
+                        <i class="far fa-comment"></i> 回复
+                    </button>
+                    <button class="action-btn" onclick="loadReplies('${comment.id}')">
+                        <i class="far fa-reply"></i> ${comment.replies.length} 条回复
+                    </button>
+                </div>
+                <div id="replies-${comment.id}" class="replies-container"></div>
+                <div id="reply-form-${comment.id}" class="reply-form" style="display: none;">
+                    <textarea class="reply-input" placeholder="写下你的回复..."></textarea>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary btn-sm" onclick="submitReply('${comment.id}')">提交回复</button>
+                        <button class="btn btn-secondary btn-sm" onclick="hideReplyForm('${comment.id}')">取消</button>
+                        <button class="btn btn-secondary btn-sm" onclick="generateAIReply('${comment.id}')">生成AI回复</button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // 显示回复表单
+        function showReplyForm(commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            form.style.display = 'block';
+        }
+        
+        // 隐藏回复表单
+        function hideReplyForm(commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            form.style.display = 'none';
+        }
+        
+        // 加载回复
+        async function loadReplies(commentId) {
+            try {
+                const response = await fetch(`/api/ai_comments/comments/${commentId}/replies`);
+                const data = await response.json();
+                
+                const repliesContainer = document.getElementById(`replies-${commentId}`);
+                repliesContainer.innerHTML = '';
+                
+                data.replies.forEach(reply => {
+                    const replyCard = createReplyCard(reply);
+                    repliesContainer.appendChild(replyCard);
+                });
+            } catch (error) {
+                console.error('加载回复失败:', error);
+                alert('加载回复失败');
+            }
+        }
+        
+        // 创建回复卡片
+        function createReplyCard(reply) {
+            const card = document.createElement('div');
+            card.className = 'reply-card';
+            
+            card.innerHTML = `
+                <div class="comment-header">
+                    <div class="author-info">
+                        <div class="author-avatar">${reply.author_name.charAt(0)}</div>
+                        <div>
+                            <strong>${reply.author_name}</strong>
+                            <span class="personality-badge">${reply.author_personality}</span>
+                        </div>
+                    </div>
+                    <small>${new Date(reply.timestamp).toLocaleString()}</small>
+                </div>
+                <div class="comment-content">${reply.content}</div>
+                <div class="comment-actions">
+                    <button class="action-btn">
+                        <i class="far fa-thumbs-up"></i> ${reply.likes}
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // 提交评论
+        async function submitComment() {
+            const authorName = document.getElementById('author-name').value;
+            const authorPersonality = document.getElementById('author-personality').value;
+            const content = document.getElementById('comment-content').value;
+            const rating = document.getElementById('comment-rating').value;
+            
+            if (!content) {
+                alert('请输入评论内容');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/ai_comments/comments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        target_type: currentTargetType,
+                        target_id: currentTargetId,
+                        author_id: `user_${Date.now()}`,
+                        author_name: authorName,
+                        author_personality: authorPersonality,
+                        content: content,
+                        rating: rating ? parseInt(rating) : null
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('评论发表成功');
+                    document.getElementById('comment-content').value = '';
+                    loadComments();
+                } else {
+                    throw new Error('评论发表失败');
+                }
+            } catch (error) {
+                console.error('提交评论失败:', error);
+                alert('评论发表失败');
+            }
+        }
+        
+        // 生成AI评论
+        async function generateAIComment() {
+            const authorName = document.getElementById('author-name').value;
+            const authorPersonality = document.getElementById('author-personality').value;
+            
+            try {
+                const response = await fetch('/api/ai_comments/comments/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        target_type: currentTargetType,
+                        target_id: currentTargetId,
+                        trader_id: `trader_${Date.now()}`,
+                        trader_name: authorName,
+                        trader_personality: authorPersonality,
+                        emotion: Math.random(),
+                        performance: (Math.random() - 0.5) * 20
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('AI评论生成成功');
+                    loadComments();
+                } else {
+                    throw new Error('AI评论生成失败');
+                }
+            } catch (error) {
+                console.error('生成AI评论失败:', error);
+                alert('AI评论生成失败');
+            }
+        }
+        
+        // 提交回复
+        async function submitReply(commentId) {
+            const replyInput = document.querySelector(`#reply-form-${commentId} textarea`);
+            const content = replyInput.value;
+            
+            if (!content) {
+                alert('请输入回复内容');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/ai_comments/replies', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        comment_id: commentId,
+                        author_id: `user_${Date.now()}`,
+                        author_name: 'AI交易员',
+                        author_personality: '理性投资者',
+                        content: content
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('回复提交成功');
+                    replyInput.value = '';
+                    hideReplyForm(commentId);
+                    loadReplies(commentId);
+                } else {
+                    throw new Error('回复提交失败');
+                }
+            } catch (error) {
+                console.error('提交回复失败:', error);
+                alert('回复提交失败');
+            }
+        }
+        
+        // 生成AI回复
+        async function generateAIReply(commentId) {
+            try {
+                const response = await fetch('/api/ai_comments/replies/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        comment_id: commentId,
+                        trader_id: `trader_${Date.now()}`,
+                        trader_name: 'AI交易员',
+                        trader_personality: '理性投资者',
+                        emotion: Math.random()
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('AI回复生成成功');
+                    loadReplies(commentId);
+                } else {
+                    throw new Error('AI回复生成失败');
+                }
+            } catch (error) {
+                console.error('生成AI回复失败:', error);
+                alert('AI回复生成失败');
+            }
+        }
+        
+        // 点赞评论
+        async function likeComment(commentId) {
+            try {
+                const response = await fetch(`/api/ai_comments/comments/${commentId}/like`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadComments();
+                }
+            } catch (error) {
+                console.error('点赞失败:', error);
+            }
+        }
+        
+        // 踩评论
+        async function dislikeComment(commentId) {
+            try {
+                const response = await fetch(`/api/ai_comments/comments/${commentId}/dislike`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadComments();
+                }
+            } catch (error) {
+                console.error('踩失败:', error);
+            }
+        }
+    </script>
+</body>
+</html>

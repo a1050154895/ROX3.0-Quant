@@ -23,6 +23,7 @@ from typing import Callable, TypeVar, Optional
 from functools import wraps
 
 from app.utils.retry import run_with_retry, RateLimiter
+from app.utils.http_client import async_http_client
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,21 @@ class QVerisClient:
         response.raise_for_status()
         return response.json()
     
+    async def _async_request(self, endpoint: str, params: dict = None) -> dict:
+        """
+        异步发送API请求
+        """
+        if not self.api_key:
+            raise ValueError("QVeris API key not configured")
+        
+        url = f"{self.base_url}{endpoint}"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        return await async_http_client.get(url, params, headers)
+    
     def get_stock_quote(self, symbol: str) -> dict:
         """
         获取股票实时行情
@@ -73,6 +89,17 @@ class QVerisClient:
             return data.get("data", {})
         except Exception as e:
             logger.error(f"QVeris get_stock_quote failed: {e}")
+            raise
+    
+    async def async_get_stock_quote(self, symbol: str) -> dict:
+        """
+        异步获取股票实时行情
+        """
+        try:
+            data = await self._async_request(f"/stock/quote", params={"symbol": symbol})
+            return data.get("data", {})
+        except Exception as e:
+            logger.error(f"QVeris async_get_stock_quote failed: {e}")
             raise
     
     def get_stock_kline(self, symbol: str, interval: str = "daily", limit: int = 100) -> list:
@@ -90,6 +117,21 @@ class QVerisClient:
             logger.error(f"QVeris get_stock_kline failed: {e}")
             raise
     
+    async def async_get_stock_kline(self, symbol: str, interval: str = "daily", limit: int = 100) -> list:
+        """
+        异步获取股票K线数据
+        """
+        try:
+            data = await self._async_request(f"/stock/kline", params={
+                "symbol": symbol,
+                "interval": interval,
+                "limit": limit
+            })
+            return data.get("data", [])
+        except Exception as e:
+            logger.error(f"QVeris async_get_stock_kline failed: {e}")
+            raise
+    
     def get_market_indices(self) -> list:
         """
         获取市场指数
@@ -101,6 +143,17 @@ class QVerisClient:
             logger.error(f"QVeris get_market_indices failed: {e}")
             raise
     
+    async def async_get_market_indices(self) -> list:
+        """
+        异步获取市场指数
+        """
+        try:
+            data = await self._async_request("/market/indices")
+            return data.get("data", [])
+        except Exception as e:
+            logger.error(f"QVeris async_get_market_indices failed: {e}")
+            raise
+    
     def get_sector_list(self) -> list:
         """
         获取行业板块列表
@@ -110,6 +163,17 @@ class QVerisClient:
             return data.get("data", [])
         except Exception as e:
             logger.error(f"QVeris get_sector_list failed: {e}")
+            raise
+    
+    async def async_get_sector_list(self) -> list:
+        """
+        异步获取行业板块列表
+        """
+        try:
+            data = await self._async_request("/market/sectors")
+            return data.get("data", [])
+        except Exception as e:
+            logger.error(f"QVeris async_get_sector_list failed: {e}")
             raise
 
 

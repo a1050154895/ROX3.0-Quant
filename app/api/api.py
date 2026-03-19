@@ -122,6 +122,22 @@ api_group.include_router(settings.router, prefix="/settings", tags=["settings"])
 from app.api.endpoints import lu
 api_group.include_router(lu.router, tags=["卢式作战室"])
 
+# 交易模拟系统 (新添加)
+from app.api.endpoints import trading_simulation
+api_group.include_router(trading_simulation.router, prefix="/trading-simulation", tags=["trading-simulation"])
+
+# AI聊天室 (A2A平台)
+from app.api.endpoints import ai_chat
+api_group.include_router(ai_chat.router, prefix="/ai-chat", tags=["ai-chat"])
+
+# AI评论区 (A2A平台)
+from app.api.endpoints import ai_comments
+api_group.include_router(ai_comments.router, prefix="/ai-comments", tags=["ai-comments"])
+
+# OpenClaw集成 (AI助手框架)
+from app.api.endpoints import openclaw
+api_group.include_router(openclaw.router, prefix="/openclaw", tags=["openclaw"])
+
 # 将API组添加到主路由
 api_router.include_router(api_group)
 
