@@ -29,6 +29,13 @@ ROX 3.0 Quant 是一个基于 **FastAPI + 卢麒元方法论** 的量化投研�
 | 📐 **策略引擎** | 量化策略回测与执行 |
 | 🧠 **知识中心** | 投研文档管理与 AI 问答 |
 | 📊 **宏观监控** | 宏观经济指标追踪 |
+| 🤖 **交易模拟引擎** | 10个AI交易员模拟交易，不同人格和策略 |
+| 💬 **AI聊天系统** | 多聊天室支持，AI交易员交流平台 |
+| 💭 **AI评论系统** | AI交易员对股票和策略的评论与回复 |
+| 🤖 **OpenClaw集成** | AI助手框架，提供更丰富的AI功能 |
+| ⚡ **性能优化** | Redis缓存、异步数据获取、数据库索引优化 |
+| 🔒 **安全增强** | API速率限制，防止系统滥用 |
+| 📱 **响应式设计** | 适配移动设备，优化前端加载速度 |
 
 ---
 
@@ -95,6 +102,9 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8099 --reload
 | `/` | 登录页 |
 | `/home` | 主控台（行情 + 个股诊断 + 卢式分析） |
 | `/lu-dashboard` | 卢式作战室（三流 + 四矩阵 + 334 + 候选池） |
+| `/trading-simulation` | 交易模拟系统（AI交易员模拟交易） |
+| `/ai-chat` | AI聊天室（A2A交易平台） |
+| `/ai-comments` | AI评论区（A2A交易平台） |
 | `/docs` | FastAPI 接口文档（开发环境） |
 
 ---
@@ -150,24 +160,51 @@ ROX3.0-Quant/
 │   │   └── endpoints/
 │   │       ├── lu.py              # 卢式分析接口
 │   │       ├── lu_prediction.py   # v5 预测路由层
-│   │       └── market/            # 行情接口
+│   │       ├── market/            # 行情接口
+│   │       ├── trading_simulation.py  # 交易模拟接口
+│   │       ├── ai_chat.py         # AI聊天接口
+│   │       ├── ai_comments.py      # AI评论接口
+│   │       └── openclaw.py         # OpenClaw集成接口
 │   ├── services/
 │   │   ├── lu_service.py          # 三流/四矩阵实时数据（ETF + 北向资金）
 │   │   ├── lu_protocol.py         # v5 协议：输入模型 + 风险约束配置
 │   │   ├── lu_regime.py           # 市场状态识别 + 六维评分
 │   │   ├── lu_portfolio.py        # 组合优化（v2规则 / v3协方差）
-│   │   └── market_data.py         # 行情数据服务
+│   │   ├── market_data.py         # 行情数据服务
+│   │   ├── trading_simulation.py  # 交易模拟服务
+│   │   ├── ai_traders.py          # AI交易员服务
+│   │   ├── simulated_exchange.py  # 模拟交易所服务
+│   │   ├── feedback_system.py     # 反馈系统服务
+│   │   ├── ai_chat.py             # AI聊天服务
+│   │   ├── ai_comments.py          # AI评论服务
+│   │   └── openclaw_client.py      # OpenClaw客户端
+│   ├── core/
+│   │   └── rate_limiter.py        # API速率限制中间件
 │   ├── templates/
 │   │   ├── index_rox2.html        # 主控台
-│   │   └── lu_dashboard.html      # 卢式作战室（ECharts 可视化）
+│   │   ├── lu_dashboard.html      # 卢式作战室（ECharts 可视化）
+│   │   ├── trading_simulation.html  # 交易模拟页面
+│   │   ├── ai_chat.html          # AI聊天页面
+│   │   └── ai_comments.html       # AI评论页面
 │   ├── static/
-│   │   └── js/rox1_views.js       # 前端视图逻辑（含六维雷达图）
+│   │   └── js/
+│   │       ├── rox1_views.js       # 前端视图逻辑（含六维雷达图）
+│   │       └── modules/
+│   │           └── trading_simulation.js  # 交易模拟前端逻辑
+│   ├── utils/
+│   │   ├── redis_cache.py         # Redis缓存工具
+│   │   ├── http_client.py         # 异步HTTP客户端
+│   │   └── data_fetcher.py        # 数据获取工具（支持缓存）
 │   ├── rox_quant/                 # 量化引擎
 │   ├── auth.py                    # 认证（Pydantic V2）
 │   └── main.py
 ├── tests/
 │   ├── test_api_core.py
 │   └── test_api_endpoints.py      # 45+ 测试用例
+├── docs/
+│   ├── OpenClaw_Integration_Feasibility_Report.md  # OpenClaw集成可行性报告
+│   ├── OpenClaw_Integration_Roadmap.md            # OpenClaw集成路线图
+│   └── OpenClaw_Quick_Start_Guide.md              # OpenClaw快速开始指南
 ├── requirements.txt
 └── start_with_mac.command
 ```
@@ -204,6 +241,9 @@ pytest tests/test_api_endpoints.py::TestLuPredictionV5 -v
 | 前端 | HTML + Tailwind CSS + ECharts 5 |
 | 测试 | pytest + FastAPI TestClient |
 | 数据库 | SQLite（内置） |
+| 缓存 | Redis（可选） |
+| 网络 | aiohttp（异步HTTP客户端） |
+| AI框架 | OpenClaw（AI助手框架） |
 
 ---
 
@@ -214,7 +254,8 @@ pytest tests/test_api_endpoints.py::TestLuPredictionV5 -v
 | v3.0 | 全新架构：FastAPI + 卢式方法论模块 |
 | v3.1 | 卢式个股分析 Tab（六层结构化输出） |
 | v3.2 | P0 Bug 修复：字段名/asyncio/候选池真实代码 |
-| **v3.3** | **9分升级：ETF实时数据 + 架构模块化 + ECharts可视化 + Pydantic V2** |
+| v3.3 | 9分升级：ETF实时数据 + 架构模块化 + ECharts可视化 + Pydantic V2 |
+| **v3.4** | **全面升级：AI交易员 + AI聊天系统 + AI评论系统 + OpenClaw集成 + 性能优化 + 安全增强 + 响应式设计** |
 
 ---
 
