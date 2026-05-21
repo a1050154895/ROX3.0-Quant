@@ -220,7 +220,110 @@ def get_pool_stats() -> Dict[str, int]:
 
 
 def ensure_schema(conn: sqlite3.Connection):
-    # Auth, Core, Trading, and other tables
+    # ---会员系统表---
+    # 会员套餐表
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS membership_plans (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            description TEXT,
+            price REAL NOT NULL,
+            duration_days INTEGER NOT NULL,
+            max_api_calls_per_day INTEGER DEFAULT 1000,
+            features TEXT, -- JSON格式存储功能列表
+            is_active BOOLEAN DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    
+    # 会员表
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS memberships (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            plan_id INTEGER NOT NULL,
+            start_date TIMESTAMP NOT NULL,
+            end_date TIMESTAMP NOT NULL,
+            status TEXT DEFAULT 'active', -- active, expired, cancelled
+            api_calls_used_today INTEGER DEFAULT 0,
+            last_api_call_date TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id),
+            FOREIGN KEY(plan_id) REFERENCES membership_plans(id)
+        )
+        """
+    )
+    
+    # 支付记录表
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            membership_id INTEGER,
+            amount REAL NOT NULL,
+            currency TEXT DEFAULT 'CNY',
+            payment_method TEXT, -- wechat, alipay, etc.
+            payment_status TEXT DEFAULT 'pending', -- pending, completed, failed, refunded
+            transaction_id TEXT,
+            payment_date TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id),
+            FOREIGN KEY(membership_id) REFERENCES memberships(id)
+        )
+        """
+    )
+    
+    # API调用日志表
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS api_call_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            endpoint TEXT NOT NULL,
+            method TEXT NOT NULL,
+            status_code INTEGER,
+            response_time REAL,
+            ip_address TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+        """
+    )
+    
+    # OpenClaw API配置表
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS openclaw_configs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            api_key TEXT,
+            api_domain TEXT DEFAULT 'data.diemeng.chat',
+            is_active BOOLEAN DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+        """
+    )
+    
+    # 功能权限表
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS feature_permissions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            feature_key TEXT NOT NULL,
+            feature_name TEXT NOT NULL,
+            required_plan_id INTEGER,
+            is_premium BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    
+    # ---原有表---
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS users (
@@ -469,6 +572,11 @@ def ensure_schema(conn: sqlite3.Connection):
     conn.execute("CREATE INDEX IF NOT EXISTS idx_condition_orders_user_status ON condition_orders(user_id, status, trigger_type)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_transfers_user_time ON transfers(user_id, created_at)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_accounts_user_type ON accounts(user_id, type)")
+    
+    # ---会员系统索引---
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_memberships_user_id ON memberships(user_id, status)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_api_logs_user_date ON api_call_logs(user_id, created_at)")
 
     # Multi-Asset Support Tables (Phase 1)
     # Crypto Spot Cache
@@ -1334,3 +1442,263 @@ async def get_north_fund():
     except Exception as e:
         logger.error(f"获取北向资金数据失败: {e}", exc_info=True)
         return []
+
+# ==========会员系统辅助函数==========
+
+def init_membership_plans(conn: sqlite3.Connection):
+    """初始化默认会员套餐"""
+    default_plans = [
+        {
+            "name": "免费版",
+            "description": "基础功能免费使用，API调用限制每日100次",
+            "price": 0.0,
+            "duration_days": 36500,  # 100年
+            "max_api_calls_per_day": 100,
+            "features": '["basic_market_data", "simple_chart", "watchlist"]'
+        },
+        {
+            "name": "专业版",
+            "description": "专业投资者选择，包含高级功能",
+            "price": 99.0,
+            "duration_days": 30,
+            "max_api_calls_per_day": 1000,
+            "features": '["basic_market_data", "simple_chart", "watchlist", "advanced_chart", "main_fund_flow", "technical_indicators"]'
+        },
+        {
+            "name": "企业版",
+            "description": "机构级功能，无限API调用",
+            "price": 299.0,
+            "duration_days": 30,
+            "max_api_calls_per_day": 10000,
+            "features": '["basic_market_data", "simple_chart", "watchlist", "advanced_chart", "main_fund_flow", "technical_indicators", "convertible_bond", "etf_data", "dragon_tiger", "ai_trading"]'
+        }
+    ]
+    
+    for plan in default_plans:
+        try:
+            conn.execute(
+                """INSERT OR IGNORE INTO membership_plans (name, description, price, duration_days, max_api_calls_per_day, features)
+                   VALUES (?, ?, ?, ?, ?, ?)""",
+                (plan["name"], plan["description"], plan["price"], plan["duration_days"],
+                 plan["max_api_calls_per_day"], plan["features"])
+            )
+        except Exception as e:
+            logger.warning(f"Failed to insert plan {plan['name']}: {e}")
+    conn.commit()
+
+def get_all_membership_plans(conn: sqlite3.Connection, only_active: bool = True) -> List[Dict[str, Any]]:
+    query = "SELECT * FROM membership_plans"
+    params = []
+    if only_active:
+        query += " WHERE is_active = 1"
+    cur = conn.execute(query, params)
+    return [dict(row) for row in cur.fetchall()]
+
+def get_membership_plan(conn: sqlite3.Connection, plan_id: int) -> Optional[Dict[str, Any]]:
+    cur = conn.execute("SELECT * FROM membership_plans WHERE id = ?", (plan_id,))
+    row = cur.fetchone()
+    return dict(row) if row else None
+
+def create_membership(conn: sqlite3.Connection, user_id: int, plan_id: int) -> Optional[int]:
+    """为用户创建会员订阅"""
+    from datetime import datetime, timedelta
+    plan = get_membership_plan(conn, plan_id)
+    if not plan:
+        return None
+    
+    start_date = datetime.now()
+    end_date = start_date + timedelta(days=plan["duration_days"])
+    
+    try:
+        cur = conn.execute(
+            """INSERT INTO memberships (user_id, plan_id, start_date, end_date)
+               VALUES (?, ?, ?, ?)""",
+            (user_id, plan_id, start_date.isoformat(), end_date.isoformat())
+        )
+        conn.commit()
+        return cur.lastrowid
+    except Exception as e:
+        logger.error(f"创建会员失败: {e}")
+        conn.rollback()
+        return None
+
+def get_user_membership(conn: sqlite3.Connection, user_id: int) -> Optional[Dict[str, Any]]:
+    """获取用户当前有效会员"""
+    cur = conn.execute(
+        """SELECT m.*, p.* FROM memberships m
+           JOIN membership_plans p ON m.plan_id = p.id
+           WHERE m.user_id = ? AND m.status = 'active' AND datetime(m.end_date) > datetime('now')
+           ORDER BY m.end_date DESC LIMIT 1""",
+        (user_id,)
+    )
+    row = cur.fetchone()
+    return dict(row) if row else None
+
+def has_active_membership(conn: sqlite3.Connection, user_id: int) -> bool:
+    membership = get_user_membership(conn, user_id)
+    return membership is not None
+
+def record_api_call(conn: sqlite3.Connection, user_id: Optional[int], endpoint: str, method: str,
+                    status_code: int, response_time: float, ip_address: Optional[str] = None):
+    """记录API调用"""
+    from datetime import datetime
+    today = datetime.now().date().isoformat()
+    
+    try:
+        # 插入日志
+        conn.execute(
+            """INSERT INTO api_call_logs (user_id, endpoint, method, status_code, response_time, ip_address)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (user_id, endpoint, method, status_code, response_time, ip_address)
+        )
+        
+        # 更新用户今日API调用计数
+        if user_id:
+            membership = get_user_membership(conn, user_id)
+            if membership:
+                cur = conn.execute(
+                    """UPDATE memberships
+                       SET api_calls_used_today = CASE WHEN last_api_call_date = ? THEN api_calls_used_today + 1 ELSE 1 END,
+                           last_api_call_date = ?
+                       WHERE id = ?""",
+                    (today, today, membership["id"])
+                )
+        conn.commit()
+    except Exception as e:
+        logger.error(f"记录API调用失败: {e}")
+        conn.rollback()
+
+def check_api_rate_limit(conn: sqlite3.Connection, user_id: int) -> tuple[bool, int, int]:
+    """检查API调用是否超限，返回(ok, used, max)"""
+    membership = get_user_membership(conn, user_id)
+    if not membership:
+        # 免费用户默认限制
+        return (True, 0, 100)
+    
+    from datetime import datetime
+    today = datetime.now().date().isoformat()
+    
+    if membership.get("last_api_call_date") != today:
+        return (True, 0, membership["max_api_calls_per_day"])
+    
+    used = membership.get("api_calls_used_today", 0)
+    max_calls = membership["max_api_calls_per_day"]
+    return (used < max_calls, used, max_calls)
+
+def create_payment_record(conn: sqlite3.Connection, user_id: int, membership_id: Optional[int],
+                          amount: float, currency: str = "CNY") -> Optional[int]:
+    """创建支付记录"""
+    try:
+        cur = conn.execute(
+            """INSERT INTO payments (user_id, membership_id, amount, currency, payment_status)
+               VALUES (?, ?, ?, ?, 'pending')""",
+            (user_id, membership_id, amount, currency)
+        )
+        conn.commit()
+        return cur.lastrowid
+    except Exception as e:
+        logger.error(f"创建支付记录失败: {e}")
+        conn.rollback()
+        return None
+
+def update_payment_status(conn: sqlite3.Connection, payment_id: int, status: str,
+                          transaction_id: Optional[str] = None) -> bool:
+    try:
+        sql = """UPDATE payments SET payment_status = ?"""
+        params = [status]
+        if transaction_id:
+            sql += ", transaction_id = ?"
+            params.append(transaction_id)
+        if status == "completed":
+            sql += ", payment_date = datetime('now')"
+        sql += " WHERE id = ?"
+        params.append(payment_id)
+        
+        cur = conn.execute(sql, params)
+        conn.commit()
+        return cur.rowcount > 0
+    except Exception as e:
+        logger.error(f"更新支付状态失败: {e}")
+        conn.rollback()
+        return False
+
+def save_openclaw_config(conn: sqlite3.Connection, user_id: int, api_key: str,
+                          api_domain: str = "data.diemeng.chat") -> Optional[int]:
+    """保存OpenClaw配置"""
+    try:
+        cur = conn.execute(
+            """INSERT OR REPLACE INTO openclaw_configs (user_id, api_key, api_domain, is_active)
+               VALUES (?, ?, ?, 1)""",
+            (user_id, api_key, api_domain)
+        )
+        conn.commit()
+        return cur.lastrowid
+    except Exception as e:
+        logger.error(f"保存OpenClaw配置失败: {e}")
+        conn.rollback()
+        return None
+
+def get_openclaw_config(conn: sqlite3.Connection, user_id: int) -> Optional[Dict[str, Any]]:
+    cur = conn.execute(
+        "SELECT * FROM openclaw_configs WHERE user_id = ? AND is_active = 1 LIMIT 1",
+        (user_id,)
+    )
+    row = cur.fetchone()
+    return dict(row) if row else None
+
+def init_feature_permissions(conn: sqlite3.Connection):
+    """初始化功能权限"""
+    features = [
+        ("basic_market_data", "基础行情数据", 1, 0),
+        ("simple_chart", "简单K线图", 1, 0),
+        ("watchlist", "自选股", 1, 0),
+        ("advanced_chart", "高级图表", 2, 1),
+        ("main_fund_flow", "主力资金流向", 2, 1),
+        ("technical_indicators", "技术指标", 2, 1),
+        ("convertible_bond", "可转债数据", 3, 1),
+        ("etf_data", "ETF数据", 3, 1),
+        ("dragon_tiger", "龙虎榜数据", 3, 1),
+        ("ai_trading", "AI交易员", 3, 1),
+    ]
+    
+    for feature_key, feature_name, required_plan_id, is_premium in features:
+        try:
+            conn.execute(
+                """INSERT OR IGNORE INTO feature_permissions (feature_key, feature_name, required_plan_id, is_premium)
+                   VALUES (?, ?, ?, ?)""",
+                (feature_key, feature_name, required_plan_id, is_premium)
+            )
+        except Exception as e:
+            logger.warning(f"Failed to insert feature {feature_key}: {e}")
+    conn.commit()
+
+def check_feature_permission(conn: sqlite3.Connection, user_id: int, feature_key: str) -> bool:
+    """检查用户是否有某个功能的权限"""
+    # 先获取用户的会员
+    membership = get_user_membership(conn, user_id)
+    if not membership:
+        # 没有会员，检查是否是免费功能
+        cur = conn.execute(
+            "SELECT * FROM feature_permissions WHERE feature_key = ?",
+            (feature_key,)
+        )
+        feature = cur.fetchone()
+        if not feature:
+            return False  # 功能不存在
+        feature_dict = dict(feature)
+        return not feature_dict.get("is_premium", 0)
+    
+    # 有会员，检查功能的需求计划ID是否 <= 当前计划ID
+    cur = conn.execute(
+        "SELECT * FROM feature_permissions WHERE feature_key = ?",
+        (feature_key,)
+    )
+    feature = cur.fetchone()
+    if not feature:
+        return False
+    feature_dict = dict(feature)
+    
+    if not feature_dict.get("is_premium", 0):
+        return True  # 免费功能
+    
+    return membership["plan_id"] >= feature_dict.get("required_plan_id", 1)

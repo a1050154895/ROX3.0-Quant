@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员中心 - ROX 3.0 Quant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f4e4bc;
+            --gold-dark: #aa8c2c;
+            --obsidian: #0a0a0f;
+            --charcoal: #1a1a2e;
+            --midnight: #16213e;
+            --azure: #0f3460;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Space Grotesk', 'Noto Serif SC', sans-serif;
+            background: var(--obsidian);
+            min-height: 100vh;
+            color: #e8e8e8;
+            overflow-x: hidden;
+        }
+        
+        /* 动态粒子背景 */
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(15, 52, 96, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(26, 26, 46, 0.8) 0%, var(--obsidian) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, var(--gold), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, var(--gold-light), transparent),
+                radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 230px 80px, var(--gold), transparent),
+                radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.5), transparent);
+            background-repeat: repeat;
+            background-size: 350px 200px;
+            animation: twinkle 8s ease-in-out infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--obsidian);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 2px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: rgba(232, 232, 232, 0.7);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--gold);
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .nav-link.active {
+            color: var(--gold);
+        }
+        
+        .nav-link.active::after {
+            width: 100%;
+        }
+        
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 2rem 60px;
+        }
+        
+        /* 页面标题区 */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 13px;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 56px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero-title span {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 18px;
+            color: rgba(232, 232, 232, 0.6);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* 当前会员状态卡片 */
+        .status-card {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.6) 0%, rgba(22, 33, 62, 0.4) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+        
+        .status-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+        }
+        
+        .status-info h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-info p {
+            color: rgba(232, 232, 232, 0.6);
+            font-size: 15px;
+        }
+        
+        .status-badge {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--obsidian);
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        
+        .usage-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-item {
+            background: rgba(10, 10, 15, 0.5);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: rgba(232, 232, 232, 0.5);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .stat-value span {
+            font-size: 16px;
+            color: rgba(232, 232, 232, 0.5);
+            font-weight: 400;
+        }
+        
+        .usage-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        
+        .usage-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+        
+        /* 套餐区域标题 */
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+        
+        .section-title h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title p {
+            color: rgba(232, 232, 232, 0.6);
+            font-size: 16px;
+        }
+        
+        /* 套餐卡片网格 */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .plan-card {
+            background: linear-gradient(180deg, rgba(26, 26, 46, 0.8) 0%, rgba(15, 52, 96, 0.3) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 2.5rem;
+            position: relative;
+            transition: all 0.4s ease;
+            animation: fadeInUp 1s ease-out calc(0.5s + var(--delay, 0s)) both;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(212, 175, 55, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(212, 175, 55, 0.1);
+        }
+        
+        .plan-card.featured {
+            background: linear-gradient(180deg, rgba(212, 175, 55, 0.15) 0%, rgba(26, 26, 46, 0.9) 100%);
+            border-color: rgba(212, 175, 55, 0.4);
+            transform: scale(1.02);
+        }
+        
+        .plan-card.featured:hover {
+            transform: scale(1.02) translateY(-10px);
+        }
+        
+        .plan-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--obsidian);
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+        
+        .plan-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .plan-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-description {
+            font-size: 14px;
+            color: rgba(232, 232, 232, 0.5);
+            margin-bottom: 1.5rem;
+        }
+        
+        .plan-price {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+        
+        .price-currency {
+            font-size: 24px;
+            color: var(--gold);
+            font-weight: 600;
+        }
+        
+        .price-amount {
+            font-size: 56px;
+            font-weight: 700;
+            color: var(--gold);
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1;
+        }
+        
+        .price-period {
+            font-size: 16px;
+            color: rgba(232, 232, 232, 0.4);
+        }
+        
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+        }
+        
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            font-size: 15px;
+            color: rgba(232, 232, 232, 0.8);
+        }
+        
+        .plan-features li i {
+            color: var(--gold);
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .plan-button {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            letter-spacing: 1px;
+        }
+        
+        .plan-button.primary {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--obsidian);
+        }
+        
+        .plan-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+        }
+        
+        .plan-button.secondary {
+            background: transparent;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            color: var(--gold);
+        }
+        
+        .plan-button.secondary:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--gold);
+        }
+        
+        /* 功能对比表 */
+        .features-table {
+            background: linear-gradient(180deg, rgba(26, 26, 46, 0.6) 0%, rgba(15, 52, 96, 0.2) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 4rem;
+            animation: fadeInUp 1s ease-out 0.8s both;
+        }
+        
+        .features-table h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .comparison-table th {
+            padding: 1.25rem 1rem;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gold);
+            border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .comparison-table th:first-child {
+            text-align: left;
+            color: rgba(232, 232, 232, 0.6);
+        }
+        
+        .comparison-table td {
+            padding: 1.25rem 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+            color: rgba(232, 232, 232, 0.8);
+        }
+        
+        .comparison-table td:first-child {
+            text-align: left;
+            color: #ffffff;
+            font-weight: 500;
+        }
+        
+        .comparison-table tr:hover td {
+            background: rgba(212, 175, 55, 0.05);
+        }
+        
+        .check-icon {
+            color: var(--gold);
+            font-size: 18px;
+        }
+        
+        .cross-icon {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 18px;
+        }
+        
+        /* OpenClaw 配置区域 */
+        .config-section {
+            background: linear-gradient(135deg, rgba(15, 52, 96, 0.4) 0%, rgba(26, 26, 46, 0.6) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+        
+        .config-section h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .config-section h3 i {
+            color: var(--gold);
+        }
+        
+        .config-section > p {
+            color: rgba(232, 232, 232, 0.6);
+            margin-bottom: 2rem;
+            font-size: 15px;
+        }
+        
+        .config-form {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-size: 14px;
+            color: rgba(232, 232, 232, 0.7);
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            background: rgba(10, 10, 15, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 15px;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(232, 232, 232, 0.3);
+        }
+        
+        .form-hint {
+            font-size: 12px;
+            color: rgba(232, 232, 232, 0.4);
+        }
+        
+        .save-button {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--obsidian);
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+        
+        .save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+        }
+        
+        /* 支付模拟提示 */
+        .payment-notice {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .payment-notice p {
+            color: rgba(232, 232, 232, 0.8);
+            font-size: 14px;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-notice button {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--obsidian);
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-notice button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            animation: fadeInUp 1s ease-out 1.2s both;
+        }
+        
+        .footer p {
+            color: rgba(232, 232, 232, 0.4);
+            font-size: 14px;
+        }
+        
+        .footer a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-title {
+                font-size: 36px;
+            }
+            
+            .plans-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .plan-card.featured {
+                transform: none;
+            }
+            
+            .status-header {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 宇宙背景 -->
+    <div class="cosmic-bg">
+        <div class="stars"></div>
+    </div>
+    
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/home" class="logo">
+                <div class="logo-icon">R</div>
+                <span class="logo-text">ROX 3.0</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="/home" class="nav-link">
+                    <i class="fas fa-home"></i> 首页
+                </a>
+                <a href="/lu" class="nav-link">
+                    <i class="fas fa-chess"></i> 卢式作战室
+                </a>
+                <a href="/trading-simulation" class="nav-link">
+                    <i class="fas fa-robot"></i> AI交易员
+                </a>
+                <a href="/membership" class="nav-link active">
+                    <i class="fas fa-crown"></i> 会员中心
+                </a>
+            </div>
+            
+            <div id="user-area" class="flex items-center gap-4">
+                <!-- 用户信息将通过JS动态填充 -->
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主容器 -->
+    <main class="main-container">
+        <!-- Hero区 -->
+        <section class="hero-section">
+            <div class="hero-badge">
+                <i class="fas fa-gem"></i> 尊贵的会员服务
+            </div>
+            <h1 class="hero-title">
+                解锁 <span>无限可能</span>
+            </h1>
+            <p class="hero-subtitle">
+                选择最适合您的会员等级，解锁专业级数据分析、实时行情监控和高级量化策略
+            </p>
+        </section>
+        
+        <!-- 当前会员状态 -->
+        <section class="status-card" id="membership-status">
+            <div class="status-header">
+                <div class="status-info">
+                    <h3 id="current-plan-name">加载中...</h3>
+                    <p id="current-plan-desc">正在获取您的会员信息</p>
+                </div>
+                <div class="status-badge" id="status-badge">
+                    检查中
+                </div>
+            </div>
+            
+            <div class="usage-stats">
+                <div class="stat-item">
+                    <div class="stat-label">今日API调用</div>
+                    <div class="stat-value" id="api-used">0 <span>/ 100</span></div>
+                    <div class="usage-bar">
+                        <div class="usage-bar-fill" id="api-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">会员剩余天数</div>
+                    <div class="stat-value" id="days-left">-- <span>天</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">已解锁功能</div>
+                    <div class="stat-value" id="features-count">0 <span>项</span></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 套餐选择 -->
+        <section class="plans-section">
+            <div class="section-title">
+                <h2>选择您的会员套餐</h2>
+                <p>灵活的订阅方案，满足不同投资者的需求</p>
+            </div>
+            
+            <div class="plans-grid">
+                <!-- 免费版 -->
+                <div class="plan-card" style="--delay: 0s">
+                    <div class="plan-header">
+                        <h4 class="plan-name">基础版</h4>
+                        <p class="plan-description">适合入门学习者</p>
+                        <div class="plan-price">
+                            <span class="price-currency">¥</span>
+                            <span class="price-amount">0</span>
+                            <span class="price-period">/ 永久</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="plan-features">
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>每日API调用 100 次</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>基础行情数据</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>简单图表分析</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-times cross-icon"></i>
+                            <span>主力资金流向</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-times cross-icon"></i>
+                            <span>高级量化工具</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="plan-button secondary" onclick="purchasePlan('free')">
+                        当前方案
+                    </button>
+                </div>
+                
+                <!-- 专业版 -->
+                <div class="plan-card featured" style="--delay: 0.2s">
+                    <div class="plan-badge">最受欢迎</div>
+                    <div class="plan-header">
+                        <h4 class="plan-name">专业版</h4>
+                        <p class="plan-description">适合专业投资者</p>
+                        <div class="plan-price">
+                            <span class="price-currency">¥</span>
+                            <span class="price-amount">99</span>
+                            <span class="price-period">/ 月</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="plan-features">
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>每日API调用 10,000 次</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>实时行情监控</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>高级图表与技术分析</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>主力资金流向分析</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>债券与ETF数据</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>板块热度分析</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="plan-button primary" onclick="purchasePlan('professional')">
+                        立即升级
+                    </button>
+                </div>
+                
+                <!-- 企业版 -->
+                <div class="plan-card" style="--delay: 0.4s">
+                    <div class="plan-header">
+                        <h4 class="plan-name">企业版</h4>
+                        <p class="plan-description">适合机构与团队</p>
+                        <div class="plan-price">
+                            <span class="price-currency">¥</span>
+                            <span class="price-amount">399</span>
+                            <span class="price-period">/ 月</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="plan-features">
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>每日API调用 无限制</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>全部专业版功能</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>财务数据分析</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>历史数据回溯</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>专属客户经理</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>API优先支持</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="plan-button secondary" onclick="purchasePlan('enterprise')">
+                        联系销售
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 功能对比表 -->
+        <section class="features-table">
+            <h3>功能详细对比</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>功能</th>
+                        <th>基础版</th>
+                        <th>专业版</th>
+                        <th>企业版</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>每日API调用次数</td>
+                        <td>100次</td>
+                        <td>10,000次</td>
+                        <td>无限制</td>
+                    </tr>
+                    <tr>
+                        <td>实时行情数据</td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>股票历史K线</td>
+                        <td>近1月</td>
+                        <td>近1年</td>
+                        <td>全部历史</td>
+                    </tr>
+                    <tr>
+                        <td>主力资金流向</td>
+                        <td><i class="fas fa-times cross-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>分钟级数据</td>
+                        <td><i class="fas fa-times cross-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>财务数据</td>
+                        <td><i class="fas fa-times cross-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>债券数据</td>
+                        <td><i class="fas fa-times cross-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>ETF数据</td>
+                        <td><i class="fas fa-times cross-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>板块热度</td>
+                        <td><i class="fas fa-times cross-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                        <td><i class="fas fa-check check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>技术指标</td>
+                        <td>5种</td>
+                        <td>20种</td>
+                        <td>全部</td>
+                    </tr>
+                    <tr>
+                        <td>数据导出</td>
+                        <td>CSV</td>
+                        <td>CSV, Excel</td>
+                        <td>全部格式</td>
+                    </tr>
+                    <tr>
+                        <td>客户支持</td>
+                        <td>社区</td>
+                        <td>工单</td>
+                        <td>专属经理</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- OpenClaw配置 -->
+        <section class="config-section">
+            <h3>
+                <i class="fas fa-key"></i>
+                OpenClaw API 配置
+            </h3>
+            <p>配置您的 OpenClaw API Key 以解锁增强版股票数据服务</p>
+            
+            <form class="config-form" onsubmit="saveOpenClawConfig(event)">
+                <div class="form-group">
+                    <label for="api-key">API Key</label>
+                    <input 
+                        type="password" 
+                        id="api-key" 
+                        name="api_key"
+                        placeholder="请输入您的 OpenClaw API Key"
+                        autocomplete="off"
+                    >
+                    <span class="form-hint">您可以从 OpenClaw 官网获取 API Key</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="api-domain">API Domain (可选)</label>
+                    <input 
+                        type="text" 
+                        id="api-domain" 
+                        name="api_domain"
+                        placeholder="https://api.openclaw.com (留空使用默认)"
+                    >
+                </div>
+                
+                <button type="submit" class="save-button">
+                    <i class="fas fa-save"></i> 保存配置
+                </button>
+            </form>
+        </section>
+        
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>
+                © 2024 ROX 3.0 Quant. 
+                <a href="#">服务条款</a> · 
+                <a href="#">隐私政策</a>
+            </p>
+        </footer>
+    </main>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        // 加载当前会员信息
+        async function loadMembershipInfo() {
+            try {
+                const response = await fetch('/api/membership/current', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateMembershipUI(data);
+                } else {
+                    // 未登录或获取失败，显示默认状态
+                    updateDefaultUI();
+                }
+            } catch (error) {
+                console.error('加载会员信息失败:', error);
+                updateDefaultUI();
+            }
+        }
+        
+        function updateMembershipUI(data) {
+            const planName = document.getElementById('current-plan-name');
+            const planDesc = document.getElementById('current-plan-desc');
+            const statusBadge = document.getElementById('status-badge');
+            
+            if (data.plan_name) {
+                planName.textContent = data.plan_name;
+                planDesc.textContent = data.features || '会员用户';
+                
+                if (data.status === 'active') {
+                    statusBadge.textContent = '已激活';
+                    statusBadge.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                } else {
+                    statusBadge.textContent = '未激活';
+                }
+            }
+            
+            if (data.api_calls_used_today !== undefined) {
+                document.getElementById('api-used').innerHTML = 
+                    `${data.api_calls_used_today} <span>/ ${data.max_api_calls_per_day || 100}</span>`;
+                
+                const percentage = data.max_api_calls_per_day > 0 
+                    ? (data.api_calls_used_today / data.max_api_calls_per_day * 100) 
+                    : 0;
+                document.getElementById('api-bar').style.width = percentage + '%';
+            }
+            
+            if (data.end_date) {
+                const daysLeft = calculateDaysLeft(data.end_date);
+                document.getElementById('days-left').innerHTML = 
+                    `${daysLeft} <span>天</span>`;
+            }
+        }
+        
+        function updateDefaultUI() {
+            document.getElementById('current-plan-name').textContent = '未登录用户';
+            document.getElementById('current-plan-desc').textContent = '登录后可查看会员信息';
+            document.getElementById('status-badge').textContent = '基础用户';
+            document.getElementById('api-used').innerHTML = '0 <span>/ 100</span>';
+            document.getElementById('days-left').innerHTML = '-- <span>天</span>';
+        }
+        
+        function calculateDaysLeft(endDate) {
+            const end = new Date(endDate);
+            const now = new Date();
+            const diff = end - now;
+            return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+        }
+        
+        // 购买套餐
+        async function purchasePlan(planId) {
+            if (planId === 'free') {
+                alert('您已经是基础版用户');
+                return;
+            }
+            
+            const amount = planId === 'professional' ? 99 : 399;
+            const planName = planId === 'professional' ? '专业版' : '企业版';
+            
+            if (confirm(`确定要购买 ${planName} (¥${amount}/月) 吗？\n\n这是一次模拟支付演示，实际支付功能需集成第三方支付网关。`)) {
+                try {
+                    const response = await fetch('/api/membership/purchase', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+                        },
+                        body: JSON.stringify({
+                            plan_id: planId,
+                            amount: amount
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        alert(`恭喜！您已成功购买 ${planName}！\n\n（这是模拟支付，实际已充值 ¥${amount} 到您的账户）`);
+                        loadMembershipInfo();
+                    } else {
+                        alert('购买失败，请稍后重试');
+                    }
+                } catch (error) {
+                    console.error('购买失败:', error);
+                    alert('网络错误，请稍后重试');
+                }
+            }
+        }
+        
+        // 保存OpenClaw配置
+        async function saveOpenClawConfig(event) {
+            event.preventDefault();
+            
+            const apiKey = document.getElementById('api-key').value;
+            const apiDomain = document.getElementById('api-domain').value;
+            
+            if (!apiKey) {
+                alert('请输入 API Key');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/membership/openclaw/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+                    },
+                    body: JSON.stringify({
+                        api_key: apiKey,
+                        api_domain: apiDomain
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('配置保存成功！');
+                } else {
+                    alert('配置保存失败，请稍后重试');
+                }
+            } catch (error) {
+                console.error('保存配置失败:', error);
+                alert('网络错误，请稍后重试');
+            }
+        }
+        
+        // 页面加载时获取会员信息
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMembershipInfo();
+        });
+    </script>
+</body>
+
+</html>

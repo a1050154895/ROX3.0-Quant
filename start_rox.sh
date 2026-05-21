@@ -1,31 +1,49 @@
 #!/bin/bash
-
-# 获取脚本所在目录的绝对路径
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR"
+# ROX 3.0 Quant 一键启动脚本
 
 echo "=========================================="
-echo "   ROX QUANT 启动程序 (终端版) v13.9"
+echo "ROX 3.0 Quant 量化投研平台"
 echo "=========================================="
+echo ""
 
-# 1. 检查 Python 环境
-if [ -d ".venv" ]; then
-    echo "[1/3] 检测到虚拟环境，正在激活..."
-    source .venv/bin/activate
-else
-    echo "[1/3] 未检测到虚拟环境，尝试使用系统 Python..."
-fi
+# 检查Python版本
+python_version=$(python3 --version 2>&1 | awk '{print $2}')
+echo "检测到 Python 版本: $python_version"
 
-# 2. 检查依赖
-echo "[2/3] 正在验证核心依赖..."
-python3 -c "import webview; import fastapi; import uvicorn; import akshare" 2>/dev/null
+# 检查依赖
+echo ""
+echo "检查依赖包..."
+python3 -c "import fastapi" 2>/dev/null
 if [ $? -ne 0 ]; then
-    echo "错误: 缺少必要依赖。请运行 'pip install -r requirements.txt' 安装依赖。"
-    exit 1
+    echo "❌ 缺少 fastapi，正在安装..."
+    python3 -m pip install fastapi uvicorn --quiet
 fi
-echo "依赖检查通过。"
 
-# 3. 启动应用
-echo "[3/3] 正在启动 GUI 界面..."
-echo "日志将保存至: ~/rox_quant_debug.log"
-python3 rox_desktop.py
+python3 -c "import akshare" 2>/dev/null
+if [ $? -ne 0 ]; then
+    echo "❌ 缺少 akshare，正在安装..."
+    python3 -m pip install akshare --quiet
+fi
+
+echo "✅ 依赖检查完成"
+echo ""
+
+# 创建必要目录
+mkdir -p data/logs
+mkdir -p data/cache
+
+# 启动应用
+echo "=========================================="
+echo "正在启动 ROX 3.0 Quant..."
+echo "访问地址: http://127.0.0.1:8099"
+echo "API文档: http://127.0.0.1:8099/docs"
+echo "=========================================="
+echo ""
+
+cd "$(dirname "$0")"
+
+python3 -m uvicorn app.main:app \
+    --host 127.0.0.1 \
+    --port 8099 \
+    --reload \
+    --log-level info

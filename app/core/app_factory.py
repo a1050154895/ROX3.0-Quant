@@ -173,6 +173,14 @@ class AppFactory:
             if templates is None:
                 return "<h1>Rox Quant</h1><p>模板未找到</p>"
             return templates.TemplateResponse("ai_comments.html", {"request": request})
+        
+        @app.get("/membership", response_class=HTMLResponse)
+        async def read_membership(request: Request):
+            """会员中心：套餐购买与配置"""
+            templates = request.app.state.templates
+            if templates is None:
+                return "<h1>Rox Quant</h1><p>模板未找到</p>"
+            return templates.TemplateResponse("membership.html", {"request": request})
     
     @staticmethod
     def _setup_static_files(app: FastAPI):

@@ -138,6 +138,14 @@ api_group.include_router(ai_comments.router, prefix="/ai-comments", tags=["ai-co
 from app.api.endpoints import openclaw
 api_group.include_router(openclaw.router, prefix="/openclaw", tags=["openclaw"])
 
+# 会员系统 (新添加)
+from app.api.endpoints import membership
+api_group.include_router(membership.router, tags=["membership"])
+
+# OpenClaw数据API (新添加)
+from app.api.endpoints import openclaw_data
+api_group.include_router(openclaw_data.router, tags=["openclaw-data"])
+
 # 将API组添加到主路由
 api_router.include_router(api_group)
 
